@@ -1,0 +1,24 @@
+{
+  "entities": {
+    "cms": {
+      "title": "CMS Content",
+      "description": "Stores the entire CMS site data including settings, posts, services, categories, and inquiries.",
+      "type": "object",
+      "properties": {
+        "settings": { "type": "object" },
+        "posts": { "type": "array" },
+        "pages": { "type": "array" },
+        "categories": { "type": "array" },
+        "sliders": { "type": "array" },
+        "clients": { "type": "array" },
+        "services": { "type": "array" },
+        "faqs": { "type": "array" },
+        "testimonials": { "type": "array" },
+        "inquiries": { "type": "array" }
+      }
+    }
+  },
+  "securityRules": {
+    "rules": "rules_version = '2';\nservice cloud.firestore {\n  match /databases/{database}/documents {\n    match /{document=**} {\n      allow read, write: if true;\n    }\n  }\n}"
+  }
+}
