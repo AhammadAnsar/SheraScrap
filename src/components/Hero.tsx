@@ -44,10 +44,10 @@ export default function Hero({ lang, t }: HeroProps) {
         </div>
 
         {/* 4 Guarantees Grid (Psychological triggers) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-16">
           
-          <div className="bg-slate-50/80 hover:bg-white border border-slate-200/80 hover:border-emerald-500/40 rounded-3xl p-6 transition-all duration-300 shadow-sm hover:shadow-xl group">
-            <div className="w-12 h-12 bg-emerald-600 text-white rounded-2xl flex items-center justify-center font-bold text-xl mb-4 group-hover:scale-110 transition-transform shadow-md">
+          <div className="bg-white border border-slate-100 hover:border-emerald-500/50 rounded-[2rem] p-6 sm:p-8 transition-all duration-300 shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgb(16,185,129,0.12)] group flex flex-col items-start relative overflow-hidden">
+            <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-emerald-700 text-white rounded-2xl flex items-center justify-center font-bold text-2xl mb-6 group-hover:-translate-y-1 transition-transform shadow-lg shadow-emerald-600/30 ring-4 ring-emerald-50">
               💵
             </div>
             <h3 className="font-extrabold text-slate-900 text-base mb-1.5">
@@ -60,8 +60,8 @@ export default function Hero({ lang, t }: HeroProps) {
             </p>
           </div>
 
-          <div className="bg-slate-50/80 hover:bg-white border border-slate-200/80 hover:border-emerald-500/40 rounded-3xl p-6 transition-all duration-300 shadow-sm hover:shadow-xl group">
-            <div className="w-12 h-12 bg-emerald-600 text-white rounded-2xl flex items-center justify-center font-bold text-xl mb-4 group-hover:scale-110 transition-transform shadow-md">
+          <div className="bg-white border border-slate-100 hover:border-emerald-500/50 rounded-[2rem] p-6 sm:p-8 transition-all duration-300 shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgb(16,185,129,0.12)] group flex flex-col items-start relative overflow-hidden">
+            <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-emerald-700 text-white rounded-2xl flex items-center justify-center font-bold text-2xl mb-6 group-hover:-translate-y-1 transition-transform shadow-lg shadow-emerald-600/30 ring-4 ring-emerald-50">
               🚛
             </div>
             <h3 className="font-extrabold text-slate-900 text-base mb-1.5">
@@ -74,8 +74,8 @@ export default function Hero({ lang, t }: HeroProps) {
             </p>
           </div>
 
-          <div className="bg-slate-50/80 hover:bg-white border border-slate-200/80 hover:border-emerald-500/40 rounded-3xl p-6 transition-all duration-300 shadow-sm hover:shadow-xl group">
-            <div className="w-12 h-12 bg-emerald-600 text-white rounded-2xl flex items-center justify-center font-bold text-xl mb-4 group-hover:scale-110 transition-transform shadow-md">
+          <div className="bg-white border border-slate-100 hover:border-emerald-500/50 rounded-[2rem] p-6 sm:p-8 transition-all duration-300 shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgb(16,185,129,0.12)] group flex flex-col items-start relative overflow-hidden">
+            <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-emerald-700 text-white rounded-2xl flex items-center justify-center font-bold text-2xl mb-6 group-hover:-translate-y-1 transition-transform shadow-lg shadow-emerald-600/30 ring-4 ring-emerald-50">
               ⚖️
             </div>
             <h3 className="font-extrabold text-slate-900 text-base mb-1.5">
@@ -88,8 +88,8 @@ export default function Hero({ lang, t }: HeroProps) {
             </p>
           </div>
 
-          <div className="bg-slate-50/80 hover:bg-white border border-slate-200/80 hover:border-emerald-500/40 rounded-3xl p-6 transition-all duration-300 shadow-sm hover:shadow-xl group">
-            <div className="w-12 h-12 bg-emerald-600 text-white rounded-2xl flex items-center justify-center font-bold text-xl mb-4 group-hover:scale-110 transition-transform shadow-md">
+          <div className="bg-white border border-slate-100 hover:border-emerald-500/50 rounded-[2rem] p-6 sm:p-8 transition-all duration-300 shadow-[0_4px_20px_rgb(0,0,0,0.03)] hover:shadow-[0_8px_30px_rgb(16,185,129,0.12)] group flex flex-col items-start relative overflow-hidden">
+            <div className="w-14 h-14 bg-gradient-to-br from-emerald-500 to-emerald-700 text-white rounded-2xl flex items-center justify-center font-bold text-2xl mb-6 group-hover:-translate-y-1 transition-transform shadow-lg shadow-emerald-600/30 ring-4 ring-emerald-50">
               🛠️
             </div>
             <h3 className="font-extrabold text-slate-900 text-base mb-1.5">

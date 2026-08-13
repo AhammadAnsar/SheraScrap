@@ -273,7 +273,7 @@ Please coordinate the free truck pickup and dismantling at my location.`;
         </div>
 
         {/* Multi-step Container Box */}
-        <div className="bg-slate-50 border border-slate-200/60 rounded-3xl p-6 md:p-8 shadow-xl relative overflow-hidden">
+        <div className="bg-white border border-slate-100 rounded-[2.5rem] p-6 md:p-10 shadow-[0_20px_50px_rgb(0,0,0,0.06)] relative overflow-hidden ring-1 ring-slate-950/5">
           
           {/* Top progress line (Zeigarnik Effect indicator) */}
           {step <= 3 && (

@@ -74,7 +74,7 @@ export default function ContactForm({ lang, t }: ContactFormProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-stretch">
           
           {/* CARD 1: Office & Workshop Contact */}
-          <div className="bg-white border border-slate-200/80 rounded-3xl p-6 md:p-8 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between h-full">
+          <div className="bg-white border border-slate-100 rounded-[2rem] p-6 md:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all flex flex-col justify-between h-full">
             <div className="space-y-6">
               <div className="flex items-center justify-between border-b border-slate-100 pb-4">
                 <h3 className="text-lg md:text-xl font-black text-slate-900 flex items-center gap-2">
@@ -230,7 +230,7 @@ export default function ContactForm({ lang, t }: ContactFormProps) {
           </div>
 
           {/* CARD 2: Schedule Free Truck Pickup & Quote */}
-          <div className="bg-white border border-slate-200/80 rounded-3xl p-6 md:p-8 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between h-full">
+          <div className="bg-white border border-slate-100 rounded-[2rem] p-6 md:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all flex flex-col justify-between h-full">
             {isSuccess ? (
               <div className="text-center py-12 px-4 space-y-4 my-auto">
                 <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-3xl">

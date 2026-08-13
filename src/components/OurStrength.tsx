@@ -30,7 +30,7 @@ export default function OurStrength({ lang, t }: OurStrengthProps) {
         <div className="text-center max-w-3xl mx-auto mb-14">
           <div className="inline-flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 px-3.5 py-1.5 rounded-full text-emerald-400 text-xs font-black uppercase tracking-wider mb-4 shadow-sm">
             <Sparkles className="w-4 h-4 text-emerald-400 animate-pulse" />
-            <span>{isRtl ? "আমাদের সামর্থ • قدراتنا ومعداتنا" : "Our Strength & Heavy Fleet"}</span>
+            <span>{isRtl ? "قدراتنا ومعداتنا" : "Our Heavy Fleet"}</span>
           </div>
 
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-white tracking-tight leading-tight mb-4">

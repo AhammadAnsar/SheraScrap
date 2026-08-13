@@ -201,7 +201,7 @@ export default function HeroSlider({ lang, t }: HeroSliderProps) {
 
                   <button
                     onClick={scrollToEstimator}
-                    className="w-full sm:w-auto bg-slate-900 hover:bg-slate-800 text-emerald-400 border border-emerald-500/40 font-bold px-5 py-3 rounded-xl transition-all flex items-center justify-center gap-2 text-xs sm:text-sm cursor-pointer"
+                    className="w-full sm:w-auto bg-slate-800 hover:bg-slate-700 text-emerald-400 border-2 border-slate-700 hover:border-emerald-500/50 font-black px-6 py-4 md:py-3 rounded-2xl transition-all flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer hover:-translate-y-1 active:scale-95"
                   >
                     <Sparkles className="w-4 h-4 text-emerald-400 shrink-0" />
                     <span>{isRtl ? "حاسبة الذكاء الاصطناعي" : "AI Price Estimator"}</span>
@@ -306,7 +306,7 @@ export default function HeroSlider({ lang, t }: HeroSliderProps) {
                   <span>{isRtl ? "خدمات متميزة وشاملة" : "Premium Comprehensive Services"}</span>
                 </div>
 
-                <h2 className="text-xl sm:text-3xl md:text-4xl font-black text-white leading-snug mb-2.5">
+                <h2 className="text-3xl sm:text-4xl md:text-6xl font-black text-white leading-[1.1] mb-4 tracking-tight">
                   {isRtl ? (
                     <>
                       مميزات واختصاصات <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-teal-300">مؤسسة شيرا للسكراب</span>
@@ -434,7 +434,7 @@ export default function HeroSlider({ lang, t }: HeroSliderProps) {
                   <span>{isRtl ? "اختيار أكثر من 5000 عميل بالشرقية" : "Trusted by 5,000+ Customers"}</span>
                 </div>
 
-                <h2 className="text-xl sm:text-3xl md:text-4xl font-black text-white leading-snug mb-2.5">
+                <h2 className="text-3xl sm:text-4xl md:text-6xl font-black text-white leading-[1.1] mb-4 tracking-tight">
                   {isRtl ? (
                     <>
                       لماذا يفضلنا أكثر من <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 via-teal-300 to-amber-300">5000 عميل بالشرقية؟</span>
@@ -562,7 +562,7 @@ export default function HeroSlider({ lang, t }: HeroSliderProps) {
                   <span>{isRtl ? "تغطية كاملة للمنطقة الشرقية" : "Full Eastern Province Coverage"}</span>
                 </div>
 
-                <h2 className="text-xl sm:text-3xl md:text-4xl font-black text-white leading-snug mb-2.5">
+                <h2 className="text-3xl sm:text-4xl md:text-6xl font-black text-white leading-[1.1] mb-4 tracking-tight">
                   {isRtl ? (
                     <>
                       مناطق تغطية <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-300 via-emerald-400 to-cyan-300">خدماتنا بالشرقية</span>
