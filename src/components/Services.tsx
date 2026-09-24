@@ -1,4 +1,5 @@
 import React from 'react';
+import { Link } from 'react-router-dom';
 import * as Icons from 'lucide-react';
 import { LanguagePack } from '../types';
 import { useCMS } from '../cms/CMSContext';
@@ -82,7 +83,7 @@ export default function Services({ lang, t }: ServicesProps) {
               >
                 <div>
                   {/* Large Prominent Feature Image Header */}
-                  <div className="h-52 sm:h-56 w-full overflow-hidden relative bg-slate-900 border-b border-slate-100">
+                  <Link to={`/${lang}/services/${cat.slug || cat.id}/`} className="h-52 sm:h-56 w-full overflow-hidden relative bg-slate-900 border-b border-slate-100 block group-hover:opacity-95">
                     <OptimizedImage 
                       src={cat.featuredImage || 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=800&q=80'} 
                       alt={categoryTitle} 
@@ -107,13 +108,15 @@ export default function Services({ lang, t }: ServicesProps) {
                         <span>{rateEstimate}</span>
                       </span>
                     </div>
-                  </div>
+                  </Link>
 
                   {/* Body Content */}
                   <div className="p-6 space-y-2.5">
-                    <h3 className="text-lg sm:text-xl font-black text-slate-900 group-hover:text-emerald-700 transition-colors">
-                      {categoryTitle}
-                    </h3>
+                    <Link to={`/${lang}/services/${cat.slug || cat.id}/`}>
+                      <h3 className="text-lg sm:text-xl font-black text-slate-900 group-hover:text-emerald-700 transition-colors">
+                        {categoryTitle}
+                      </h3>
+                    </Link>
 
                     <p className="text-xs sm:text-sm text-slate-600 leading-relaxed min-h-[40px]">
                       {categorySubtitle}

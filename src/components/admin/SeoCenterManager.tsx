@@ -39,6 +39,7 @@ import {
 import { useCMS } from '../../cms/CMSContext';
 import { generateSitemapXml, getSitemapMetrics } from '../../utils/sitemapGenerator';
 import { RedirectionItem } from '../../cms/types';
+import { SITE_CONFIG } from '../../config/site';
 
 interface SeoCenterManagerProps {
   lang: 'ar' | 'en';
@@ -67,7 +68,7 @@ export default function SeoCenterManager({ lang, defaultTab = 'search-analytics'
   const [xmlCopied, setXmlCopied] = useState(false);
   const [pingSuccess, setPingSuccess] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
-  const [siteUrlInput, setSiteUrlInput] = useState(cmsData.settings.siteUrl || 'https://shera-scrap-haraj.com');
+  const [siteUrlInput, setSiteUrlInput] = useState(cmsData.settings.siteUrl || SITE_CONFIG.canonicalDomain);
 
   // Redirection creation state
   const [newFromUrl, setNewFromUrl] = useState('');
@@ -645,7 +646,7 @@ export default function SeoCenterManager({ lang, defaultTab = 'search-analytics'
                   type="url"
                   value={siteUrlInput}
                   onChange={(e) => setSiteUrlInput(e.target.value)}
-                  placeholder="https://shera-scrap-haraj.com"
+                  placeholder={SITE_CONFIG.canonicalDomain}
                   className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-blue-500 font-mono"
                 />
               </div>

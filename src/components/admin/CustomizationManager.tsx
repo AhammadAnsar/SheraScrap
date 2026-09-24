@@ -105,6 +105,18 @@ export default function CustomizationManager({ lang }: CustomizationManagerProps
               </span>
             </label>
 
+            <label className="flex items-center gap-3 bg-slate-950 p-3 rounded-xl border border-slate-800 cursor-pointer mt-2">
+              <input
+                type="checkbox"
+                checked={themeConfig.enableWhiteLabel || false}
+                onChange={(e) => setThemeConfig({ ...themeConfig, enableWhiteLabel: e.target.checked })}
+                className="w-4 h-4 accent-emerald-500 rounded cursor-pointer"
+              />
+              <span className="text-xs font-bold text-slate-200">
+                {isRtl ? "تفعيل الواجهة البيضاء (إخفاء شعارات واسم النظام)" : "Enable White Label (Hide CMS Branding)"}
+              </span>
+            </label>
+
             <div>
               <label className="block text-xs font-bold text-slate-300 mb-1">
                 {isRtl ? "حقوق الفوتر (عربي)" : "Footer Copyright Text (Arabic)"}

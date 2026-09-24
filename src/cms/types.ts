@@ -1,3 +1,36 @@
+import { ContentRevision, PublishingStatus } from '../types/domain';
+
+export interface LocationItem {
+  id: string;
+  slug: string;
+  cityAr: string;
+  cityEn: string;
+  titleAr: string;
+  titleEn: string;
+  metaDescriptionAr: string;
+  metaDescriptionEn: string;
+  contentAr: string;
+  contentEn: string;
+  servicesOfferedAr: string[];
+  servicesOfferedEn: string[];
+  phone?: string;
+  addressAr?: string;
+  addressEn?: string;
+  isPublished: boolean;
+  updatedAt: string;
+}
+
+export interface MenuItem {
+  id: string;
+  labelAr: string;
+  labelEn: string;
+  path: string;
+  order: number;
+  isHeader: boolean;
+  isFooter: boolean;
+  openInNewTab?: boolean;
+}
+
 export interface RedirectionItem {
   id: string;
   fromUrl: string;
@@ -17,7 +50,12 @@ export interface PageItem {
   seoDescriptionEn: string;
   contentAr: string;
   contentEn: string;
+  status?: PublishingStatus;
   isPublished: boolean;
+  publishedAt?: string;
+  scheduledFor?: string;
+  trashedAt?: string;
+  revisions?: ContentRevision[];
   updatedAt: string;
 }
 
@@ -136,7 +174,12 @@ export interface BlogPost {
   featuredImage: string;
   author: string;
   date: string;
-  status: 'published' | 'draft';
+  status: PublishingStatus;
+  isPublished?: boolean;
+  publishedAt?: string;
+  scheduledFor?: string;
+  trashedAt?: string;
+  revisions?: ContentRevision[];
   views: number;
   postType?: 'article' | 'video';
   videoUrl?: string;
@@ -188,7 +231,7 @@ export interface AdminUser {
   password?: string;
   name: string;
   email: string;
-  role: 'super_admin' | 'editor' | 'moderator';
+  role: 'super_admin' | 'administrator' | 'editor' | 'author' | 'moderator' | 'viewer';
   avatar?: string;
   createdAt: string;
   lastLogin?: string;
@@ -232,6 +275,7 @@ export interface ThemeConfig {
   primaryColor: 'emerald' | 'amber' | 'blue' | 'purple' | 'slate';
   enableDarkModeHeader: boolean;
   enableFloatingWhatsapp: boolean;
+  enableWhiteLabel?: boolean;
   customCss?: string;
   footerTextAr: string;
   footerTextEn: string;
@@ -319,6 +363,8 @@ export interface CMSData {
   inquiries: Inquiry[];
   faqs: FAQEntry[];
   testimonials: TestimonialEntry[];
+  locations?: LocationItem[];
+  menus?: MenuItem[];
   theme: ThemeConfig;
   mediaLibrary?: MediaItem[];
   searchLogs?: SearchQueryLog[];

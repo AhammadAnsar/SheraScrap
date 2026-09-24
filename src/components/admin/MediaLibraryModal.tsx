@@ -10,13 +10,15 @@ interface MediaLibraryModalProps {
   onClose: () => void;
   onSelectImage: (url: string) => void;
   isRtl?: boolean;
+  isInline?: boolean;
 }
 
 export default function MediaLibraryModal({
   isOpen,
   onClose,
   onSelectImage,
-  isRtl = true
+  isRtl = true,
+  isInline = false
 }: MediaLibraryModalProps) {
   const { cmsData, saveCMSData } = useCMS();
   const [activeTab, setActiveTab] = useState<'gallery' | 'upload'>('gallery');
@@ -29,10 +31,30 @@ export default function MediaLibraryModal({
   const [uploadError, setUploadError] = useState<string | null>(null);
 
   // Fetch images from Hostinger server /api/media.php
+  
+  const handleDeleteMedia = async (fileName: string) => {
+    if (!window.confirm(isRtl ? "هل أنت متأكد من حذف هذه الصورة بشكل نهائي؟" : "Are you sure you want to delete this image permanently?")) return;
+    
+    try {
+      const res = await fetch(`/api/media/${fileName}`, {
+        method: 'DELETE'
+      });
+      if (res.ok) {
+        setServerMedia(prev => prev.filter(m => m.id !== fileName));
+        if (selectedItem?.id === fileName) setSelectedItem(null);
+      } else {
+        alert(isRtl ? "فشل حذف الصورة" : "Failed to delete image");
+      }
+    } catch (err) {
+      console.error(err);
+      alert(isRtl ? "خطأ في الاتصال" : "Network error");
+    }
+  };
+
   const fetchServerMedia = async () => {
     setLoadingMedia(true);
     try {
-      const res = await fetch('/api/media.php?t=' + Date.now());
+      const res = await fetch('/api/media?t=' + Date.now());
       if (res.ok) {
         const data = await res.json();
         if (data && data.media && Array.isArray(data.media)) {
@@ -52,7 +74,7 @@ export default function MediaLibraryModal({
     }
   }, [isOpen]);
 
-  if (!isOpen) return null;
+  
 
   // Combine static/CMS media with server /uploads/ media, avoiding duplicates by URL
   const cmsMediaList = cmsData.mediaLibrary || [];
@@ -168,11 +190,12 @@ export default function MediaLibraryModal({
     }
   };
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
-      <div className="bg-slate-900 border border-slate-800 w-full max-w-5xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
-        
-        {/* Header */}
+  if (!isOpen && !isInline) return null;
+
+  const content = (
+    <div className={`bg-slate-900 ${isInline ? 'w-full rounded-3xl border border-slate-800' : 'w-full max-w-5xl rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]'}`}>
+      
+      {/* Header */}
         <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/50">
           <div className="flex items-center gap-3">
             <div className="p-2.5 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-2xl">
@@ -375,14 +398,26 @@ export default function MediaLibraryModal({
                 )}
 
                 <div className="pt-2 border-t border-slate-800">
+                  <div className="flex gap-2">
+                  <button
+                    disabled={!selectedItem}
+                    onClick={() => {
+                      if (selectedItem) handleDeleteMedia(selectedItem.id);
+                    }}
+                    className="bg-rose-500/10 hover:bg-rose-500/20 text-rose-500 disabled:opacity-50 font-bold p-3 rounded-xl transition-all flex items-center justify-center cursor-pointer"
+                    title={isRtl ? "حذف الصورة" : "Delete Image"}
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
                   <button
                     disabled={!selectedItem}
                     onClick={handleConfirmSelect}
-                    className="w-full bg-emerald-500 hover:bg-emerald-400 disabled:bg-slate-800 disabled:text-slate-600 text-slate-950 font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2 text-xs shadow-lg shadow-emerald-500/20 cursor-pointer"
+                    className="flex-1 bg-emerald-500 hover:bg-emerald-400 disabled:bg-slate-800 disabled:text-slate-600 text-slate-950 font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2 text-xs shadow-lg shadow-emerald-500/20 cursor-pointer"
                   >
                     <Check className="w-4 h-4" />
-                    <span>{isRtl ? "استخدام الصورة المختارة" : "Use Selected Image"}</span>
+                    <span>{isRtl ? "استخدام الصورة" : "Use Selected"}</span>
                   </button>
+                </div>
                 </div>
               </div>
 
@@ -428,8 +463,14 @@ export default function MediaLibraryModal({
             </div>
           )}
         </div>
+    </div>
+  );
 
-      </div>
+  if (isInline) return content;
+
+  return (
+    <div className="fixed inset-0 z-[100] flex items-center justify-center bg-slate-950/80 backdrop-blur-md p-4 animate-in fade-in duration-200">
+      {content}
     </div>
   );
 }

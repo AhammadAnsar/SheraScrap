@@ -74,7 +74,7 @@ export default function DashboardOverview({ lang }: DashboardOverviewProps) {
         <div>
           <div className="inline-flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-3 py-1 rounded-full text-xs font-bold mb-2">
             <ShieldCheck className="w-3.5 h-3.5" />
-            <span>{isRtl ? "مرحباً بك في لوحة تحكم SoftDows CMS" : "Welcome to SoftDows CMS"}</span>
+            <span>{cmsData.theme?.enableWhiteLabel ? (isRtl ? "مرحباً بك في لوحة التحكم" : "Welcome to Admin Dashboard") : (isRtl ? "مرحباً بك في لوحة تحكم SoftDows CMS" : "Welcome to SoftDows CMS")}</span>
           </div>
           <h1 className="text-xl sm:text-2xl font-black">
             {isRtl 
@@ -327,7 +327,7 @@ export default function DashboardOverview({ lang }: DashboardOverviewProps) {
             <div className="flex items-center gap-2 mb-3 pb-2 border-b border-slate-800">
               <Sparkles className="w-4 h-4 text-amber-400" />
               <h3 className="font-extrabold text-white text-sm">
-                {isRtl ? "مسودة مقال سريعة (Quick Draft)" : "SoftDows Quick Draft"}
+                {cmsData.theme?.enableWhiteLabel ? (isRtl ? "مسودة مقال سريعة" : "Quick Draft") : (isRtl ? "مسودة مقال سريعة (Quick Draft)" : "SoftDows Quick Draft")}
               </h3>
             </div>
 

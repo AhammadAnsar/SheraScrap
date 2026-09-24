@@ -1,78 +1,40 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useCMS } from '../cms/CMSContext';
-import { ArrowRight, ArrowLeft, Calendar, User, Tag, Eye } from 'lucide-react';
-import Header from './Header';
+import { ArrowRight, ArrowLeft, Calendar, User, Tag } from 'lucide-react';
+import SEO from './SEO';
 import { LanguagePack } from '../types';
+import NotFoundPage from '../pages/NotFoundPage';
 
 export default function BlogPostPage({ lang, setLang, t }: { lang: 'ar' | 'en', setLang: (l: 'ar'|'en') => void, t: LanguagePack }) {
   const { slug } = useParams();
   const { cmsData } = useCMS();
   const isRtl = lang === 'ar';
   
-  // Find post by ID for now, since we don't have slugs natively.
-  // We'll treat the URL param as the ID.
-  const post = cmsData.posts.find(p => p.id === slug) || cmsData.posts.find(p => p.titleEn.toLowerCase().replace(/[^a-z0-9]+/g, '-') === slug);
+  const post = cmsData.posts.find(p => p.slug === slug || p.id === slug);
 
-  useEffect(() => {
-    window.scrollTo(0, 0);
-    if (post) {
-      const pageTitle = isRtl ? post.titleAr : post.titleEn;
-      const excerpt = isRtl ? post.excerptAr : post.excerptEn;
-      
-      document.title = pageTitle + ' - ' + (cmsData.settings.siteTitleAr || 'Shera Scrap');
-      
-      // Update meta description
-      let metaDesc = document.querySelector('meta[name="description"]');
-      if (!metaDesc) {
-        metaDesc = document.createElement('meta');
-        metaDesc.setAttribute('name', 'description');
-        document.head.appendChild(metaDesc);
-      }
-      metaDesc.setAttribute('content', excerpt || '');
-
-      // Update OG Tags
-      const setOgMeta = (property, content) => {
-        let meta = document.querySelector(`meta[property="${property}"]`);
-        if (!meta) {
-          meta = document.createElement('meta');
-          meta.setAttribute('property', property);
-          document.head.appendChild(meta);
-        }
-        meta.setAttribute('content', content);
-      };
-
-      setOgMeta('og:title', pageTitle);
-      setOgMeta('og:description', excerpt || '');
-      if (post.featuredImage) {
-        setOgMeta('og:image', post.featuredImage);
-      }
-    }
-  }, [post, isRtl, cmsData.settings.siteTitleAr]);
-
-  if (!post) {
-    return (
-      <div className="min-h-screen bg-slate-50 flex flex-col">
-        <Header lang={lang} setLang={setLang} t={t} />
-        <div className="flex-grow flex items-center justify-center flex-col gap-4">
-          <h1 className="text-2xl font-bold text-slate-800">{isRtl ? "المقال غير موجود" : "Article Not Found"}</h1>
-          <Link to="/" className="text-emerald-600 hover:underline">{isRtl ? "العودة للرئيسية" : "Return Home"}</Link>
-        </div>
-      </div>
-    );
+  if (!post || post.status !== 'published') {
+    return <NotFoundPage lang={lang} />;
   }
 
   const title = isRtl ? post.titleAr : post.titleEn;
   const content = isRtl ? post.contentAr : post.contentEn;
+  const excerpt = isRtl ? post.excerptAr : post.excerptEn;
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
-      <Header lang={lang} setLang={setLang} t={t} />
-      
-      <main className="flex-grow max-w-4xl mx-auto w-full px-4 py-12">
-        <Link to="/" className="inline-flex items-center gap-2 text-emerald-600 font-bold mb-8 hover:text-emerald-700 transition-colors">
+    <>
+      <SEO 
+        title={title}
+        description={excerpt}
+        image={post.featuredImage}
+        canonicalPath={`/${lang}/blog/${post.slug}/`}
+        lang={lang}
+        type="article"
+      />
+      <div className="max-w-4xl mx-auto w-full px-4 py-12">
+        <Link to={`/${lang}/blog/`} className="inline-flex items-center gap-2 text-emerald-600 font-bold mb-8 hover:text-emerald-700 transition-colors">
           {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
-          <span>{isRtl ? "العودة للرئيسية" : "Back to Home"}</span>
+          <span>{isRtl ? "العودة للمقالات" : "Back to Blog"}</span>
         </Link>
         
         <article className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
@@ -97,36 +59,29 @@ export default function BlogPostPage({ lang, setLang, t }: { lang: 'ar' | 'en', 
                 <User className="w-3.5 h-3.5" />
                 <span>{post.author}</span>
               </div>
-              {post.views !== undefined && (
-                <div className="flex items-center gap-1">
-                  <Eye className="w-3.5 h-3.5" />
-                  <span>{post.views}</span>
-                </div>
-              )}
             </div>
             
-            <h1 className="text-2xl sm:text-4xl font-black text-slate-900 leading-tight mb-8">
+            <h1 className="text-2xl sm:text-4xl font-black text-slate-900 mb-6 leading-tight">
               {title}
             </h1>
             
-            <div 
-              className="prose prose-slate prose-emerald max-w-none text-slate-700 leading-relaxed [&>h2]:text-2xl [&>h2]:font-bold [&>h3]:text-xl [&>h3]:font-bold [&>p]:mb-4"
-              dangerouslySetInnerHTML={{ __html: content }}
-            />
-            
+            <div className="prose prose-slate max-w-none text-slate-700 leading-relaxed text-base sm:text-lg whitespace-pre-line space-y-4">
+              {content}
+            </div>
+
             {post.tags && post.tags.length > 0 && (
-              <div className="mt-12 pt-6 border-t border-slate-100 flex flex-wrap items-center gap-2">
+              <div className="mt-10 pt-6 border-t border-slate-100 flex flex-wrap items-center gap-2">
                 <Tag className="w-4 h-4 text-slate-400" />
-                {post.tags.map(tag => (
-                  <span key={tag} className="bg-slate-100 text-slate-600 px-3 py-1 text-xs font-bold rounded-lg hover:bg-slate-200 cursor-pointer">
-                    {tag}
+                {post.tags.map((tag, idx) => (
+                  <span key={idx} className="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md text-xs font-medium">
+                    #{tag}
                   </span>
                 ))}
               </div>
             )}
           </div>
         </article>
-      </main>
-    </div>
+      </div>
+    </>
   );
 }

@@ -4,38 +4,109 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
     
-    <!-- Primary Meta Tags -->
-    <title>شركة شراء سكراب الدمام | Shera Scrap Purchasing & Haraj Saudi Arabia</title>
-    <meta name="title" content="شركة شراء سكراب الدمام | Shera Scrap Purchasing & Haraj Saudi Arabia" />
-    <meta name="description" content="أفضل شركة شراء سكراب بالدمام والمنطقة الشرقية. نشتري المكيفات الخربانة، النحاس، الحديد، الألمنيوم، وسكراب المصانع والهياكل بأعلى أسعار السوق مع الفك والنقل الفوري." />
-    <meta name="keywords" content="شراء سكراب الدمام, سكراب مكيفات الدمام, نشتري السكراب بالدمام, حراج سكراب الشرقية, شراء خردة الدمام, شراء نحاس وحديد الدمام, شركة شراء سكراب الخبر والجبيل" />
-    <meta name="author" content="Shera Scrap Saudi Arabia" />
-    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
-    <link rel="canonical" href="https://sherascrap.com/" />
+    <!-- Fix for iframe environments where window.fetch has only a getter -->
+    <script>
+      (function() {
+        function shouldSuppress(msg) {
+          return typeof msg === 'string' && msg.indexOf('fetch') !== -1 && msg.indexOf('getter') !== -1;
+        }
+
+        window.addEventListener('error', function(event) {
+          if (event && (shouldSuppress(event.message) || (event.error && shouldSuppress(event.error.message)))) {
+            event.preventDefault();
+            if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+            return true;
+          }
+        }, true);
+
+        window.addEventListener('unhandledrejection', function(event) {
+          if (event && event.reason && shouldSuppress(event.reason.message)) {
+            event.preventDefault();
+            if (event.stopImmediatePropagation) event.stopImmediatePropagation();
+            return true;
+          }
+        }, true);
+
+        var prevOnError = window.onerror;
+        window.onerror = function(msg, url, line, col, err) {
+          if (shouldSuppress(msg) || (err && shouldSuppress(err.message))) {
+            return true;
+          }
+          if (prevOnError) return prevOnError.apply(this, arguments);
+        };
+
+        try {
+          if (typeof Window !== 'undefined' && Window.prototype) {
+            var protoDesc = Object.getOwnPropertyDescriptor(Window.prototype, 'fetch');
+            if (protoDesc && protoDesc.get && !protoDesc.set) {
+              Object.defineProperty(Window.prototype, 'fetch', {
+                get: protoDesc.get,
+                set: function() {},
+                configurable: true,
+                enumerable: true
+              });
+            }
+          }
+        } catch (e) {}
+
+        try {
+          var winDesc = Object.getOwnPropertyDescriptor(window, 'fetch');
+          if (winDesc && winDesc.get && !winDesc.set) {
+            Object.defineProperty(window, 'fetch', {
+              get: winDesc.get,
+              set: function() {},
+              configurable: true,
+              enumerable: true
+            });
+          }
+        } catch (e) {}
+      })();
+    </script>
+
+    <!-- Legacy Hash URL Migration (/#post-..., /#service-..., /#location-..., /#page-...) -->
+    <script>
+      (function() {
+        try {
+          var hash = window.location.hash;
+          if (hash && hash.length > 1) {
+            var raw = hash.replace(/^#\/?/, '');
+            var target = '';
+            if (raw.indexOf('post-') === 0) {
+              var slug = raw.substring(5);
+              if (slug === '1') slug = 'how-to-sell-scrap-dammam-best-price';
+              else if (slug === '2') slug = 'copper-scrap-types-prices-dammam';
+              else if (slug === 'v1') slug = 'copper-scrap-market-dammam-2026';
+              else if (slug === 'v2') slug = 'how-to-sell-used-ac-scrap-dammam';
+              target = '/ar/blog/' + slug + '/';
+            } else if (raw.indexOf('service-') === 0) {
+              var slug = raw.substring(8);
+              target = '/ar/services/' + slug + '/';
+            } else if (raw.indexOf('location-') === 0) {
+              var slug = raw.substring(9);
+              target = '/ar/locations/' + slug + '/';
+            } else if (raw.indexOf('page-') === 0) {
+              var slug = raw.substring(5);
+              if (slug === 'about') target = '/ar/about/';
+              else if (slug === 'contact') target = '/ar/contact/';
+              else target = '/ar/pages/' + slug + '/';
+            }
+            if (target && target !== window.location.pathname) {
+              window.history.replaceState(null, '', target);
+              window.location.replace(target);
+            }
+          }
+        } catch (e) {}
+      })();
+    </script>
+    
+    <!-- Server-Side Rendered Dynamic SEO, Canonical, OpenGraph & Structured Data (SSR) -->
+    <!-- SSR_HEAD_INJECTION -->
     
     <!-- Theme & App Colors -->
     <meta name="theme-color" content="#020617" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <meta name="apple-mobile-web-app-title" content="Shera Scrap" />
-
-    <!-- Open Graph / Facebook / WhatsApp -->
-    <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://sherascrap.com/" />
-    <meta property="og:title" content="شركة شراء سكراب الدمام والمنطقة الشرقية | شِرا سكراب" />
-    <meta property="og:description" content="نشتري جميع انواع السكراب والخرده بأفضل الاسعار بالدمام، الخبر، والجبيل. مكيفات، حديد، نحاس، ألومنيوم مع الفك والتحميل الفوري." />
-    <meta property="og:image" content="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1200&q=80" />
-    <meta property="og:image:width" content="1200" />
-    <meta property="og:image:height" content="630" />
-    <meta property="og:site_name" content="Shera Scrap Purchasing" />
-    <meta property="og:locale" content="ar_SA" />
-
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:url" content="https://sherascrap.com/" />
-    <meta name="twitter:title" content="شركة شراء سكراب الدمام والمنطقة الشرقية" />
-    <meta name="twitter:description" content="أفضل أسعار شراء السكراب والخرده بالدمام والخبر والجبيل مع الفك والتحميل الفوري." />
-    <meta name="twitter:image" content="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1200&q=80" />
 
     <!-- Performance Preconnects for CDN & Fonts -->
     <link rel="preconnect" href="https://images.unsplash.com" crossorigin />
@@ -48,75 +119,6 @@
 
     <!-- Favicon -->
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2310b981' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><path d='M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z'/><path d='m3.3 7 8.7 5 8.7-5'/><path d='M12 22V12'/></svg>" />
-
-    <!-- Structured Data JSON-LD for Google Search & Agentic Browsing (3/3 Score) -->
-    <script type="application/ld+json">
-    {
-      "@context": "https://schema.org",
-      "@type": "RecyclingCenter",
-      "@id": "https://sherascrap.com/#organization",
-      "name": "شركة شراء سكراب الدمام - Shera Scrap",
-      "alternateName": ["شِرا سكراب", "نشتري السكراب الدمام", "Shera Scrap Saudi"],
-      "url": "https://sherascrap.com/",
-      "logo": "https://sherascrap.com/favicon.svg",
-      "image": "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1200&q=80",
-      "description": "شركة متخصصة في شراء جميع أنواع السكراب والخردة والمكيفات والنحاس والحديد والألمنيوم بالدمام والمنطقة الشرقية بالمملكة العربية السعودية.",
-      "telephone": "+966500000000",
-      "priceRange": "$$",
-      "address": {
-        "@type": "PostalAddress",
-        "streetAddress": "طريق الجبيل السريع، حي الخالدية",
-        "addressLocality": "الدمام",
-        "addressRegion": "المنطقة الشرقية",
-        "postalCode": "32230",
-        "addressCountry": "SA"
-      },
-      "geo": {
-        "@type": "GeoCoordinates",
-        "latitude": 26.43442,
-        "longitude": 50.10326
-      },
-      "openingHoursSpecification": {
-        "@type": "OpeningHoursSpecification",
-        "dayOfWeek": [
-          "Monday",
-          "Tuesday",
-          "Wednesday",
-          "Thursday",
-          "Friday",
-          "Saturday",
-          "Sunday"
-        ],
-        "opens": "00:00",
-        "closes": "23:59"
-      },
-      "areaServed": [
-        {
-          "@type": "City",
-          "name": "الدمام"
-        },
-        {
-          "@type": "City",
-          "name": "الخبر"
-        },
-        {
-          "@type": "City",
-          "name": "الجبيل"
-        },
-        {
-          "@type": "City",
-          "name": "القطيف"
-        },
-        {
-          "@type": "City",
-          "name": "الاحساء"
-        }
-      ],
-      "sameAs": [
-        "https://sherascrap.com"
-      ]
-    }
-    </script>
   </head>
   <body class="bg-slate-950 text-slate-100 antialiased selection:bg-emerald-500 selection:text-slate-950 font-sans">
     <div id="root"></div>

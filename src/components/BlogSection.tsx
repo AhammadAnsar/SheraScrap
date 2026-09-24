@@ -50,7 +50,7 @@ export default function BlogSection({ lang }: BlogSectionProps) {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {publishedPosts.map((post) => (
             <Link 
-              to={`/article/${post.id}`}
+              to={`/${lang}/blog/${post.slug || post.id}/`}
               key={post.id}
               onClick={() => handleOpenPost(post)}
               className="bg-slate-50 border border-slate-200/80 rounded-2xl overflow-hidden hover:shadow-xl hover:border-purple-300 transition-all cursor-pointer group flex flex-col justify-between block"

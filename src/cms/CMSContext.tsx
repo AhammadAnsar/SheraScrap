@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
-import { doc, onSnapshot, setDoc } from 'firebase/firestore';
-import { signInWithEmailAndPassword } from 'firebase/auth';
-import { db, auth } from '../lib/firebase';
+import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth';
+import { auth } from '../lib/firebase';
 import { 
   CMSData, 
   SiteSettings, 
@@ -30,6 +29,7 @@ const AUTH_KEY = 'shera_cms_auth_user_v2';
 interface CMSContextType {
   cmsData: CMSData;
   currentUser: AdminUser | null;
+  authToken: string | null;
   isAdminOpen: boolean;
   setIsAdminOpen: (open: boolean) => void;
   activeAdminTab: string;
@@ -164,6 +164,14 @@ export function CMSProvider({ children }: { children: ReactNode }) {
     return initialCMSData;
   });
 
+  const [authToken, setAuthToken] = useState<string | null>(() => {
+    try {
+      return sessionStorage.getItem('shera_auth_token');
+    } catch {
+      return null;
+    }
+  });
+
   const [currentUser, setCurrentUser] = useState<AdminUser | null>(() => {
     try {
       const saved = localStorage.getItem(AUTH_KEY);
@@ -178,7 +186,60 @@ export function CMSProvider({ children }: { children: ReactNode }) {
   const [activeAdminTab, setActiveAdminTab] = useState<string>('dashboard');
   const [isServerLoaded, setIsServerLoaded] = useState<boolean>(false);
 
-  // Helper to persist CMS data to React state, LocalStorage, Firebase Firestore, and PHP server
+  // Authoritative server-verified authentication listener via Firebase Auth & API
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
+      if (fbUser) {
+        try {
+          const token = await fbUser.getIdToken();
+          setAuthToken(token);
+          try {
+            sessionStorage.setItem('shera_auth_token', token);
+          } catch {}
+
+          // Server-verified authentication: never trust client roles
+          const res = await fetch('/api/auth/verify-session', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ idToken: token }),
+          });
+
+          if (res.ok) {
+            const data = await res.json();
+            if (data.user) {
+              const verifiedUser: AdminUser = {
+                id: data.user.id,
+                username: data.user.username,
+                password: '',
+                name: data.user.name,
+                email: data.user.email,
+                role: data.user.role,
+                avatar: data.user.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&q=80',
+                createdAt: '2026-01-01',
+                lastLogin: new Date().toISOString().split('T')[0],
+              };
+              setCurrentUser(verifiedUser);
+            }
+          } else {
+            console.warn('Server session verification denied for account:', fbUser.email);
+            setCurrentUser(null);
+            setAuthToken(null);
+            try { sessionStorage.removeItem('shera_auth_token'); } catch {}
+          }
+        } catch (err) {
+          console.error('Error verifying Firebase auth session with server:', err);
+        }
+      } else {
+        setCurrentUser(null);
+        setAuthToken(null);
+        try { sessionStorage.removeItem('shera_auth_token'); } catch {}
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // Helper to persist CMS data to React state, LocalStorage, and Server Authoritative Repository API
   const saveCMSData = async (newData: CMSData) => {
     setCmsData(newData);
     setSaveStatus('saving');
@@ -188,132 +249,97 @@ export function CMSProvider({ children }: { children: ReactNode }) {
       console.error('Failed to save CMS data to localStorage:', e);
     }
 
-    let firestoreSuccess = false;
     try {
-      const docRef = doc(db, 'cms', 'content');
-      await setDoc(docRef, newData);
-      firestoreSuccess = true;
-      setSaveStatus('saved');
-      setTimeout(() => setSaveStatus('idle'), 3500);
-    } catch (err) {
-      console.warn('Firebase Firestore save notice:', err);
-    }
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`;
+      }
 
-    // Sync to PHP backup endpoint if present
-    fetch('/api/data.php', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(newData)
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (!firestoreSuccess) {
-          if (data && (data.status === 'success' || data.bytes > 0)) {
-            setSaveStatus('saved');
-            setTimeout(() => setSaveStatus('idle'), 3500);
-          } else {
-            setSaveStatus('error');
-          }
-        }
-      })
-      .catch(err => {
-        console.warn('Backup server save notice:', err);
-        if (!firestoreSuccess) setSaveStatus('error');
+      const res = await fetch('/api/cms/sync', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(newData)
       });
+      if (res.ok) {
+        setSaveStatus('saved');
+        setTimeout(() => setSaveStatus('idle'), 3000);
+      } else {
+        setSaveStatus('error');
+      }
+    } catch (err) {
+      console.warn('Authoritative repository sync notice:', err);
+      setSaveStatus('idle');
+    }
   };
 
   const forceServerSync = async (): Promise<boolean> => {
     setSaveStatus('saving');
     try {
-      const docRef = doc(db, 'cms', 'content');
-      await setDoc(docRef, cmsData);
-      setSaveStatus('saved');
-      setTimeout(() => setSaveStatus('idle'), 3500);
-      return true;
-    } catch (err) {
-      console.error('Firestore sync failed:', err);
-    }
-    
-    try {
-      const res = await fetch('/api/data.php', {
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`;
+      }
+
+      const res = await fetch('/api/cms/sync', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify(cmsData)
       });
-      const data = await res.json();
-      if (data && (data.status === 'success' || data.bytes > 0)) {
+      if (res.ok) {
         setSaveStatus('saved');
-        setTimeout(() => setSaveStatus('idle'), 3500);
+        setTimeout(() => setSaveStatus('idle'), 3000);
         return true;
       }
     } catch (err) {
-      console.error('PHP server sync failed:', err);
+      console.error('Authoritative repository sync error:', err);
     }
     setSaveStatus('error');
     return false;
   };
 
-  // Subscribe to Firebase Firestore for real-time live synchronization across all devices
+  // Hydrate CMS data from authoritative server repository API on mount
   useEffect(() => {
     let isMounted = true;
-    const docRef = doc(db, 'cms', 'content');
 
-    const unsubscribe = onSnapshot(docRef, (snapshot) => {
-      if (!isMounted) return;
-      if (snapshot.exists()) {
-        const data = snapshot.data() as CMSData;
-        if (data && data.settings) {
-          const mergedData = {
-            ...initialCMSData,
-            ...data,
-            settings: { ...initialCMSData.settings, ...(data.settings || {}) },
-            theme: { ...initialCMSData.theme, ...(data.theme || {}) }
+    fetch('/api/cms/entities')
+      .then(res => res.json())
+      .then(entities => {
+        if (!isMounted || !entities) return;
+
+        setCmsData(prev => {
+          const merged: CMSData = {
+            ...prev,
+            posts: entities.posts?.length ? entities.posts : prev.posts,
+            pages: entities.pages?.length ? entities.pages : prev.pages,
+            services: entities.services?.length ? entities.services : prev.services,
+            locations: entities.locations?.length ? entities.locations : prev.locations,
+            categories: entities.categories?.length ? entities.categories : prev.categories,
+            menus: entities.menus?.length ? entities.menus : prev.menus,
+            settings: {
+              ...prev.settings,
+              ...(entities.settings || {}),
+              redirections: entities.redirects?.length ? entities.redirects : prev.settings.redirections,
+            },
           };
-          isRemoteChange.current = true;
-          setCmsData(mergedData);
           try {
-            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(mergedData));
+            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(merged));
           } catch (e) {}
-        }
-      } else {
-        // Seed initial data if Firestore document is missing
-        setDoc(docRef, initialCMSData).catch(err => console.warn('Firestore initial seed notice:', err));
-      }
-      setIsServerLoaded(true);
-    }, (err) => {
-      console.warn('Firestore subscription notice (falling back to server/local):', err);
-      // Fallback: fetch from PHP server if Firestore network fails
-      fetch('/api/data.php?t=' + Date.now())
-        .then(res => res.json())
-        .then(data => {
-          if (!isMounted) return;
-          if (data && data.settings && !data.status) {
-            const mergedData = {
-              ...initialCMSData,
-              ...data,
-              settings: { ...initialCMSData.settings, ...(data.settings || {}) },
-              theme: { ...initialCMSData.theme, ...(data.theme || {}) }
-            };
-          isRemoteChange.current = true;
-          setCmsData(mergedData);
-          try {
-            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(mergedData));
-          } catch (e) {}
-          }
-        })
-        .catch(e => console.log('PHP server fallback notice:', e))
-        .finally(() => {
-          if (isMounted) setIsServerLoaded(true);
+          return merged;
         });
-    });
+      })
+      .catch(err => {
+        console.warn('Notice: Server repository initial load error, using cached data:', err);
+      })
+      .finally(() => {
+        if (isMounted) setIsServerLoaded(true);
+      });
 
     return () => {
       isMounted = false;
-      unsubscribe();
     };
   }, []);
 
-  // Automatically sync to Firebase Cloud Firestore, Hostinger PHP server API, and LocalStorage whenever cmsData changes
+  // Synchronize mutations to localStorage and Authoritative Server API (Restricted to Super Admin & Admin)
   useEffect(() => {
     try {
       localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(cmsData));
@@ -322,35 +348,58 @@ export function CMSProvider({ children }: { children: ReactNode }) {
     }
 
     if (isRemoteChange.current) {
-       // This change came from Firestore onSnapshot. Don't bounce it back.
-       isRemoteChange.current = false;
-       return;
+      isRemoteChange.current = false;
+      return;
     }
 
-    if (isServerLoaded) {
+    if (isServerLoaded && currentUser && ['super_admin', 'administrator'].includes(currentUser.role)) {
       setSaveStatus('saving');
+      const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+      if (authToken) {
+        headers['Authorization'] = `Bearer ${authToken}`;
+      }
 
-      // 1. Direct write to Firebase Cloud Firestore Database
-      const docRef = doc(db, 'cms', 'content');
-      setDoc(docRef, cmsData)
-        .then(() => {
-          setSaveStatus('saved');
-          setTimeout(() => setSaveStatus('idle'), 3000);
+      fetch('/api/cms/sync', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify(cmsData)
+      })
+        .then(res => {
+          if (res.ok) {
+            setSaveStatus('saved');
+            setTimeout(() => setSaveStatus('idle'), 2500);
+          }
         })
         .catch(err => {
-          console.warn('Firebase Firestore real-time sync notice:', err);
+          console.warn('Repository synchronization notice:', err);
         });
-
-      // 2. Backup write to Hostinger PHP Server Endpoint (/api/data.php)
-      fetch('/api/data.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(cmsData)
-      }).catch(err => {
-        console.warn('Sync to Hostinger server API failed:', err);
-      });
     }
-  }, [cmsData, isServerLoaded]);
+  }, [cmsData, isServerLoaded, currentUser, authToken]);
+
+  // Hydrate administrative entities when staff user is authenticated
+  useEffect(() => {
+    if (!currentUser || !authToken) return;
+
+    fetch('/api/admin/entities', {
+      headers: {
+        'Authorization': `Bearer ${authToken}`
+      }
+    })
+      .then(res => res.ok ? res.json() : null)
+      .then(adminData => {
+        if (adminData) {
+          setCmsData(prev => ({
+            ...prev,
+            ...(adminData.inquiries ? { inquiries: adminData.inquiries } : {}),
+            ...(adminData.users ? { users: adminData.users } : {}),
+            ...(adminData.auditLogs ? { auditLogs: adminData.auditLogs } : {}),
+          }));
+        }
+      })
+      .catch(err => {
+        console.warn('Notice: Failed to load staff admin entities:', err);
+      });
+  }, [currentUser, authToken]);
 
   // Dynamically update browser tab Favicon and Document Title whenever siteIcon/siteLogo/siteTitle changes
   useEffect(() => {
@@ -397,28 +446,56 @@ export function CMSProvider({ children }: { children: ReactNode }) {
     }
   }, [currentUser]);
 
-  // Auth Methods
+  // Auth Methods: Authoritative server-verified authentication without client role trust
   const login = async (usernameInput: string, passInput: string): Promise<boolean> => {
     const cleanUsername = usernameInput.trim().toLowerCase();
     const cleanPass = passInput.trim();
 
     if (!cleanUsername || !cleanPass) return false;
 
-    // Use Firebase Authentication
     try {
       const userCredential = await signInWithEmailAndPassword(auth, cleanUsername, cleanPass);
       if (userCredential.user) {
+        const idToken = await userCredential.user.getIdToken();
+
+        // Server-side verification and authoritative role lookup
+        const res = await fetch('/api/auth/verify-session', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ idToken }),
+        });
+
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          console.error("Server authorization rejected:", errData.error || "Forbidden");
+          await signOut(auth);
+          return false;
+        }
+
+        const data = await res.json();
+        if (!data.user) {
+          await signOut(auth);
+          return false;
+        }
+
+        // Authoritative user returned from server
         const adminUser: AdminUser = {
-          id: userCredential.user.uid,
-          username: userCredential.user.email?.split('@')[0] || 'admin',
+          id: data.user.id,
+          username: data.user.username,
           password: '',
-          name: 'مدير النظام (Admin)',
-          email: userCredential.user.email || '',
-          role: 'super_admin',
-          avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&q=80',
+          name: data.user.name,
+          email: data.user.email,
+          role: data.user.role,
+          avatar: data.user.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&q=80',
           createdAt: '2026-01-01',
           lastLogin: new Date().toISOString().split('T')[0]
         };
+
+        setAuthToken(idToken);
+        try {
+          sessionStorage.setItem('shera_auth_token', idToken);
+        } catch {}
+
         setCurrentUser(adminUser);
         setIsAdminOpen(true);
         return true;
@@ -429,9 +506,18 @@ export function CMSProvider({ children }: { children: ReactNode }) {
     return false;
   };
 
-
-  const logout = () => {
+  const logout = async () => {
+    try {
+      await signOut(auth);
+    } catch (e) {
+      console.warn("Sign out error:", e);
+    }
     setCurrentUser(null);
+    setAuthToken(null);
+    try {
+      sessionStorage.removeItem('shera_auth_token');
+      localStorage.removeItem(AUTH_KEY);
+    } catch {}
     setIsAdminOpen(false);
   };
 
@@ -923,6 +1009,7 @@ export function CMSProvider({ children }: { children: ReactNode }) {
       saveCMSData,
       forceServerSync,
       currentUser,
+      authToken,
       isAdminOpen,
       setIsAdminOpen,
       activeAdminTab,

@@ -20,7 +20,7 @@ export default function UserManager({ lang }: UserManagerProps) {
       username: 'editor_' + Date.now().toString().slice(-4),
       password: 'Shera' + Math.floor(1000 + Math.random() * 9000) + '!',
       name: 'محرر جديد',
-      email: 'editor@shera-scrap.com',
+      email: 'editor@sherascrap.com',
       role: 'editor',
       avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80',
       createdAt: new Date().toISOString().split('T')[0]

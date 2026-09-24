@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { Phone, MessageSquare, MapPin, Clock, ShieldCheck, Megaphone, Lock, Search, X, ArrowRight } from 'lucide-react';
 import { LanguagePack } from '../types';
 import LanguageSelector from './LanguageSelector';
@@ -97,7 +97,7 @@ export default function Header({ lang, setLang, t }: HeaderProps) {
       <div className="max-w-7xl mx-auto px-4 py-3 md:py-4 flex justify-between items-center relative gap-2">
         {/* Brand Logo & Name */}
         <div 
-          onClick={() => { if(location.pathname !== '/') { navigate('/'); } else { window.scrollTo({ top: 0, behavior: 'smooth' }); } }}
+          onClick={() => { if(location.pathname !== `/${lang}/`) { navigate(`/${lang}/`); } else { window.scrollTo({ top: 0, behavior: 'smooth' }); } }}
           className="flex items-center gap-2.5 sm:gap-3 cursor-pointer select-none group min-w-0"
           id="brand-logo"
         >
@@ -124,13 +124,14 @@ export default function Header({ lang, setLang, t }: HeaderProps) {
         </div>
 
         {/* Desktop Menu links */}
-        <nav className="hidden xl:flex items-center gap-7 text-sm font-bold text-slate-700">
-          <button onClick={() => scrollToSection('services')} className="hover:text-emerald-600 transition-colors cursor-pointer py-1 border-b-2 border-transparent hover:border-emerald-600">{isRtl ? "خدماتنا" : "Services"}</button>
-          <button onClick={() => scrollToSection('blog-articles')} className="hover:text-emerald-600 transition-colors cursor-pointer py-1 border-b-2 border-transparent hover:border-emerald-600">{isRtl ? "المقالات والأخبار" : "Blog & Guides"}</button>
-          <button onClick={() => scrollToSection('estimator')} className="hover:text-emerald-600 transition-colors cursor-pointer py-1 border-b-2 border-transparent hover:border-emerald-600">{isRtl ? "مقيّم الذكاء الاصطناعي" : "AI Estimator"}</button>
-          <button onClick={() => scrollToSection('why-choose-us')} className="hover:text-emerald-600 transition-colors cursor-pointer py-1 border-b-2 border-transparent hover:border-emerald-600">{isRtl ? "لماذا نحن" : "Why Choose Us"}</button>
-          <button onClick={() => scrollToSection('faq')} className="hover:text-emerald-600 transition-colors cursor-pointer py-1 border-b-2 border-transparent hover:border-emerald-600">{isRtl ? "الأسئلة الشائعة" : "FAQ"}</button>
-          <button onClick={() => scrollToSection('contact')} className="hover:text-emerald-600 transition-colors cursor-pointer py-1 border-b-2 border-transparent hover:border-emerald-600">{isRtl ? "اتصل بنا" : "Contact"}</button>
+        <nav className="hidden xl:flex items-center gap-6 text-sm font-bold text-slate-700">
+          <Link to={`/${lang}/`} className="hover:text-emerald-600 transition-colors py-1 border-b-2 border-transparent hover:border-emerald-600">{isRtl ? "الرئيسية" : "Home"}</Link>
+          <Link to={`/${lang}/services/`} className="hover:text-emerald-600 transition-colors py-1 border-b-2 border-transparent hover:border-emerald-600">{isRtl ? "خدماتنا" : "Services"}</Link>
+          <Link to={`/${lang}/locations/restaurant-equipment-dammam/`} className="hover:text-emerald-600 transition-colors py-1 border-b-2 border-transparent hover:border-emerald-600">{isRtl ? "معدات المطاعم" : "Restaurant Equipment"}</Link>
+          <Link to={`/${lang}/blog/`} className="hover:text-emerald-600 transition-colors py-1 border-b-2 border-transparent hover:border-emerald-600">{isRtl ? "المدونة" : "Blog"}</Link>
+          <Link to={`/${lang}/estimator/`} className="hover:text-emerald-600 transition-colors py-1 border-b-2 border-transparent hover:border-emerald-600">{isRtl ? "حاسبة الأسعار" : "AI Estimator"}</Link>
+          <Link to={`/${lang}/about/`} className="hover:text-emerald-600 transition-colors py-1 border-b-2 border-transparent hover:border-emerald-600">{isRtl ? "من نحن" : "About Us"}</Link>
+          <Link to={`/${lang}/contact/`} className="hover:text-emerald-600 transition-colors py-1 border-b-2 border-transparent hover:border-emerald-600">{isRtl ? "اتصل بنا" : "Contact"}</Link>
         </nav>
 
         {/* Quick actions */}

@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { useCMS } from '../../cms/CMSContext';
 import { generateSitemapXml, getSitemapMetrics } from '../../utils/sitemapGenerator';
+import { SITE_CONFIG } from '../../config/site';
 
 interface SitemapManagerProps {
   lang: 'ar' | 'en';
@@ -29,7 +30,7 @@ export default function SitemapManager({ lang }: SitemapManagerProps) {
   const [copied, setCopied] = useState(false);
   const [pingSuccess, setPingSuccess] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
-  const [siteUrlInput, setSiteUrlInput] = useState(cmsData.settings.siteUrl || 'https://shera-scrap-haraj.com');
+  const [siteUrlInput, setSiteUrlInput] = useState(cmsData.settings.siteUrl || SITE_CONFIG.canonicalDomain);
 
   const xmlContent = generateSitemapXml(cmsData);
   const metrics = getSitemapMetrics(cmsData);
@@ -168,7 +169,7 @@ export default function SitemapManager({ lang }: SitemapManagerProps) {
               type="url"
               value={siteUrlInput}
               onChange={(e) => setSiteUrlInput(e.target.value)}
-              placeholder="https://shera-scrap-haraj.com"
+              placeholder={SITE_CONFIG.canonicalDomain}
               className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white focus:outline-none focus:border-blue-500 font-mono"
             />
           </div>
