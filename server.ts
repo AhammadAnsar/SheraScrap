@@ -766,7 +766,15 @@ async function startServer() {
         const rawTemplate = fs.readFileSync(path.resolve(process.cwd(), "index.html"), "utf-8");
         const transformedTemplate = await vite.transformIndexHtml(url, rawTemplate);
 
-        const result = await renderSsrPage(url, transformedTemplate);
+        const isPreview = req.query?.preview === 'true' || req.query?.preview === '1';
+        const previewToken = (req.query?.token as string) || (req.query?.preview_token as string) || undefined;
+        const currentUser = (req as any).user || undefined;
+
+        const result = await renderSsrPage(url, transformedTemplate, {
+          preview: isPreview,
+          previewToken,
+          user: currentUser
+        });
 
         if (result.redirectUrl) {
           return res.redirect(result.statusCode, result.redirectUrl);
@@ -801,7 +809,15 @@ async function startServer() {
           ? fs.readFileSync(templatePath, "utf-8") 
           : fs.readFileSync(path.resolve(process.cwd(), "index.html"), "utf-8");
 
-        const result = await renderSsrPage(url, template);
+        const isPreview = req.query?.preview === 'true' || req.query?.preview === '1';
+        const previewToken = (req.query?.token as string) || (req.query?.preview_token as string) || undefined;
+        const currentUser = (req as any).user || undefined;
+
+        const result = await renderSsrPage(url, template, {
+          preview: isPreview,
+          previewToken,
+          user: currentUser
+        });
 
         if (result.redirectUrl) {
           return res.redirect(result.statusCode, result.redirectUrl);
