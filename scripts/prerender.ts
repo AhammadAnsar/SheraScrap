@@ -1,6 +1,8 @@
 import fs from 'fs';
 import path from 'path';
 import { renderSsrPage } from '../src/server/ssrRenderer';
+import { generateSitemapXml } from '../src/utils/sitemapGenerator';
+import { getCachedCMSData } from '../src/data/repository';
 import {
   getAllCategories,
   getAllServices,
@@ -18,6 +20,24 @@ async function runPrerender() {
   if (!fs.existsSync(indexHtmlPath)) {
     console.error('❌ Error: dist/index.html not found! Run "vite build" first.');
     process.exit(1);
+  }
+
+  // 0. Generate Authoritative sitemap.xml with canonical domain https://sherascrap.com
+  try {
+    const cmsData = getCachedCMSData();
+    const authoritativeSitemap = generateSitemapXml(cmsData);
+    
+    // Write to public/sitemap.xml
+    const publicSitemapPath = path.resolve(process.cwd(), 'public', 'sitemap.xml');
+    fs.writeFileSync(publicSitemapPath, authoritativeSitemap, 'utf-8');
+
+    // Write to dist/sitemap.xml
+    const distSitemapPath = path.join(distDir, 'sitemap.xml');
+    fs.writeFileSync(distSitemapPath, authoritativeSitemap, 'utf-8');
+
+    console.log('✅ Authoritative sitemap.xml generated with canonical https://sherascrap.com');
+  } catch (sitemapErr) {
+    console.warn('⚠️ Warning: Failed to generate dynamic sitemap.xml:', sitemapErr);
   }
 
   const baseTemplate = fs.readFileSync(indexHtmlPath, 'utf-8');

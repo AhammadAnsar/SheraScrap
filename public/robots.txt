@@ -16,4 +16,4 @@ Allow: /
 User-agent: Google-Extended
 Allow: /
 
-Sitemap: https://shera-scrap-haraj.com/sitemap.xml
+Sitemap: https://sherascrap.com/sitemap.xml
