@@ -1,4 +1,7 @@
 import 'dotenv/config';
+import { cloudStoreMiddleware } from './src/server/cloudStore';
+import { cloudStorageEnabled, mediaBucket } from './src/server/firebaseAdmin';
+import { randomUUID } from 'node:crypto';
 import { getPublicData } from './src/server/publicData';
 import { isContentPublished } from './src/utils/publication';
 import express from "express";
@@ -75,14 +78,20 @@ const PORT = Number(process.env.PORT || 3000);
 app.disable("x-powered-by");
 app.use((_req, res, next) => { res.setHeader("X-Content-Type-Options", "nosniff"); res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin"); res.setHeader("X-Frame-Options", "SAMEORIGIN"); next(); });
 
-// Set payload limits (15MB max)
-app.use(express.json({ limit: "15mb" }));
-app.use(express.urlencoded({ limit: "15mb", extended: true }));
+// Base64 images remain below Vercel's 4.5 MB function request limit.
+app.use(express.json({ limit: "4mb" }));
+app.use(express.urlencoded({ limit: "4mb", extended: true }));
+app.use((req, res, next) => {
+  if (req.hostname === 'www.sherascrap.com') return res.redirect(308, 'https://sherascrap.com' + req.originalUrl);
+  if (process.env.VERCEL_ENV && process.env.VERCEL_ENV !== 'production') res.setHeader('X-Robots-Tag', 'noindex, nofollow');
+  next();
+});
+app.use(cloudStoreMiddleware);
 app.use(authenticate as any);
 
 // Ensure upload directories exist
 const publicUploadsDir = path.resolve(process.env.UPLOADS_DIR || path.join(process.cwd(), "public", "uploads"));
-if (!fs.existsSync(publicUploadsDir)) {
+if (!cloudStorageEnabled() && !fs.existsSync(publicUploadsDir)) {
   fs.mkdirSync(publicUploadsDir, { recursive: true });
 }
 
@@ -90,6 +99,17 @@ if (!fs.existsSync(publicUploadsDir)) {
 app.use("/uploads", express.static(publicUploadsDir));
 
 
+app.get('/uploads/:fileName', async (req, res, next) => {
+  if (!cloudStorageEnabled()) return next();
+  const name = req.params.fileName;
+  if (name.includes('..') || name.includes('/') || name.includes('\\')) return res.sendStatus(400);
+  try {
+    const [metadata] = await mediaBucket().file('uploads/' + name).getMetadata();
+    const token = metadata.metadata?.firebaseStorageDownloadTokens;
+    if (!token) return res.sendStatus(404);
+    return res.redirect(302, 'https://firebasestorage.googleapis.com/v0/b/' + encodeURIComponent(mediaBucket().name) + '/o/' + encodeURIComponent('uploads/' + name) + '?alt=media&token=' + encodeURIComponent(String(token).split(',')[0]));
+  } catch { return res.sendStatus(404); }
+});
 // Initialize GoogleGenAI lazy loader
 let aiClient: GoogleGenAI | null = null;
 
@@ -192,6 +212,10 @@ app.get("/api/auth/me", requireAuth as any, (req: AuthenticatedRequest, res) => 
 
 // Fetch entities: Public caller gets strictly public content (NO users, NO inquiries, NO audit logs)
 // Authenticated staff caller receives full dataset according to role
+function getStaffContent() {
+  const { users, inquiries, auditLogs, ...content } = getCachedCMSData() as any;
+  return content;
+}
 app.get("/api/cms/entities", (req: AuthenticatedRequest, res) => {
   try {
     const isStaff = !!req.user && ['super_admin', 'administrator', 'editor', 'author'].includes(req.user.role);
@@ -203,7 +227,7 @@ app.get("/api/cms/entities", (req: AuthenticatedRequest, res) => {
     const pages = isStaff ? getAllPages() : getAllPages().filter(p => p.isPublished);
 
     const publicResponse: any = {
-      ...getCachedCMSData(),
+      ...getStaffContent(),
       posts,
       pages,
       services: getAllServices(),
@@ -240,7 +264,7 @@ app.get("/api/admin/entities", requireAuth as any, (req: AuthenticatedRequest, r
     const user = req.user!;
     res.setHeader("Cache-Control", "no-store");
     const response: any = {
-      ...getCachedCMSData(),
+      ...getStaffContent(),
       posts: getAllPosts(),
       pages: getAllPages(),
       services: getAllServices(),
@@ -534,7 +558,13 @@ app.get("/api/cms/audit-logs", (requirePermission('audit:view') as any), (req: A
 // -----------------------------------------------------------------------------
 
 // List media files
-app.get("/api/media", (req, res) => {
+app.get("/api/media", requireAuth as any, async (req, res) => {
+  if (cloudStorageEnabled()) {
+    try {
+      const [files] = await mediaBucket().getFiles({ prefix: "uploads/" });
+      return res.json({ media: files.filter(f => !f.name.endsWith("/")).map(f => ({ id: f.name.slice(8), title: f.name.slice(8), url: `/uploads/${encodeURIComponent(f.name.slice(8))}`, date: f.metadata.updated, size: `${(Number(f.metadata.size || 0) / 1024).toFixed(2)} KB` })) });
+    } catch { return res.status(503).json({ error: "Media storage unavailable" }); }
+  }
   try {
     if (!fs.existsSync(publicUploadsDir)) {
       return res.json({ media: [] });
@@ -558,13 +588,14 @@ app.get("/api/media", (req, res) => {
 });
 
 // Delete media file safely (Editor or Admin only)
-app.delete("/api/media/:fileName", (requirePermission('media:delete') as any), (req: AuthenticatedRequest, res) => {
+app.delete("/api/media/:fileName", (requirePermission('media:delete') as any), async (req: AuthenticatedRequest, res) => {
   try {
     const fileName = req.params.fileName;
     // Prevent directory traversal attacks
     if (!fileName || fileName.includes("..") || fileName.includes("/") || fileName.includes("\\")) {
       return res.status(400).json({ error: "Invalid filename" });
     }
+    if (cloudStorageEnabled()) { await mediaBucket().file(`uploads/${fileName}`).delete({ ignoreNotFound: true }); return res.json({ success: true }); }
     const publicPath = path.join(publicUploadsDir, fileName);
     
     if (fs.existsSync(publicPath)) fs.unlinkSync(publicPath);
@@ -580,10 +611,10 @@ app.delete("/api/media/:fileName", (requirePermission('media:delete') as any), (
 });
 
 // Secure image upload with signature validation (Author, Editor, Admin)
-app.post(["/api/upload", "/api/upload.php"], (requirePermission('media:upload') as any), (req: AuthenticatedRequest, res) => {
+app.post(["/api/upload", "/api/upload.php"], (requirePermission('media:upload') as any), async (req: AuthenticatedRequest, res) => {
   try {
     const { image, name } = req.body;
-    if (!image) {
+    if (!image || typeof image !== "string") {
       return res.status(400).json({ error: "No image payload provided" });
     }
 
@@ -609,27 +640,30 @@ app.post(["/api/upload", "/api/upload.php"], (requirePermission('media:upload') 
     const buffer = Buffer.from(base64Data, "base64");
 
     // Enforce 10MB limit per image
-    if (buffer.length > 10 * 1024 * 1024) {
-      return res.status(400).json({ error: "Image file exceeds maximum allowable size (10MB)." });
+    if (buffer.length > 3 * 1024 * 1024) {
+      return res.status(400).json({ error: "Image file exceeds maximum allowable size (3MB)." });
     }
 
     // Validate binary magic bytes signature
     const headerHex = buffer.slice(0, 4).toString("hex");
     const isJpeg = headerHex.startsWith("ffd8ff");
     const isPng = headerHex === "89504e47";
-    const isRiff = headerHex === "52494646"; // RIFF header for WebP
+    const isRiff = headerHex === "52494646" && buffer.subarray(8, 12).toString() === "WEBP"; // RIFF header for WebP
 
     if (!isJpeg && !isPng && !isRiff) {
       return res.status(400).json({ error: "File signature verification failed. Only authentic image files are allowed." });
     }
 
+    ext = isJpeg ? "jpg" : isPng ? "png" : "webp";
     // Generate safe alphanumeric filename
-    const sanitizedName = name ? name.replace(/[^a-zA-Z0-9_-]/g, "").substring(0, 40) : "scrap";
+    const sanitizedName = typeof name === "string" ? name.replace(/[^a-zA-Z0-9_-]/g, "").substring(0, 40) : "scrap";
     const fileName = `${sanitizedName}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.${ext}`;
 
     const publicPath = path.join(publicUploadsDir, fileName);
 
-    fs.writeFileSync(publicPath, buffer);
+    if (cloudStorageEnabled()) {
+      await mediaBucket().file('uploads/' + fileName).save(buffer, { resumable: false, metadata: { contentType: 'image/' + (ext === 'jpg' ? 'jpeg' : ext), metadata: { firebaseStorageDownloadTokens: randomUUID() } } });
+    } else fs.writeFileSync(publicPath, buffer);
 
     const fileUrl = `/uploads/${fileName}`;
 
@@ -847,9 +881,15 @@ async function startServer() {
   }
 
   app.use('/api', (_req, res) => res.status(404).json({ error: 'Not found' }));
-  app.listen(PORT, "0.0.0.0", () => {
+  app.use((err: any, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+    if (err?.type === 'entity.too.large') return res.status(413).json({ error: 'Request too large. Images must be 3 MB or smaller.' });
+    console.error('Request failed:', err);
+    return res.status(500).json({ error: 'Request failed. Please retry.' });
+  });
+  if (process.env.VERCEL !== "1") app.listen(PORT, "0.0.0.0", () => {
     console.log(`✅ Shera Scrap Server running on http://0.0.0.0:${PORT}`);
   });
 }
 
-startServer();
+export const ready = startServer();
+export default app;

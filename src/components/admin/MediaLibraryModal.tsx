@@ -1,3 +1,4 @@
+import { mediaFetch, uploadImage } from '../../utils/mediaUpload';
 import React, { useState, useEffect } from 'react';
 import { X, Upload, Image as ImageIcon, Search, Check, Copy, CheckCircle, Trash2, Loader2, Link as LinkIcon, RefreshCw, Sparkles } from 'lucide-react';
 import { MediaItem } from '../../cms/types';
@@ -36,7 +37,7 @@ export default function MediaLibraryModal({
     if (!window.confirm(isRtl ? "هل أنت متأكد من حذف هذه الصورة بشكل نهائي؟" : "Are you sure you want to delete this image permanently?")) return;
     
     try {
-      const res = await fetch(`/api/media/${fileName}`, {
+      const res = await mediaFetch(`/api/media/${encodeURIComponent(fileName)}`, {
         method: 'DELETE'
       });
       if (res.ok) {
@@ -54,7 +55,7 @@ export default function MediaLibraryModal({
   const fetchServerMedia = async () => {
     setLoadingMedia(true);
     try {
-      const res = await fetch('/api/media?t=' + Date.now());
+      const res = await mediaFetch('/api/media?t=' + Date.now());
       if (res.ok) {
         const data = await res.json();
         if (data && data.media && Array.isArray(data.media)) {
@@ -111,28 +112,14 @@ export default function MediaLibraryModal({
       console.warn("WebP conversion fallback:", webpErr);
     }
 
-    const formData = new FormData();
-    formData.append('file', processedFile);
-
     try {
-      const res = await fetch('/api/upload.php', {
-        method: 'POST',
-        body: formData
-      });
-
-      let data;
-      try {
-        data = await res.json();
-      } catch (e) {
-        throw new Error("Invalid response from server upload script");
-      }
-
-      if (data && (data.success || data.status === 'success') && data.url) {
+      const data = await uploadImage(processedFile);
+      if (data.url) {
         const newMediaItem: MediaItem = {
           id: 'media-' + Date.now(),
           url: data.url,
           title: file.name,
-          size: data.fileSize ? `${Math.round(data.fileSize / 1024)} KB` : 'Unknown',
+          size: data.fileSize ? data.fileSize : 'Unknown',
           mimeType: file.type,
           date: new Date().toISOString().split('T')[0]
         };
@@ -150,28 +137,7 @@ export default function MediaLibraryModal({
         throw new Error(data?.message || 'Server upload failed');
       }
     } catch (err: any) {
-      console.warn("Server file upload failed, converting to data URL fallback:", err);
-      // Fallback: Read as base64
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        const base64Url = event.target?.result as string;
-        if (base64Url) {
-          const newMediaItem: MediaItem = {
-            id: 'media-' + Date.now(),
-            url: base64Url,
-            title: file.name,
-            size: `${Math.round(file.size / 1024)} KB`,
-            mimeType: file.type,
-            date: new Date().toISOString().split('T')[0]
-          };
-
-          const updatedLibrary = [newMediaItem, ...(cmsData.mediaLibrary || [])];
-          saveCMSData({ ...cmsData, mediaLibrary: updatedLibrary });
-          setSelectedItem(newMediaItem);
-          setActiveTab('gallery');
-        }
-      };
-      reader.readAsDataURL(file);
+      setUploadError(err.message || 'Upload failed. Please retry.');
     } finally {
       setUploading(false);
     }
@@ -441,7 +407,7 @@ export default function MediaLibraryModal({
                       : (isRtl ? "اسحب وأسقط ملف الصورة هنا" : "Drag and drop your image here")}
                   </h3>
                   <p className="text-xs text-slate-400">
-                    {isRtl ? "يدعم بصيغ PNG, JPG, WEBP, SVG حتى 10 ميجابايت" : "Supports PNG, JPG, WEBP, SVG up to 10MB"}
+                    {isRtl ? "يدعم بصيغ PNG, JPG, WEBP حتى 3 ميجابايت" : "Supports PNG, JPG, WEBP, up to 3MB"}
                   </p>
                 </div>
 

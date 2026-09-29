@@ -87,7 +87,9 @@ export async function verifyIdToken(idToken: string): Promise<AuthUser | null> {
   // Check cache
   const cached = tokenCache.get(cleanToken);
   if (cached && cached.expiresAt > Date.now()) {
-    return cached.user;
+    const current = loadStore().users.find(u => u.email.toLowerCase() === cached.user.email);
+    if (!current) return null;
+    return { ...cached.user, role: current.role, permissions: ROLE_PERMISSIONS[current.role] || [] };
   }
 
   let email = '';
