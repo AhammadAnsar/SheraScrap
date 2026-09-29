@@ -83,7 +83,7 @@ export default function Services({ lang, t }: ServicesProps) {
               >
                 <div>
                   {/* Large Prominent Feature Image Header */}
-                  <Link to={`/${lang}/services/${cat.slug || cat.id}/`} className="h-52 sm:h-56 w-full overflow-hidden relative bg-slate-900 border-b border-slate-100 block group-hover:opacity-95">
+                  <Link reloadDocument to={`/${lang}/services/${cat.slug || cat.id}/`} className="h-52 sm:h-56 w-full overflow-hidden relative bg-slate-900 border-b border-slate-100 block group-hover:opacity-95">
                     <OptimizedImage 
                       src={cat.featuredImage || 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=800&q=80'} 
                       alt={categoryTitle} 
@@ -112,7 +112,7 @@ export default function Services({ lang, t }: ServicesProps) {
 
                   {/* Body Content */}
                   <div className="p-6 space-y-2.5">
-                    <Link to={`/${lang}/services/${cat.slug || cat.id}/`}>
+                    <Link reloadDocument to={`/${lang}/services/${cat.slug || cat.id}/`}>
                       <h3 className="text-lg sm:text-xl font-black text-slate-900 group-hover:text-emerald-700 transition-colors">
                         {categoryTitle}
                       </h3>

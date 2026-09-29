@@ -65,7 +65,7 @@ async function runTests() {
     // Test 3: Representative Arabic Pages SSR & HTTP 200
     const arPages = [
       { path: '/ar/', label: 'Arabic Home', mustContain: ['مؤسسة شيرا', 'https://sherascrap.com/ar/'] },
-      { path: '/ar/about/', label: 'Arabic About', mustContain: ['من نحن', 'رؤيتنا ورسالتنا'] },
+      { path: '/ar/about/', label: 'Arabic About', mustContain: ['من نحن', 'تجارة وتجميع وتدوير'] },
       { path: '/ar/contact/', label: 'Arabic Contact', mustContain: ['اتصل بنا', '573690164'] },
       { path: '/ar/services/', label: 'Arabic Services Archive', mustContain: ['خدماتنا', 'شراء سكراب'] },
       { path: '/ar/services/copper/', label: 'Arabic Service Single (Copper)', mustContain: ['نحاس', 'طلب تسعير'] },
@@ -93,7 +93,7 @@ async function runTests() {
     // Test 4: Representative English Pages SSR & HTTP 200
     const enPages = [
       { path: '/en/', label: 'English Home', mustContain: ['Shera Scrap', 'https://sherascrap.com/en/'] },
-      { path: '/en/about/', label: 'English About', mustContain: ['About Us', 'Our Mission'] },
+      { path: '/en/about/', label: 'English About', mustContain: ['About Us', 'Shera Enterprise'] },
       { path: '/en/contact/', label: 'English Contact', mustContain: ['Contact Us', '573690164'] },
       { path: '/en/services/', label: 'English Services Archive', mustContain: ['Services', 'Dammam'] },
       { path: '/en/services/copper/', label: 'English Service Single (Copper)', mustContain: ['Copper', 'WhatsApp'] },

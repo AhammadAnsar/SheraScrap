@@ -1,3 +1,5 @@
+import NotFoundPage from './NotFoundPage';
+import { sanitizeHtml } from '../utils/sanitizeHtml';
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Phone, MessageSquare, MapPin, CheckCircle2, ArrowRight, ArrowLeft, Truck, ShieldCheck, Scale } from 'lucide-react';
@@ -15,25 +17,10 @@ export default function LocationSinglePage({ lang }: LocationSinglePageProps) {
   const { cmsData } = useCMS();
   const isRtl = lang === 'ar';
 
-  const locations = (cmsData.locations && cmsData.locations.length > 0) ? cmsData.locations : defaultLocations;
+  const locations = cmsData.locations ?? [];
   const locationItem = locations.find(l => l.slug === slug && l.isPublished);
 
-  if (!locationItem) {
-    return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center text-center px-4 py-16">
-        <h1 className="text-4xl font-black text-slate-900 mb-4">404</h1>
-        <p className="text-slate-600 mb-6 font-medium">
-          {isRtl ? "الصفحة المطلوبة لم يتم العثور عليها" : "Location page not found"}
-        </p>
-        <Link 
-          to={`/${lang}/`} 
-          className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-xl font-bold transition-colors"
-        >
-          {isRtl ? "العودة للرئيسية" : "Return to Home"}
-        </Link>
-      </div>
-    );
-  }
+  if (!locationItem) return <NotFoundPage lang={lang} />;
 
   const title = isRtl ? locationItem.titleAr : locationItem.titleEn;
   const city = isRtl ? locationItem.cityAr : locationItem.cityEn;
@@ -62,11 +49,11 @@ export default function LocationSinglePage({ lang }: LocationSinglePageProps) {
         <div className="max-w-5xl mx-auto px-4">
           {/* Breadcrumb Navigation */}
           <nav className="flex items-center gap-2 text-xs md:text-sm text-slate-500 font-bold mb-6">
-            <Link to={`/${lang}/`} className="hover:text-emerald-600 transition-colors">
+            <Link reloadDocument to={`/${lang}/`} className="hover:text-emerald-600 transition-colors">
               {isRtl ? "الرئيسية" : "Home"}
             </Link>
             <span>/</span>
-            <Link to={`/${lang}/services/`} className="hover:text-emerald-600 transition-colors">
+            <Link reloadDocument to={`/${lang}/services/`} className="hover:text-emerald-600 transition-colors">
               {isRtl ? "الخدمات والمناطق" : "Services & Locations"}
             </Link>
             <span>/</span>

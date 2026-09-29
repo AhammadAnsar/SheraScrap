@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 
-const PREVIEW_SECRET = process.env.PREVIEW_SECRET || 'shera_scrap_preview_secret_key_2026_authorized';
+const PREVIEW_SECRET = process.env.PREVIEW_SECRET || crypto.randomBytes(32).toString('hex');
 
 export interface PreviewTokenPayload {
   entityType: 'post' | 'page';
@@ -52,7 +52,7 @@ export function verifyPreviewToken(
   hmac.update(payloadB64);
   const expectedSig = hmac.digest('base64url');
 
-  if (sig !== expectedSig) {
+  if (sig.length !== expectedSig.length || !crypto.timingSafeEqual(Buffer.from(sig), Buffer.from(expectedSig))) {
     return false;
   }
 
@@ -71,13 +71,7 @@ export function verifyPreviewToken(
     }
 
     // Check entity ID or slug match (flexible for either id or slug)
-    if (
-      payload.entityIdOrSlug !== expectedIdOrSlug &&
-      !expectedIdOrSlug.includes(payload.entityIdOrSlug) &&
-      !payload.entityIdOrSlug.includes(expectedIdOrSlug)
-    ) {
-      return false;
-    }
+    if (payload.entityIdOrSlug !== expectedIdOrSlug) return false;
 
     return true;
   } catch {

@@ -4,65 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
     
-    <!-- Fix for iframe environments where window.fetch has only a getter -->
-    <script>
-      (function() {
-        function shouldSuppress(msg) {
-          return typeof msg === 'string' && msg.indexOf('fetch') !== -1 && msg.indexOf('getter') !== -1;
-        }
-
-        window.addEventListener('error', function(event) {
-          if (event && (shouldSuppress(event.message) || (event.error && shouldSuppress(event.error.message)))) {
-            event.preventDefault();
-            if (event.stopImmediatePropagation) event.stopImmediatePropagation();
-            return true;
-          }
-        }, true);
-
-        window.addEventListener('unhandledrejection', function(event) {
-          if (event && event.reason && shouldSuppress(event.reason.message)) {
-            event.preventDefault();
-            if (event.stopImmediatePropagation) event.stopImmediatePropagation();
-            return true;
-          }
-        }, true);
-
-        var prevOnError = window.onerror;
-        window.onerror = function(msg, url, line, col, err) {
-          if (shouldSuppress(msg) || (err && shouldSuppress(err.message))) {
-            return true;
-          }
-          if (prevOnError) return prevOnError.apply(this, arguments);
-        };
-
-        try {
-          if (typeof Window !== 'undefined' && Window.prototype) {
-            var protoDesc = Object.getOwnPropertyDescriptor(Window.prototype, 'fetch');
-            if (protoDesc && protoDesc.get && !protoDesc.set) {
-              Object.defineProperty(Window.prototype, 'fetch', {
-                get: protoDesc.get,
-                set: function() {},
-                configurable: true,
-                enumerable: true
-              });
-            }
-          }
-        } catch (e) {}
-
-        try {
-          var winDesc = Object.getOwnPropertyDescriptor(window, 'fetch');
-          if (winDesc && winDesc.get && !winDesc.set) {
-            Object.defineProperty(window, 'fetch', {
-              get: winDesc.get,
-              set: function() {},
-              configurable: true,
-              enumerable: true
-            });
-          }
-        } catch (e) {}
-      })();
-    </script>
-
     <!-- Legacy Hash URL Migration (/#post-..., /#service-..., /#location-..., /#page-...) -->
     <script>
       (function() {

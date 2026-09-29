@@ -1,6 +1,4 @@
 import React, { createContext, useContext, useState, useEffect, useRef, ReactNode } from 'react';
-import { signInWithEmailAndPassword, onAuthStateChanged, signOut } from 'firebase/auth';
-import { auth } from '../lib/firebase';
 import { 
   CMSData, 
   SiteSettings, 
@@ -94,7 +92,7 @@ interface CMSContextType {
   deleteUser: (id: string) => void;
 
   // Inquiries
-  addInquiry: (inquiry: Omit<Inquiry, 'id' | 'createdAt' | 'status'>) => void;
+  addInquiry: (inquiry: Omit<Inquiry, 'id' | 'createdAt' | 'status'>) => Promise<void>;
   updateInquiryStatus: (id: string, status: Inquiry['status']) => void;
   deleteInquiry: (id: string) => void;
 
@@ -126,61 +124,15 @@ interface CMSContextType {
 
 const CMSContext = createContext<CMSContextType | undefined>(undefined);
 
-export function CMSProvider({ children }: { children: ReactNode }) {
+export function CMSProvider({ children, initialData }: { children: ReactNode; initialData?: CMSData }) {
   const isRemoteChange = useRef(false);
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saving' | 'saved' | 'error'>('idle');
-  const [cmsData, setCmsData] = useState<CMSData>(() => {
-    try {
-      const saved = localStorage.getItem(LOCAL_STORAGE_KEY);
-      if (saved) {
-        const parsed = JSON.parse(saved);
-        const mergedSettings = { ...initialCMSData.settings, ...(parsed.settings || {}) };
-
-        // Normalize site title & tagline if they hold old/legacy text
-        if (!mergedSettings.siteTitleAr || mergedSettings.siteTitleAr.includes('مؤسسة شيرا لشراء السكراب')) {
-          mergedSettings.siteTitleAr = "Shera Scrap Haraj - حراج أفضل سكراب";
-        }
-        if (!mergedSettings.siteTitleEn || mergedSettings.siteTitleEn.includes('Dammam - Certified')) {
-          mergedSettings.siteTitleEn = "Shera Scrap Haraj - Best Metal Scrap Dealer";
-        }
-        if (!mergedSettings.siteTaglineAr || mergedSettings.siteTaglineAr.includes('أفضل شركة لشراء')) {
-          mergedSettings.siteTaglineAr = "Best Metal Scrap Dealer";
-        }
-        if (!mergedSettings.siteTaglineEn) {
-          mergedSettings.siteTaglineEn = "Best Metal Scrap Dealer";
-        }
-
-        return {
-          ...initialCMSData,
-          ...parsed,
-          equipments: (parsed.equipments && parsed.equipments.length > 0) ? parsed.equipments : initialCMSData.equipments,
-          settings: mergedSettings,
-          theme: { ...initialCMSData.theme, ...(parsed.theme || {}) }
-        };
-      }
-    } catch (e) {
-      console.error('Failed to parse CMS data from localStorage:', e);
-    }
-    return initialCMSData;
-  });
-
-  const [authToken, setAuthToken] = useState<string | null>(() => {
-    try {
-      return sessionStorage.getItem('shera_auth_token');
-    } catch {
-      return null;
-    }
-  });
-
-  const [currentUser, setCurrentUser] = useState<AdminUser | null>(() => {
-    try {
-      const saved = localStorage.getItem(AUTH_KEY);
-      if (saved) return JSON.parse(saved);
-    } catch (e) {
-      console.error('Failed to parse auth user:', e);
-    }
-    return null;
-  });
+  const [cmsData, setCmsState] = useState<CMSData>(initialData || initialCMSData);
+  const dirtyVersion = useRef(0);
+  const savedVersion = useRef(0);
+  const setCmsData: typeof setCmsState = update => { dirtyVersion.current++; setCmsState(update); };
+  const [authToken, setAuthToken] = useState<string | null>(null);
+  const [currentUser, setCurrentUser] = useState<AdminUser | null>(null);
 
   const [isAdminOpen, setIsAdminOpen] = useState<boolean>(false);
   const [activeAdminTab, setActiveAdminTab] = useState<string>('dashboard');
@@ -188,7 +140,12 @@ export function CMSProvider({ children }: { children: ReactNode }) {
 
   // Authoritative server-verified authentication listener via Firebase Auth & API
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
+    let unsubscribe = () => {};
+    let disposed = false;
+    if (!window.location.pathname.startsWith('/admin') && !sessionStorage.getItem('shera_auth_token')) return;
+    Promise.all([import('firebase/auth'), import('../lib/firebase')]).then(([{ onAuthStateChanged }, { auth }]) => {
+    if (disposed) return;
+    unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
       if (fbUser) {
         try {
           const token = await fbUser.getIdToken();
@@ -236,7 +193,8 @@ export function CMSProvider({ children }: { children: ReactNode }) {
       }
     });
 
-    return () => unsubscribe();
+    }).catch(err => console.error('Unable to initialize authentication', err));
+    return () => { disposed = true; unsubscribe(); };
   }, []);
 
   // Helper to persist CMS data to React state, LocalStorage, and Server Authoritative Repository API
@@ -300,32 +258,15 @@ export function CMSProvider({ children }: { children: ReactNode }) {
   // Hydrate CMS data from authoritative server repository API on mount
   useEffect(() => {
     let isMounted = true;
+    if (initialData) { setIsServerLoaded(true); return; }
 
     fetch('/api/cms/entities')
-      .then(res => res.json())
+      .then(res => { if (!res.ok) throw new Error('CMS load failed'); return res.json(); })
       .then(entities => {
         if (!isMounted || !entities) return;
 
-        setCmsData(prev => {
-          const merged: CMSData = {
-            ...prev,
-            posts: entities.posts?.length ? entities.posts : prev.posts,
-            pages: entities.pages?.length ? entities.pages : prev.pages,
-            services: entities.services?.length ? entities.services : prev.services,
-            locations: entities.locations?.length ? entities.locations : prev.locations,
-            categories: entities.categories?.length ? entities.categories : prev.categories,
-            menus: entities.menus?.length ? entities.menus : prev.menus,
-            settings: {
-              ...prev.settings,
-              ...(entities.settings || {}),
-              redirections: entities.redirects?.length ? entities.redirects : prev.settings.redirections,
-            },
-          };
-          try {
-            localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(merged));
-          } catch (e) {}
-          return merged;
-        });
+        isRemoteChange.current = true;
+        setCmsState(prev => ({ ...prev, ...entities, settings: { ...prev.settings, ...entities.settings } }));
       })
       .catch(err => {
         console.warn('Notice: Server repository initial load error, using cached data:', err);
@@ -352,6 +293,8 @@ export function CMSProvider({ children }: { children: ReactNode }) {
       return;
     }
 
+    if (dirtyVersion.current === savedVersion.current) return;
+    const version = dirtyVersion.current;
     if (isServerLoaded && currentUser && ['super_admin', 'administrator'].includes(currentUser.role)) {
       setSaveStatus('saving');
       const headers: Record<string, string> = { 'Content-Type': 'application/json' };
@@ -366,11 +309,13 @@ export function CMSProvider({ children }: { children: ReactNode }) {
       })
         .then(res => {
           if (res.ok) {
+            savedVersion.current = version;
             setSaveStatus('saved');
             setTimeout(() => setSaveStatus('idle'), 2500);
-          }
+          } else { setSaveStatus('error'); }
         })
         .catch(err => {
+          setSaveStatus('error');
           console.warn('Repository synchronization notice:', err);
         });
     }
@@ -388,8 +333,10 @@ export function CMSProvider({ children }: { children: ReactNode }) {
       .then(res => res.ok ? res.json() : null)
       .then(adminData => {
         if (adminData) {
-          setCmsData(prev => ({
+          isRemoteChange.current = true;
+          setCmsState(prev => ({
             ...prev,
+            ...adminData,
             ...(adminData.inquiries ? { inquiries: adminData.inquiries } : {}),
             ...(adminData.users ? { users: adminData.users } : {}),
             ...(adminData.auditLogs ? { auditLogs: adminData.auditLogs } : {}),
@@ -421,16 +368,6 @@ export function CMSProvider({ children }: { children: ReactNode }) {
       });
     }
 
-    // 2. Document title update
-    if (settings.siteTitleAr || settings.siteTitleEn) {
-      const isAr = document.documentElement.lang === 'ar' || document.dir === 'rtl';
-      const title = isAr
-        ? (settings.siteTitleAr + (settings.siteTaglineAr ? ` | ${settings.siteTaglineAr}` : ''))
-        : (settings.siteTitleEn + (settings.siteTaglineEn ? ` | ${settings.siteTaglineEn}` : ''));
-      if (title && document.title !== title) {
-        document.title = title;
-      }
-    }
   }, [cmsData.settings?.siteIcon, cmsData.settings?.siteLogo, cmsData.settings?.siteTitleAr, cmsData.settings?.siteTitleEn, cmsData.settings?.siteTaglineAr, cmsData.settings?.siteTaglineEn]);
 
   // Save auth state
@@ -454,6 +391,7 @@ export function CMSProvider({ children }: { children: ReactNode }) {
     if (!cleanUsername || !cleanPass) return false;
 
     try {
+      const [{ signInWithEmailAndPassword, signOut }, { auth }] = await Promise.all([import('firebase/auth'), import('../lib/firebase')]);
       const userCredential = await signInWithEmailAndPassword(auth, cleanUsername, cleanPass);
       if (userCredential.user) {
         const idToken = await userCredential.user.getIdToken();
@@ -508,6 +446,7 @@ export function CMSProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     try {
+      const [{ signOut }, { auth }] = await Promise.all([import('firebase/auth'), import('../lib/firebase')]);
       await signOut(auth);
     } catch (e) {
       console.warn("Sign out error:", e);
@@ -769,62 +708,37 @@ export function CMSProvider({ children }: { children: ReactNode }) {
     }));
   };
 
-  // Users
-  const addUser = (user: Omit<AdminUser, 'id' | 'createdAt'>) => {
-    const newUser: AdminUser = {
-      ...user,
-      id: `usr-${Date.now()}`,
-      createdAt: new Date().toISOString().split('T')[0]
-    };
-    setCmsData(prev => ({
-      ...prev,
-      users: [...prev.users, newUser]
-    }));
+  async function persistAdminChange(url: string, method: string, body?: unknown) {
+    setSaveStatus('saving');
+    const res = await fetch(url, { method, headers: { 'Content-Type': 'application/json', Authorization: 'Bearer ' + authToken }, ...(body !== undefined ? { body: JSON.stringify(body) } : {}) });
+    if (!res.ok) { setSaveStatus('error'); throw new Error('CMS request failed'); }
+    setSaveStatus('saved');
+    return res.json();
+  }
+  const addUser = async (user: Omit<AdminUser, 'id' | 'createdAt'>) => {
+    try { const { user: saved } = await persistAdminChange('/api/admin/users', 'POST', user); setCmsState(prev => ({ ...prev, users: [...prev.users, saved] })); } catch { setSaveStatus('error'); }
   };
-
-  const updateUser = (id: string, user: Partial<AdminUser>) => {
-    setCmsData(prev => ({
-      ...prev,
-      users: prev.users.map(u => u.id === id ? { ...u, ...user } : u)
-    }));
+  const updateUser = async (id: string, user: Partial<AdminUser>) => {
+    try { const existing = cmsData.users.find(u => u.id === id); const { user: saved } = await persistAdminChange('/api/admin/users', 'POST', { ...existing, ...user, id }); setCmsState(prev => ({ ...prev, users: prev.users.map(u => u.id === id ? saved : u) })); } catch { setSaveStatus('error'); }
   };
-
-  const deleteUser = (id: string) => {
-    setCmsData(prev => ({
-      ...prev,
-      users: prev.users.filter(u => u.id !== id)
-    }));
+  const deleteUser = async (id: string) => {
+    try { await persistAdminChange('/api/admin/users/' + encodeURIComponent(id), 'DELETE'); setCmsState(prev => ({ ...prev, users: prev.users.filter(u => u.id !== id) })); } catch { setSaveStatus('error'); }
   };
 
   // Inquiries
-  const addInquiry = (inquiry: Omit<Inquiry, 'id' | 'createdAt' | 'status'>) => {
-    const now = new Date();
-    const formattedDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-    
-    const newInq: Inquiry = {
-      ...inquiry,
-      id: `inq-${Date.now()}`,
-      status: 'new',
-      createdAt: formattedDate
-    };
-    setCmsData(prev => ({
-      ...prev,
-      inquiries: [newInq, ...prev.inquiries]
-    }));
+  const addInquiry = async (inquiry: Omit<Inquiry, 'id' | 'createdAt' | 'status'>) => {
+    const response = await fetch('/api/inquiries', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(inquiry),
+    });
+    if (!response.ok) throw new Error('Unable to save inquiry. Please try again or call us.');
+    await response.json();
   };
 
-  const updateInquiryStatus = (id: string, status: Inquiry['status']) => {
-    setCmsData(prev => ({
-      ...prev,
-      inquiries: prev.inquiries.map(i => i.id === id ? { ...i, status } : i)
-    }));
+  const updateInquiryStatus = async (id: string, status: Inquiry['status']) => {
+    try { await persistAdminChange('/api/inquiries/' + encodeURIComponent(id) + '/status', 'PATCH', { status }); setCmsState(prev => ({ ...prev, inquiries: prev.inquiries.map(i => i.id === id ? { ...i, status } : i) })); } catch { setSaveStatus('error'); }
   };
-
-  const deleteInquiry = (id: string) => {
-    setCmsData(prev => ({
-      ...prev,
-      inquiries: prev.inquiries.filter(i => i.id !== id)
-    }));
+  const deleteInquiry = async (id: string) => {
+    try { await persistAdminChange('/api/inquiries/' + encodeURIComponent(id), 'DELETE'); setCmsState(prev => ({ ...prev, inquiries: prev.inquiries.filter(i => i.id !== id) })); } catch { setSaveStatus('error'); }
   };
 
   // FAQs

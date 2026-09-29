@@ -1,0 +1,14 @@
+node_modules
+dist
+release
+.git
+.env
+.env.*
+!.env.example
+*.zip
+patch_*.cjs
+fix_*.cjs
+update*.js
+update*.cjs
+AUDIT-REPORT.md
+uploads

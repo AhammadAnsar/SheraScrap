@@ -33,7 +33,7 @@ export default function LanguageSelector({ lang, setLang, variant = 'light' }: L
       targetPath += '/';
     }
 
-    navigate(targetPath);
+    window.location.assign(targetPath);
   };
 
   return (

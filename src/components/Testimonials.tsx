@@ -13,9 +13,9 @@ export default function Testimonials({ lang, t }: TestimonialsProps) {
   const { cmsData } = useCMS();
   const isRtl = lang === 'ar';
 
-  const list = (cmsData.testimonials && cmsData.testimonials.length > 0)
+  const list = (cmsData.testimonials !== undefined)
     ? cmsData.testimonials
-    : defaultTestimonials;
+    : [];
 
   return (
     <section className="py-16 md:py-24 bg-white border-b border-slate-100" id="reviews">

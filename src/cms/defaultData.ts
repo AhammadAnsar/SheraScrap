@@ -26,7 +26,7 @@ export const initialCMSData: CMSData = {
     siteKeywordsEn: "Scrap metal Dammam, sell used ACs Dammam, copper scrap prices, iron scrap buyers",
 
     // Webmaster & Analytics
-    googleWebmasterCode: "google-site-verification=shera_scrap_dammam_verification_code",
+    googleWebmasterCode: "",
     bingWebmasterCode: "msvalidate.01=shera_scrap_bing_code",
     analyticsCode: "G-SHERA123456",
 
@@ -646,54 +646,8 @@ Book your pickup today!`,
       order: 4
     }
   ],
-  users: [
-    {
-      id: "usr-admin-1",
-      username: "admin",
-      password: "Shera#SuperAdmin$2026!",
-      name: "مدير النظام الرئيسي (Admin)",
-      email: "admin@sherascrap.com",
-      role: "super_admin",
-      avatar: "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&q=80",
-      createdAt: "2026-01-01",
-      lastLogin: "2026-07-22"
-    },
-    {
-      id: "usr-editor-1",
-      username: "editor",
-      password: "Shera#ContentEditor$2026!",
-      name: "محرر المحتوى والأسعار",
-      email: "editor@sherascrap.com",
-      role: "editor",
-      avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=200&q=80",
-      createdAt: "2026-03-15",
-      lastLogin: "2026-07-21"
-    }
-  ],
-  inquiries: [
-    {
-      id: "inq-101",
-      name: "أبو فهد الخالدي",
-      phone: "0501234567",
-      location: "الدمام - حي الفيصلية",
-      materialType: "مكيفات مستعملة",
-      estimatedWeight: "5 مكيفات شباك + 2 سبليت",
-      notes: "يرجى ارسال الشاحنة اليوم العصر للفك والنقل",
-      status: "new",
-      createdAt: "2026-07-22 09:30"
-    },
-    {
-      id: "inq-102",
-      name: "المهندس صالح العتيبي",
-      phone: "0559876543",
-      location: "الجبيل الصناعية",
-      materialType: "حديد وسكراب مصانع",
-      estimatedWeight: "حوالي 12 طن حديد وهياكل",
-      notes: "طلب معاينة الموقع وتحديد السعر النهائي",
-      status: "contacted",
-      createdAt: "2026-07-21 14:15"
-    }
-  ],
+  users: [],
+  inquiries: [],
   faqs: [
     {
       id: "faq-1",

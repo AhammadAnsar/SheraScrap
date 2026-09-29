@@ -47,6 +47,7 @@ import { CMSData, BlogPost, PageItem, ScrapServiceItem, ScrapCategory, LocationI
 import { initialCMSData } from '../cms/defaultData';
 
 export interface NormalizedStore {
+  content?: Partial<CMSData>;
   version: number;
   migratedAt: string;
   posts: DomainPost[];
@@ -65,7 +66,7 @@ export interface NormalizedStore {
   auditLogs: DomainAuditLog[];
 }
 
-const STORE_PATH = path.resolve(process.cwd(), 'data', 'store.json');
+const STORE_PATH = path.resolve(process.env.DATA_DIR || path.join(process.cwd(), 'data'), 'store.json');
 
 // Initialize in-memory cache
 let inMemoryStore: NormalizedStore | null = null;
@@ -118,10 +119,13 @@ function persistStore(store: NormalizedStore) {
     if (typeof process !== 'undefined' && fs.writeFileSync) {
       const dir = path.dirname(STORE_PATH);
       if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
-      fs.writeFileSync(STORE_PATH, JSON.stringify(store, null, 2), 'utf-8');
+      const tempPath = STORE_PATH + '.tmp';
+      fs.writeFileSync(tempPath, JSON.stringify(store, null, 2), 'utf-8');
+      fs.renameSync(tempPath, STORE_PATH);
     }
   } catch (err) {
-    console.error('Repository: Error persisting store to disk:', err);
+    inMemoryStore = null;
+    throw new Error('Failed to persist CMS data', { cause: err });
   }
 }
 
@@ -129,24 +133,8 @@ function persistStore(store: NormalizedStore) {
 // PUBLISHING STATE EVALUATION HELPER
 // -----------------------------------------------------------------------------
 
-export function isContentPublished(item: { status?: PublishingStatus; scheduledFor?: string; isPublished?: boolean } | null | undefined): boolean {
-  if (!item) return false;
-  const status = item.status || (item.isPublished ? 'published' : 'draft');
-  if (status === 'trash' || status === 'archived' || status === 'draft') {
-    return false;
-  }
-  if (status === 'scheduled') {
-    if (!item.scheduledFor) return false;
-    return new Date(item.scheduledFor).getTime() <= Date.now();
-  }
-  if (status === 'published') {
-    if (item.scheduledFor && new Date(item.scheduledFor).getTime() > Date.now()) {
-      return false;
-    }
-    return true;
-  }
-  return false;
-}
+export { isContentPublished } from '../utils/publication';
+import { isContentPublished } from '../utils/publication';
 
 // -----------------------------------------------------------------------------
 // POSTS REPOSITORY & PUBLISHING WORKFLOW
@@ -981,12 +969,22 @@ export function createInquiry(inquiry: Omit<DomainInquiry, 'id' | 'createdAt'>):
     phone: inquiry.phone.substring(0, 50),
     location: inquiry.location?.substring(0, 200) || 'الدمام',
     materialType: inquiry.materialType?.substring(0, 100) || 'سكراب عام',
+    notes: inquiry.notes?.substring(0, 5000) || '',
     status: inquiry.status || 'new',
     createdAt: new Date().toISOString(),
   };
   store.inquiries.unshift(newInq);
   persistStore(store);
   return newInq;
+}
+
+export function deleteInquiry(id: string): boolean {
+  const store = loadStore();
+  const index = store.inquiries.findIndex(i => i.id === id);
+  if (index < 0) return false;
+  store.inquiries.splice(index, 1);
+  persistStore(store);
+  return true;
 }
 
 export function updateInquiryStatus(id: string, status: DomainInquiry['status']): boolean {
@@ -1111,6 +1109,7 @@ export function getAuthoritativeCMSData(storedData?: Partial<CMSData>): CMSData 
   const base = { ...initialCMSData };
   return {
     ...base,
+    ...store.content,
     ...storedData,
     posts: (store.posts as any) || base.posts,
     pages: (store.pages as any) || base.pages,
@@ -1120,6 +1119,7 @@ export function getAuthoritativeCMSData(storedData?: Partial<CMSData>): CMSData 
     menus: (store.menus as any) || defaultMenus,
     settings: {
       ...base.settings,
+      ...store.settings,
       siteTitleAr: store.settings.siteTitleAr,
       siteTitleEn: store.settings.siteTitleEn,
       siteTaglineAr: store.settings.siteTaglineAr,
@@ -1138,15 +1138,26 @@ export function getCachedCMSData(): CMSData {
   return getAuthoritativeCMSData();
 }
 
+function stampContentChanges<T extends { id: string }>(incoming: T[], previous: T[]): T[] {
+  const comparable = (item: any) => JSON.stringify(Object.fromEntries(Object.entries(item).filter(([key]) => !['views', 'updatedAt', 'modifiedAt'].includes(key)).sort(([a], [b]) => a.localeCompare(b))));
+  return incoming.map(item => {
+    const old = previous.find(p => p.id === item.id);
+    return !old || comparable(item) !== comparable(old) ? { ...item, updatedAt: new Date().toISOString() } : item;
+  });
+}
+
 export function setCachedCMSData(data: CMSData) {
   // Synchronize incoming full data to authoritative store
   const store = loadStore();
-  if (data.posts) store.posts = data.posts as any;
-  if (data.pages) store.pages = data.pages as any;
+  if (data.posts) store.posts = stampContentChanges(data.posts as any[], store.posts);
+  if (data.pages) store.pages = stampContentChanges(data.pages as any[], store.pages);
   if (data.services) store.services = data.services as any;
-  if (data.locations) store.locations = data.locations as any;
+  if (data.locations) store.locations = stampContentChanges(data.locations as any[], store.locations);
   if (data.categories) store.categories = data.categories as any;
   if (data.menus) store.menus = data.menus as any;
   if (data.settings?.redirections) store.redirects = data.settings.redirections as any;
+  const { users, inquiries, posts, pages, services, locations, categories, menus, settings, preview, notFound, ...content } = data;
+  store.content = { ...store.content, ...content };
+  if (settings) store.settings = { ...store.settings, ...settings } as any;
   persistStore(store);
 }

@@ -19,6 +19,7 @@ export default function FAQPage({ lang, t }: FAQPageProps) {
         lang={lang}
       />
       <div className="pt-8">
+        <h1 className="text-3xl font-black text-center px-4 pt-8">{isRtl ? 'الأسئلة الشائعة' : 'Frequently Asked Questions'}</h1>
         <FAQ lang={lang} t={t} />
       </div>
     </>

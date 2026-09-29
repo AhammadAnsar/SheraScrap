@@ -18,7 +18,7 @@ export default function UserManager({ lang }: UserManagerProps) {
     setEditingUser({
       id: '',
       username: 'editor_' + Date.now().toString().slice(-4),
-      password: 'Shera' + Math.floor(1000 + Math.random() * 9000) + '!',
+      password: '',
       name: 'محرر جديد',
       email: 'editor@sherascrap.com',
       role: 'editor',
@@ -148,22 +148,7 @@ export default function UserManager({ lang }: UserManagerProps) {
                 />
               </div>
 
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">
-                  {isRtl ? "كلمة المرور المشفرة (Password)" : "Account Password"}
-                </label>
-                <input
-                  type="text"
-                  value={editingUser.password || ''}
-                  onChange={(e) => setEditingUser({ ...editingUser, password: e.target.value })}
-                  placeholder="••••••••"
-                  required
-                  className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-amber-400 font-mono text-xs focus:border-emerald-500 focus:outline-none"
-                />
-                <p className="text-[10px] text-slate-500 mt-1">
-                  {isRtl ? "كلمة المرور الخاصة بهذا الحساب للدخول للوحة التحكم" : "Private password for logging into dashboard"}
-                </p>
-              </div>
+              <p className="text-xs text-slate-400">{isRtl ? 'تدار كلمات المرور والتحقق من البريد في Firebase Authentication.' : 'Passwords and email verification are managed in Firebase Authentication. This form controls CMS access only.'}</p>
 
               <div>
                 <label className="block text-xs font-bold text-slate-300 mb-1">

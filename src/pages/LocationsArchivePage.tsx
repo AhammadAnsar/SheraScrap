@@ -14,9 +14,7 @@ export default function LocationsArchivePage({ lang }: LocationsArchivePageProps
   const { cmsData } = useCMS();
   const isRtl = lang === 'ar';
 
-  const locations = (cmsData.locations && cmsData.locations.length > 0)
-    ? cmsData.locations.filter(l => l.isPublished)
-    : defaultLocations.filter(l => l.isPublished);
+  const locations = (cmsData.locations ?? []).filter(l => l.isPublished);
 
   const title = isRtl
     ? 'مناطق التغطية والخدمة بالمنطقة الشرقية | شيرا سكراب'
@@ -34,7 +32,7 @@ export default function LocationsArchivePage({ lang }: LocationsArchivePageProps
         lang={lang}
       />
 
-      <main className="max-w-7xl mx-auto px-4 py-12 md:py-16">
+      <section className="max-w-7xl mx-auto px-4 py-12 md:py-16">
         <header className="text-center max-w-3xl mx-auto mb-12">
           <div className="inline-flex items-center gap-2 bg-emerald-500/10 text-emerald-400 text-xs font-bold px-3 py-1.5 rounded-full mb-4">
             <MapPin className="w-3.5 h-3.5" />
@@ -65,8 +63,7 @@ export default function LocationsArchivePage({ lang }: LocationsArchivePageProps
                 </div>
 
                 <h2 className="text-lg font-bold text-white mb-2 leading-snug">
-                  <Link
-                    to={`/${lang}/locations/${loc.slug}/`}
+                  <Link reloadDocument to={`/${lang}/locations/${loc.slug}/`}
                     className="hover:text-emerald-400 transition-colors"
                   >
                     {isRtl ? loc.titleAr : loc.titleEn}
@@ -87,8 +84,7 @@ export default function LocationsArchivePage({ lang }: LocationsArchivePageProps
                   <span>{loc.phone || SITE_CONFIG.business.phoneDisplay}</span>
                 </a>
 
-                <Link
-                  to={`/${lang}/locations/${loc.slug}/`}
+                <Link reloadDocument to={`/${lang}/locations/${loc.slug}/`}
                   className="text-emerald-400 font-bold hover:text-emerald-300 flex items-center gap-1"
                 >
                   <span>{isRtl ? 'التفاصيل' : 'Details'}</span>
@@ -98,7 +94,7 @@ export default function LocationsArchivePage({ lang }: LocationsArchivePageProps
             </article>
           ))}
         </div>
-      </main>
+      </section>
     </>
   );
 }

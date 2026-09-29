@@ -1,5 +1,6 @@
+import type { CMSData } from './cms/types';
 import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate, useParams, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useParams, useLocation, StaticRouter } from 'react-router-dom';
 
 import Header from './components/Header';
 import { CMSProvider, useCMS } from './cms/CMSContext';
@@ -20,11 +21,12 @@ import AdminPage from './pages/AdminPage';
 import BlogPostPage from './components/BlogPostPage';
 import { arabicTranslations, englishTranslations } from './data';
 
-export default function App() {
+export default function App({ initialData, serverLocation }: { initialData?: CMSData; serverLocation?: string } = {}) {
+  const RouterComponent: any = serverLocation !== undefined ? StaticRouter : Router;
   return (
-    <CMSProvider>
-      <Router>
-        <Routes>
+    <CMSProvider initialData={initialData}>
+      <RouterComponent location={serverLocation}>
+        {initialData?.notFound ? <NotFoundWrapper /> : <Routes>
           {/* Admin CMS System (Isolated from public bundle) */}
           <Route path="/admin" element={<AdminPage />} />
           <Route path="/admin/*" element={<AdminPage />} />
@@ -76,8 +78,8 @@ export default function App() {
 
           {/* 404 Catch-All */}
           <Route path="*" element={<MainWrapper><NotFoundWrapper /></MainWrapper>} />
-        </Routes>
-      </Router>
+        </Routes>}
+      </RouterComponent>
     </CMSProvider>
   );
 }
@@ -104,11 +106,11 @@ function LegacyPageRedirect() {
 }
 
 function MainWrapper({ children }: { children: React.ReactNode }) {
-  const { isAdminOpen } = useCMS();
+  const { isAdminOpen, cmsData } = useCMS();
   if (isAdminOpen) {
     return <Navigate to="/admin" replace />;
   }
-  return <>{children}</>;
+  return <>{cmsData.preview && <aside className="bg-amber-300 text-black p-3 text-center">Preview — unpublished content</aside>}{children}</>;
 }
 
 interface LanguagePageResolverProps {
@@ -120,9 +122,7 @@ function LanguagePageResolver({ page }: LanguagePageResolverProps) {
   const rawLang = params.lang || 'ar';
   
   // Validate language code
-  if (rawLang !== 'ar' && rawLang !== 'en') {
-    return <NotFoundPage lang="ar" />;
-  }
+
 
   const lang = rawLang as 'ar' | 'en';
   const t = lang === 'ar' ? arabicTranslations : englishTranslations;
@@ -131,6 +131,8 @@ function LanguagePageResolver({ page }: LanguagePageResolverProps) {
     document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
     document.documentElement.lang = lang;
   }, [lang]);
+
+  if (rawLang !== 'ar' && rawLang !== 'en') return <NotFoundPage lang="ar" />;
 
   const setLang = (newLang: 'ar' | 'en') => {
     // Language toggle is handled seamlessly in LanguageSelector
@@ -187,9 +189,10 @@ function LanguagePageResolver({ page }: LanguagePageResolverProps) {
 }
 
 function NotFoundWrapper() {
+  const lang = useLocation().pathname.startsWith("/en/") ? "en" : "ar";
   return (
-    <AppLayout lang="ar" setLang={() => {}} t={arabicTranslations}>
-      <NotFoundPage lang="ar" />
+    <AppLayout lang={lang} setLang={() => {}} t={lang === "en" ? englishTranslations : arabicTranslations}>
+      <NotFoundPage lang={lang} />
     </AppLayout>
   );
 }

@@ -20,6 +20,7 @@ export default function BlogArchivePage({ lang, t }: BlogArchivePageProps) {
         lang={lang}
       />
       <div className="pt-8 bg-slate-50">
+        <h1 className="text-3xl font-black text-center pt-8">{isRtl ? "المدونة" : "Blog & News"}</h1>
         <BlogSection lang={lang} />
         <VideoSection lang={lang} />
       </div>

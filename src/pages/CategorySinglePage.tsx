@@ -15,7 +15,12 @@ export default function CategorySinglePage({ lang }: CategorySinglePageProps) {
   const { cmsData } = useCMS();
   const isRtl = lang === 'ar';
 
-  const category = cmsData.categories.find(c => c.slug === slug);
+  const service = cmsData.services.find(s => s.slug === slug && s.active !== false);
+  const category = cmsData.categories.find(c => c.slug === slug) || (service ? {
+    slug: service.slug, nameAr: service.titleAr, nameEn: service.titleEn,
+    descriptionAr: (service as any).descriptionAr || service.subtitleAr, descriptionEn: (service as any).descriptionEn || service.subtitleEn,
+    rateEstimateAr: service.rateEstimateAr || 'اتصل بنا للتسعير', rateEstimateEn: service.rateEstimateEn || 'Contact us for a quote', featuredImage: service.image,
+  } : undefined);
 
   if (!category) {
     return <NotFoundPage lang={lang} />;
@@ -41,7 +46,7 @@ export default function CategorySinglePage({ lang }: CategorySinglePageProps) {
         lang={lang}
       />
       <div className="max-w-4xl mx-auto px-4 py-12 md:py-20">
-        <Link to={`/${lang}/services/`} className="inline-flex items-center gap-2 text-emerald-600 font-bold mb-8 hover:text-emerald-700">
+        <Link reloadDocument to={`/${lang}/services/`} className="inline-flex items-center gap-2 text-emerald-600 font-bold mb-8 hover:text-emerald-700">
           {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
           {isRtl ? "العودة للخدمات" : "Back to Services"}
         </Link>

@@ -93,12 +93,8 @@ export async function verifyIdToken(idToken: string): Promise<AuthUser | null> {
   let email = '';
   let uid = '';
 
-  // 1. Check for system dev/test token simulation
-  if (cleanToken.startsWith('test-token:')) {
-    const parts = cleanToken.split(':');
-    email = parts[1] || 'test@sherascrap.com';
-    uid = 'usr-' + email.split('@')[0];
-  } else {
+  if (cleanToken.startsWith('test-token:')) return null;
+  {
     // 2. Authoritative verification via Google Identity Toolkit REST API
     try {
       const apiKey = firebaseConfig.apiKey || process.env.FIREBASE_API_KEY;
@@ -119,6 +115,7 @@ export async function verifyIdToken(idToken: string): Promise<AuthUser | null> {
       }
 
       const googleUser = data.users[0];
+      if (!googleUser.emailVerified || googleUser.disabled) return null;
       email = googleUser.email?.toLowerCase() || '';
       uid = googleUser.localId || '';
     } catch (err) {
@@ -139,16 +136,8 @@ export async function verifyIdToken(idToken: string): Promise<AuthUser | null> {
   let name = matchedUser ? matchedUser.name : 'Authorized User';
   let username = matchedUser ? matchedUser.username : email.split('@')[0];
 
-  // Enforce permanent Super Admin for designated owner
-  if (email.toLowerCase() === 'ansarahammad369@gmail.com' || email.toLowerCase() === 'admin@sherascrap.com') {
-    role = 'super_admin';
-  } else if (matchedUser) {
-    role = matchedUser.role;
-  } else {
-    // Registered user in Auth but not permitted in CMS database
-    console.warn(`[AUTH] Access denied: User ${email} is not in CMS allowed users list.`);
-    return null;
-  }
+  if (!matchedUser) return null;
+  role = matchedUser.role;
 
   const permissions = ROLE_PERMISSIONS[role] || [];
 

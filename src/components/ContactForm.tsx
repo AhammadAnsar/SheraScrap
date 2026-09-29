@@ -20,35 +20,18 @@ export default function ContactForm({ lang, t }: ContactFormProps) {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [isSuccess, setIsSuccess] = useState<boolean>(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [submitError, setSubmitError] = useState('');
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
-    
-    // Save to CMS Inquiries
-    addInquiry({
-      name,
-      phone,
-      location: isRtl ? settings.locationAr : settings.locationEn,
-      materialType: isRtl ? 'طلب تسعيرة سكراب' : 'Scrap Quote Request',
-      notes: details
-    });
-
-    setTimeout(() => {
-      setIsSubmitting(false);
+    if (isSubmitting) return;
+    setIsSubmitting(true); setSubmitError('');
+    try {
+      await addInquiry({ name, phone, location: isRtl ? settings.locationAr : settings.locationEn,
+        materialType: isRtl ? 'طلب تسعيرة سكراب' : 'Scrap Quote Request', notes: details });
       setIsSuccess(true);
-      
-      // Auto-trigger WhatsApp redirect
-      const categoryText = encodeURIComponent(
-        isRtl 
-          ? `مرحباً شيرا للسكراب، الاسم: ${name}، رقم الجوال: ${phone}، تفاصيل السكراب: ${details}` 
-          : `Hello Shera Scrap Haraj, Name: ${name}, Phone: ${phone}, Scrap: ${details}`
-      );
-      
-      setTimeout(() => {
-        window.open(`https://wa.me/${settings.whatsapp}?text=${categoryText}`, '_blank');
-      }, 1500);
-
-    }, 800);
+    } catch {
+      setSubmitError(isRtl ? 'تعذر إرسال الطلب. حاول مجدداً أو اتصل بنا.' : 'Unable to send your request. Please try again or call us.');
+    } finally { setIsSubmitting(false); }
   };
 
   const mapEmbedUrl = settings.googleMapEmbedUrl || "https://maps.google.com/maps?q=King%20Khaled%20St,%20Al%20Athir,%20Dammam%2032248,%20Saudi%20Arabia&t=&z=15&ie=UTF8&iwloc=&output=embed";
@@ -244,12 +227,13 @@ export default function ContactForm({ lang, t }: ContactFormProps) {
                 </p>
                 <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 text-emerald-800 text-xs font-semibold max-w-sm mx-auto">
                   {isRtl 
-                    ? "الآن سنقوم بتحويلك تلقائياً إلى واتساب لتأكيد الصور وترتيب سيارة النقل المجانية..." 
-                    : "Redirecting you to WhatsApp to confirm details with our dispatcher..."}
+                    ? "تم حفظ طلبك. سيتواصل معك فريقنا قريباً." 
+                    : "Your request has been saved. Our team will contact you."}
                 </div>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4 flex flex-col justify-between h-full">
+                {submitError && <p role="alert" className="text-red-700">{submitError}</p>}
                 <div>
                   <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-5">
                     <h3 className="text-lg md:text-xl font-black text-slate-900">
@@ -266,6 +250,8 @@ export default function ContactForm({ lang, t }: ContactFormProps) {
                       <label className="text-xs font-extrabold text-slate-700 block">{t.formName}</label>
                       <input
                         type="text"
+                        aria-label={t.formName}
+                        maxLength={200}
                         required
                         value={name}
                         onChange={(e) => setName(e.target.value)}
@@ -279,6 +265,8 @@ export default function ContactForm({ lang, t }: ContactFormProps) {
                       <label className="text-xs font-extrabold text-slate-700 block">{t.formPhone}</label>
                       <input
                         type="tel"
+                        aria-label={t.formPhone}
+                        maxLength={50}
                         required
                         value={phone}
                         onChange={(e) => setPhone(e.target.value)}
@@ -291,6 +279,8 @@ export default function ContactForm({ lang, t }: ContactFormProps) {
                     <div className="space-y-1">
                       <label className="text-xs font-extrabold text-slate-700 block">{t.formDetails}</label>
                       <textarea
+                        aria-label={t.formDetails}
+                        maxLength={5000}
                         required
                         rows={3}
                         value={details}

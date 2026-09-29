@@ -67,12 +67,7 @@ export default function SitemapManager({ lang }: SitemapManagerProps) {
   };
 
   const handlePingSearchEngines = () => {
-    setIsSyncing(true);
-    setTimeout(() => {
-      setIsSyncing(false);
-      setPingSuccess(true);
-      setTimeout(() => setPingSuccess(false), 4000);
-    }, 1200);
+    window.open('https://search.google.com/search-console/sitemaps', '_blank', 'noopener,noreferrer');
   };
 
   return (
@@ -209,7 +204,7 @@ export default function SitemapManager({ lang }: SitemapManagerProps) {
               className="bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/30 font-bold px-3.5 py-2 rounded-xl text-xs transition-all cursor-pointer flex items-center gap-1.5"
             >
               {isSyncing ? <RefreshCw className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4 text-purple-400" />}
-              <span>{isRtl ? "إشعار محرك البحث جوجل (Ping Search Console)" : "Ping Google Search Console"}</span>
+              <span>{isRtl ? "فتح Google Search Console" : "Open Google Search Console"}</span>
             </button>
 
           </div>

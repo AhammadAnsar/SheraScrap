@@ -1,3 +1,4 @@
+import { isContentPublished } from '../utils/publication';
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FileText, Calendar, Eye, ArrowRight, User, X, Sparkles } from 'lucide-react';
@@ -15,7 +16,7 @@ export default function BlogSection({ lang }: BlogSectionProps) {
 
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
 
-  const publishedPosts = cmsData.posts.filter(p => p.status === 'published' && p.postType !== 'video');
+  const publishedPosts = cmsData.posts.filter(p => isContentPublished(p) && p.postType !== 'video');
 
   if (publishedPosts.length === 0) return null;
 
@@ -49,8 +50,7 @@ export default function BlogSection({ lang }: BlogSectionProps) {
         {/* Posts Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {publishedPosts.map((post) => (
-            <Link 
-              to={`/${lang}/blog/${post.slug || post.id}/`}
+            <Link reloadDocument to={`/${lang}/blog/${post.slug || post.id}/`}
               key={post.id}
               onClick={() => handleOpenPost(post)}
               className="bg-slate-50 border border-slate-200/80 rounded-2xl overflow-hidden hover:shadow-xl hover:border-purple-300 transition-all cursor-pointer group flex flex-col justify-between block"

@@ -1,3 +1,5 @@
+import { sanitizeHtml } from '../utils/sanitizeHtml';
+import { isContentPublished } from '../utils/publication';
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useCMS } from '../cms/CMSContext';
@@ -13,7 +15,7 @@ export default function BlogPostPage({ lang, setLang, t }: { lang: 'ar' | 'en', 
   
   const post = cmsData.posts.find(p => p.slug === slug || p.id === slug);
 
-  if (!post || post.status !== 'published') {
+  if (!post || !isContentPublished(post)) {
     return <NotFoundPage lang={lang} />;
   }
 
@@ -32,7 +34,7 @@ export default function BlogPostPage({ lang, setLang, t }: { lang: 'ar' | 'en', 
         type="article"
       />
       <div className="max-w-4xl mx-auto w-full px-4 py-12">
-        <Link to={`/${lang}/blog/`} className="inline-flex items-center gap-2 text-emerald-600 font-bold mb-8 hover:text-emerald-700 transition-colors">
+        <Link reloadDocument to={`/${lang}/blog/`} className="inline-flex items-center gap-2 text-emerald-600 font-bold mb-8 hover:text-emerald-700 transition-colors">
           {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
           <span>{isRtl ? "العودة للمقالات" : "Back to Blog"}</span>
         </Link>
@@ -66,7 +68,7 @@ export default function BlogPostPage({ lang, setLang, t }: { lang: 'ar' | 'en', 
             </h1>
             
             <div className="prose prose-slate max-w-none text-slate-700 leading-relaxed text-base sm:text-lg whitespace-pre-line space-y-4">
-              {content}
+              <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(content) }} />
             </div>
 
             {post.tags && post.tags.length > 0 && (

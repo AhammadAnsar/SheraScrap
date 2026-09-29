@@ -1,20 +1,25 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# Shera Scrap Haraj
 
-# Run and deploy your AI Studio app
+Arabic/English multi-page website with React SSR, full-document public navigation, and a persistent Express CMS/API.
 
-This contains everything you need to run your app locally.
+## Run
 
-View your app in AI Studio: https://ai.studio/apps/2930bca9-7357-41c0-92e1-77f6fc0a45c2
+Requires Node.js 22.14+.
 
-## Run Locally
+```sh
+npm ci
+npm run dev
+```
 
-**Prerequisites:**  Node.js
+## Production
 
+```sh
+npm run lint
+npm run build
+npm test
+npm start
+```
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+Read [DEPLOYMENT.md](DEPLOYMENT.md) for Node/Docker hosting, Firebase CMS access, persistent data, reverse proxy and launch checks. See [RELEASE-NOTES.md](RELEASE-NOTES.md) for audit fixes and validation scope.
+
+Serve through Express, not a static index.html rewrite. `npm test` uses an isolated temporary store; it never changes the client's dataset.

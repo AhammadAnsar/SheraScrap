@@ -1,3 +1,4 @@
+import { serializeJson } from '../utils/serialize';
 import React from 'react';
 import { faqs as defaultFaqs } from '../data';
 import { LanguagePack } from '../types';
@@ -12,12 +13,12 @@ export default function FAQ({ lang, t }: FAQProps) {
   const { cmsData } = useCMS();
   const isRtl = lang === 'ar';
 
-  const faqList = (cmsData.faqs && cmsData.faqs.length > 0)
+  const faqList = (cmsData.faqs !== undefined)
     ? cmsData.faqs.map(f => ({
         question: isRtl ? f.questionAr : f.questionEn,
         answer: isRtl ? f.answerAr : f.answerEn
       }))
-    : defaultFaqs;
+    : [];
 
   return (
     <section className="py-16 md:py-24 bg-white border-b border-slate-100" id="faq">
@@ -81,7 +82,7 @@ export default function FAQ({ lang, t }: FAQProps) {
 
         {/* Structured Data (JSON-LD Schema Markup) for local and FAQ search validation */}
         <script type="application/ld+json" dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
+          __html: serializeJson({
             "@context": "https://schema.org",
             "@type": "FAQPage",
             "mainEntity": faqList.map(f => ({

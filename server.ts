@@ -1,9 +1,12 @@
+import 'dotenv/config';
+import { getPublicData } from './src/server/publicData';
+import { isContentPublished } from './src/utils/publication';
 import express from "express";
 import path from "path";
 import fs from "fs";
 import dotenv from "dotenv";
 import { GoogleGenAI, Type } from "@google/genai";
-import { createServer as createViteServer } from "vite";
+
 import {
   getAllPosts,
   savePost,
@@ -34,6 +37,7 @@ import {
   updateSiteSettings,
   getAllInquiries,
   createInquiry,
+  deleteInquiry,
   updateInquiryStatus,
   getAllAuditLogs,
   getAllMenus,
@@ -67,7 +71,9 @@ dotenv.config();
 
 // Initialize Express
 const app = express();
-const PORT = 3000;
+const PORT = Number(process.env.PORT || 3000);
+app.disable("x-powered-by");
+app.use((_req, res, next) => { res.setHeader("X-Content-Type-Options", "nosniff"); res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin"); res.setHeader("X-Frame-Options", "SAMEORIGIN"); next(); });
 
 // Set payload limits (15MB max)
 app.use(express.json({ limit: "15mb" }));
@@ -75,18 +81,14 @@ app.use(express.urlencoded({ limit: "15mb", extended: true }));
 app.use(authenticate as any);
 
 // Ensure upload directories exist
-const publicUploadsDir = path.join(process.cwd(), "public", "uploads");
-const rootUploadsDir = path.join(process.cwd(), "uploads");
+const publicUploadsDir = path.resolve(process.env.UPLOADS_DIR || path.join(process.cwd(), "public", "uploads"));
 if (!fs.existsSync(publicUploadsDir)) {
   fs.mkdirSync(publicUploadsDir, { recursive: true });
-}
-if (!fs.existsSync(rootUploadsDir)) {
-  fs.mkdirSync(rootUploadsDir, { recursive: true });
 }
 
 // Serve uploaded image assets statically
 app.use("/uploads", express.static(publicUploadsDir));
-app.use("/uploads", express.static(rootUploadsDir));
+
 
 // Initialize GoogleGenAI lazy loader
 let aiClient: GoogleGenAI | null = null;
@@ -195,10 +197,13 @@ app.get("/api/cms/entities", (req: AuthenticatedRequest, res) => {
     const isStaff = !!req.user && ['super_admin', 'administrator', 'editor', 'author'].includes(req.user.role);
 
     // Public caller: ONLY published posts and published pages
-    const posts = isStaff ? getAllPosts() : getAllPosts().filter(p => p.status === 'published');
+    res.setHeader('Cache-Control', 'no-store');
+    if (!isStaff) return res.json(getPublicData());
+    const posts = getAllPosts();
     const pages = isStaff ? getAllPages() : getAllPages().filter(p => p.isPublished);
 
     const publicResponse: any = {
+      ...getCachedCMSData(),
       posts,
       pages,
       services: getAllServices(),
@@ -233,7 +238,9 @@ app.get("/api/cms/entities", (req: AuthenticatedRequest, res) => {
 app.get("/api/admin/entities", requireAuth as any, (req: AuthenticatedRequest, res) => {
   try {
     const user = req.user!;
+    res.setHeader("Cache-Control", "no-store");
     const response: any = {
+      ...getCachedCMSData(),
       posts: getAllPosts(),
       pages: getAllPages(),
       services: getAllServices(),
@@ -467,7 +474,7 @@ app.get("/api/admin/roles", (requireAuth as any), (req: AuthenticatedRequest, re
 // Customer Inquiries: Public create with strict input validation
 app.post("/api/inquiries", (req, res) => {
   try {
-    const { name, phone, location, materialType } = req.body;
+    const { name, phone, location, materialType, notes } = req.body;
     if (!name || typeof name !== 'string' || name.trim().length === 0 || name.length > 200) {
       return res.status(400).json({ error: "A valid name up to 200 characters is required." });
     }
@@ -479,6 +486,7 @@ app.post("/api/inquiries", (req, res) => {
       phone: phone.trim(),
       location: typeof location === 'string' ? location.slice(0, 200) : undefined,
       materialType: typeof materialType === 'string' ? materialType.slice(0, 100) : undefined,
+      notes: typeof notes === 'string' ? notes.slice(0, 5000) : '',
       status: 'new'
     });
     return res.json({ success: true, inquiry: created });
@@ -499,11 +507,17 @@ app.get("/api/inquiries", (requirePermission('inquiries:view') as any), (req: Au
 app.patch("/api/inquiries/:id/status", (requirePermission('inquiries:manage') as any), (req: AuthenticatedRequest, res) => {
   try {
     const { status } = req.body;
+    if (!['new', 'contacted', 'completed', 'cancelled'].includes(status)) return res.status(400).json({ error: 'Invalid status' });
     const ok = updateInquiryStatus(req.params.id, status);
     return res.json({ success: ok });
   } catch (err: any) {
     return res.status(500).json({ error: err.message });
   }
+});
+
+app.delete('/api/inquiries/:id', requirePermission('inquiries:manage') as any, (req, res) => {
+  try { const ok = deleteInquiry(req.params.id); return res.status(ok ? 200 : 404).json({ success: ok }); }
+  catch { return res.status(500).json({ error: 'Failed to delete inquiry' }); }
 });
 
 // Audit Trail Endpoint (Super Admin & Administrator only)
@@ -552,10 +566,8 @@ app.delete("/api/media/:fileName", (requirePermission('media:delete') as any), (
       return res.status(400).json({ error: "Invalid filename" });
     }
     const publicPath = path.join(publicUploadsDir, fileName);
-    const rootPath = path.join(rootUploadsDir, fileName);
     
     if (fs.existsSync(publicPath)) fs.unlinkSync(publicPath);
-    if (fs.existsSync(rootPath)) fs.unlinkSync(rootPath);
     
     const distPath = path.join(process.cwd(), "dist", "uploads", fileName);
     if (fs.existsSync(distPath)) fs.unlinkSync(distPath);
@@ -616,10 +628,8 @@ app.post(["/api/upload", "/api/upload.php"], (requirePermission('media:upload') 
     const fileName = `${sanitizedName}_${Date.now()}_${Math.random().toString(36).substring(2, 7)}.${ext}`;
 
     const publicPath = path.join(publicUploadsDir, fileName);
-    const rootPath = path.join(rootUploadsDir, fileName);
 
     fs.writeFileSync(publicPath, buffer);
-    fs.writeFileSync(rootPath, buffer);
 
     const fileUrl = `/uploads/${fileName}`;
 
@@ -740,6 +750,7 @@ async function startServer() {
 
   if (!isProduction) {
     console.log("🚀 Starting Vite dev server in middleware mode with SSR...");
+    const { createServer: createViteServer } = await import("vite");
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: "custom",
@@ -751,13 +762,14 @@ async function startServer() {
     // SSR Handler for all HTML / page requests
     app.use("*", async (req, res, next) => {
       const url = req.originalUrl;
+      const pathname = req.path;
 
       // Skip non-page requests (assets, api, uploads)
       if (
-        url.startsWith("/api") || 
-        url.startsWith("/uploads") || 
-        url.startsWith("/@") || 
-        url.includes(".")
+        pathname.startsWith("/api") || 
+        pathname.startsWith("/uploads") || 
+        pathname.startsWith("/@") || 
+        path.extname(pathname) !== ""
       ) {
         return next();
       }
@@ -780,7 +792,7 @@ async function startServer() {
           return res.redirect(result.statusCode, result.redirectUrl);
         }
 
-        return res.status(result.statusCode).header("Content-Type", "text/html; charset=utf-8").send(result.html);
+        return res.status(result.statusCode).header("Cache-Control", "no-store").header("Content-Type", "text/html; charset=utf-8").send(result.html);
       } catch (err: any) {
         vite.ssrFixStacktrace(err);
         console.error("SSR dev error:", err);
@@ -790,16 +802,19 @@ async function startServer() {
 
   } else {
     console.log("📦 Starting Production Express server with SSR...");
-    const distPath = path.join(process.cwd(), "dist");
+    const distPath = path.join(process.cwd(), "dist", "client");
     
     // Serve static client assets (JS, CSS, images)
-    app.use(express.static(distPath, { index: false }));
+    app.use('/assets', express.static(path.join(distPath, 'assets'), { immutable: true, maxAge: '1y' }));
+    // Never serve backend output, source maps, template shells or SSR snapshots.
+    app.get(['/server.cjs', '/server.cjs.map', '/index.html', '/spa-shell.html'], (_req, res) => res.sendStatus(404));
 
     // SSR Handler for all production page requests
     app.use("*", async (req, res, next) => {
       const url = req.originalUrl;
+      const pathname = req.path;
 
-      if (url.startsWith("/api") || url.startsWith("/uploads") || url.includes(".")) {
+      if (pathname.startsWith("/api") || pathname.startsWith("/uploads") || path.extname(pathname) !== "") {
         return next();
       }
 
@@ -823,7 +838,7 @@ async function startServer() {
           return res.redirect(result.statusCode, result.redirectUrl);
         }
 
-        return res.status(result.statusCode).header("Content-Type", "text/html; charset=utf-8").send(result.html);
+        return res.status(result.statusCode).header("Cache-Control", "no-store").header("Content-Type", "text/html; charset=utf-8").send(result.html);
       } catch (err: any) {
         console.error("SSR production error:", err);
         return res.status(500).send("Internal Server Error");
@@ -831,6 +846,7 @@ async function startServer() {
     });
   }
 
+  app.use('/api', (_req, res) => res.status(404).json({ error: 'Not found' }));
   app.listen(PORT, "0.0.0.0", () => {
     console.log(`✅ Shera Scrap Server running on http://0.0.0.0:${PORT}`);
   });

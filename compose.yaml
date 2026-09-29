@@ -1,0 +1,19 @@
+services:
+  web:
+    build: .
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3000:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      DATA_DIR: /app/data
+      UPLOADS_DIR: /app/public/uploads
+      PREVIEW_SECRET: ${PREVIEW_SECRET:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+    volumes:
+      - cms-data:/app/data
+      - media:/app/public/uploads
+volumes:
+  cms-data:
+  media:

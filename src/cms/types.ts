@@ -347,6 +347,8 @@ export interface EstimatorConfig {
 }
 
 export interface CMSData {
+  preview?: boolean;
+  notFound?: boolean;
   settings: SiteSettings;
   pages: PageItem[];
   slides: SliderSlide[];

@@ -1,3 +1,4 @@
+import { isContentPublished } from '../utils/publication';
 import React, { useState } from 'react';
 import { Video, Play, Calendar, Eye, MessageSquare, X, ShieldCheck, Sparkles, Youtube } from 'lucide-react';
 import { useCMS } from '../cms/CMSContext';
@@ -15,7 +16,7 @@ export default function VideoSection({ lang }: VideoSectionProps) {
   const [activeVideo, setActiveVideo] = useState<BlogPost | null>(null);
 
   // Combine video posts from cmsData.posts (where postType === 'video') and legacy cmsData.videoPosts
-  const videoPostsFromPosts = cmsData.posts.filter(p => p.status === 'published' && p.postType === 'video');
+  const videoPostsFromPosts = cmsData.posts.filter(p => isContentPublished(p) && p.postType === 'video');
 
   // Convert legacy videoPosts to BlogPost structure if needed
   const legacyVideoPosts: BlogPost[] = (cmsData.videoPosts || []).map(v => ({

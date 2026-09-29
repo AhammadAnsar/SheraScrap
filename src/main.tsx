@@ -1,36 +1,11 @@
-// Defensive barrier for read-only fetch getter in sandboxed preview environments
-if (typeof window !== 'undefined') {
-  const shouldSuppress = (msg?: string) => typeof msg === 'string' && msg.includes('fetch') && msg.includes('getter');
-  window.addEventListener('error', (event) => {
-    if (event && (shouldSuppress(event.message) || (event.error && shouldSuppress(event.error.message)))) {
-      event.preventDefault();
-      event.stopImmediatePropagation?.();
-      return true;
-    }
-  }, true);
-  window.addEventListener('unhandledrejection', (event) => {
-    if (event && event.reason && shouldSuppress(event.reason.message)) {
-      event.preventDefault();
-      event.stopImmediatePropagation?.();
-      return true;
-    }
-  }, true);
-}
-
-import {StrictMode} from 'react';
-import {createRoot} from 'react-dom/client';
-import { HelmetProvider } from 'react-helmet-async';
-import App from './App.tsx';
-import { ErrorBoundary } from './components/ErrorBoundary.tsx';
+import React from 'react';
+import { createRoot, hydrateRoot } from 'react-dom/client';
+import App from './App';
+import { ErrorBoundary } from './components/ErrorBoundary';
 import './index.css';
-
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <HelmetProvider>
-      <ErrorBoundary>
-        <App />
-      </ErrorBoundary>
-    </HelmetProvider>
-  </StrictMode>,
-);
-
+const payload = document.getElementById('__CMS_DATA__');
+const initialData = payload ? JSON.parse(payload.textContent || '{}') : undefined;
+const root = document.getElementById('root')!;
+const app = <ErrorBoundary><App initialData={initialData} /></ErrorBoundary>;
+if (payload && root.hasChildNodes()) hydrateRoot(root, app);
+else createRoot(root).render(app);

@@ -19,6 +19,7 @@ export default function ContactPage({ lang, t }: ContactPageProps) {
         lang={lang}
       />
       <div className="pt-8">
+        <h1 className="text-3xl font-black text-center px-4 pt-8">{isRtl ? 'اتصل بنا' : 'Contact Us'}</h1>
         <ContactForm lang={lang} t={t} />
       </div>
     </>

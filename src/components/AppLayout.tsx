@@ -5,6 +5,7 @@ import Header from './Header';
 import AdminBar from './admin/AdminBar';
 import AdminLoginModal from './admin/AdminLoginModal';
 import { useCMS } from '../cms/CMSContext';
+import { reservedPageSlugs } from '../routing/publicRoutes';
 import { LanguagePack } from '../types';
 
 interface AppLayoutProps {
@@ -118,16 +119,16 @@ export default function AppLayout({ children, lang, setLang, t }: AppLayoutProps
           </div>
           
           <div className="flex gap-4 flex-wrap justify-center">
-            <Link to={`/${lang}/`} className="hover:text-white transition-colors">{isRtl ? "الرئيسية" : "Home"}</Link>
-            <Link to={`/${lang}/services/`} className="hover:text-white transition-colors">{isRtl ? "خدماتنا" : "Services"}</Link>
-            <Link to={`/${lang}/locations/restaurant-equipment-dammam/`} className="hover:text-white transition-colors">{isRtl ? "معدات مطاعم الدمام" : "Restaurant Equipment"}</Link>
-            <Link to={`/${lang}/locations/used-furniture-jubail/`} className="hover:text-white transition-colors">{isRtl ? "أثاث مستعمل الجبيل" : "Used Furniture Jubail"}</Link>
-            <Link to={`/${lang}/blog/`} className="hover:text-white transition-colors">{isRtl ? "المقالات" : "Blog"}</Link>
-            <Link to={`/${lang}/estimator/`} className="hover:text-white transition-colors">{isRtl ? "حاسبة الأسعار" : "AI Estimator"}</Link>
-            <Link to={`/${lang}/about/`} className="hover:text-white transition-colors">{isRtl ? "من نحن" : "About Us"}</Link>
-            <Link to={`/${lang}/contact/`} className="hover:text-white transition-colors">{isRtl ? "اتصل بنا" : "Contact"}</Link>
-            {cmsData.pages.filter(p => p.isPublished && !['about', 'contact', 'blog', 'services', 'faq'].includes(p.slug)).map(p => (
-              <Link key={p.id} to={`/${lang}/pages/${p.slug}/`} className="hover:text-white transition-colors">{isRtl ? p.titleAr : p.titleEn}</Link>
+            <Link reloadDocument to={`/${lang}/`} className="hover:text-white transition-colors">{isRtl ? "الرئيسية" : "Home"}</Link>
+            <Link reloadDocument to={`/${lang}/services/`} className="hover:text-white transition-colors">{isRtl ? "خدماتنا" : "Services"}</Link>
+            <Link reloadDocument to={`/${lang}/locations/restaurant-equipment-dammam/`} className="hover:text-white transition-colors">{isRtl ? "معدات مطاعم الدمام" : "Restaurant Equipment"}</Link>
+            <Link reloadDocument to={`/${lang}/locations/used-furniture-jubail/`} className="hover:text-white transition-colors">{isRtl ? "أثاث مستعمل الجبيل" : "Used Furniture Jubail"}</Link>
+            <Link reloadDocument to={`/${lang}/blog/`} className="hover:text-white transition-colors">{isRtl ? "المقالات" : "Blog"}</Link>
+            <Link reloadDocument to={`/${lang}/estimator/`} className="hover:text-white transition-colors">{isRtl ? "حاسبة الأسعار" : "AI Estimator"}</Link>
+            <Link reloadDocument to={`/${lang}/about/`} className="hover:text-white transition-colors">{isRtl ? "من نحن" : "About Us"}</Link>
+            <Link reloadDocument to={`/${lang}/contact/`} className="hover:text-white transition-colors">{isRtl ? "اتصل بنا" : "Contact"}</Link>
+            {cmsData.pages.filter(p => p.isPublished && !reservedPageSlugs.includes(p.slug)).map(p => (
+              <Link reloadDocument key={p.id} to={`/${lang}/pages/${p.slug}/`} className="hover:text-white transition-colors">{isRtl ? p.titleAr : p.titleEn}</Link>
             ))}
           </div>
         </div>

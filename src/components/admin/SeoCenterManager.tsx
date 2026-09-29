@@ -244,14 +244,14 @@ export default function SeoCenterManager({ lang, defaultTab = 'search-analytics'
     });
 
     // Check 4: Google Search Console Verification
-    const gscOk = Boolean(formData.googleWebmasterCode && formData.googleWebmasterCode.length > 5);
+    const gscOk = Boolean(formData.googleWebmasterCode && formData.googleWebmasterCode.length > 5 && !formData.googleWebmasterCode.includes('shera_scrap_dammam_verification_code'));
     checks.push({
       titleAr: 'الربط مع Google Search Console',
-      titleEn: 'Google Search Console Verification',
+      titleEn: 'Search Console verification tag configured',
       status: gscOk,
       weight: 15,
       hintAr: 'أضف كود تحقق جوجل لمتابعة الأرشفة والأخطاء',
-      hintEn: 'Add Google Search Console verification meta code'
+      hintEn: 'Add the token, then verify ownership in Google Search Console. This indicator only checks configuration.'
     });
 
     // Check 5: Google Analytics (GA4)

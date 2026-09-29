@@ -19,6 +19,7 @@ export default function ServicesArchivePage({ lang, t }: ServicesArchivePageProp
         lang={lang}
       />
       <div className="pt-8">
+        <h1 className="text-3xl font-black text-center px-4 pt-8">{isRtl ? 'خدماتنا' : 'Our Services'}</h1>
         <Services lang={lang} t={t} />
       </div>
     </>

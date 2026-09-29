@@ -19,6 +19,7 @@ export default function EstimatorPage({ lang, t }: EstimatorPageProps) {
         lang={lang}
       />
       <div className="pt-8">
+        <h1 className="text-3xl font-black text-center px-4 pt-8">{isRtl ? 'حاسبة أسعار السكراب' : 'Scrap Price Estimator'}</h1>
         <ScrapEstimator lang={lang} t={t} />
       </div>
     </>

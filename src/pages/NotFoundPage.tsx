@@ -29,8 +29,7 @@ export default function NotFoundPage({ lang }: NotFoundPageProps) {
             ? "الصفحة التي تحاول الوصول إليها قد تكون تم حذفها أو تغيير اسمها أو أنها غير متاحة مؤقتاً."
             : "The page you are trying to reach might have been removed, renamed, or is temporarily unavailable."}
         </p>
-        <Link 
-          to={`/${lang}/`}
+        <Link reloadDocument to={`/${lang}/`}
           className="inline-flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold px-6 py-3 rounded-2xl shadow-lg transition-all hover:scale-105"
         >
           <Home className="w-4 h-4" />

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Helmet } from 'react-helmet-async';
+import { serializeJson } from '../utils/serialize';
 import { useCMS } from '../cms/CMSContext';
 import { SITE_CONFIG, getCanonicalUrl } from '../config/site';
 
@@ -30,7 +30,7 @@ export default function SEO({
 }: SEOProps) {
   const { cmsData } = useCMS();
   const settings = cmsData.settings;
-  const currentLang = lang || (document.documentElement.lang === 'en' ? 'en' : 'ar');
+  const currentLang = lang || (typeof document !== 'undefined' && document.documentElement.lang === 'en' ? 'en' : 'ar');
   const isRtl = currentLang === 'ar';
 
   const defaultTitle = isRtl ? (settings.seoTitleAr || settings.siteTitleAr) : (settings.seoTitleEn || settings.siteTitleEn);
@@ -52,11 +52,11 @@ export default function SEO({
   const altPath = path.startsWith(`/${currentLang}/`) ? path.replace(`/${currentLang}/`, `/${altLang}/`) : `/${altLang}/`;
   const altCanonicalUrl = getCanonicalUrl(altPath);
 
-  const robots = noindex ? 'noindex, nofollow' : 'index, follow';
+  const robots = (noindex || cmsData.preview) ? 'noindex, nofollow' : 'index, follow';
 
   return (
-    <Helmet>
-      <html lang={currentLang} dir={isRtl ? 'rtl' : 'ltr'} />
+    <>
+
       <title>{finalTitle}</title>
       <meta name="description" content={finalDesc} />
       {finalKeywords && <meta name="keywords" content={finalKeywords} />}
@@ -66,8 +66,9 @@ export default function SEO({
       <link rel="canonical" href={finalCanonicalUrl} />
       <link rel="alternate" hrefLang="ar" href={isRtl ? finalCanonicalUrl : altCanonicalUrl} />
       <link rel="alternate" hrefLang="en" href={!isRtl ? finalCanonicalUrl : altCanonicalUrl} />
-      <link rel="alternate" hrefLang="x-default" href={getCanonicalUrl('/ar/')} />
+      <link rel="alternate" hrefLang="x-default" href={getCanonicalUrl(isRtl ? path : altPath)} />
 
+      {settings.googleWebmasterCode && !settings.googleWebmasterCode.includes('shera_scrap_dammam_verification_code') && <meta name="google-site-verification" content={settings.googleWebmasterCode.replace(/^google-site-verification=/, '').trim()} />}
       {/* Open Graph / Facebook */}
       <meta property="og:type" content={type} />
       <meta property="og:url" content={finalCanonicalUrl} />
@@ -84,14 +85,11 @@ export default function SEO({
       <meta name="twitter:description" content={finalDesc} />
       <meta name="twitter:image" content={finalImage} />
 
-      {/* Structured Data (JSON-LD) */}
-      {schema && (
-        <script type="application/ld+json">
-          {JSON.stringify(Array.isArray(schema) ? schema : [schema])}
-        </script>
-      )}
-    </Helmet>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJson([
+        { '@context': 'https://schema.org', '@type': 'RecyclingCenter', '@id': SITE_CONFIG.canonicalDomain + '/#organization', name: siteName, url: SITE_CONFIG.canonicalDomain, telephone: settings.phone, email: settings.email, address: { '@type': 'PostalAddress', streetAddress: isRtl ? settings.locationAr : settings.locationEn, addressCountry: 'SA' } },
+        ...(schema ? (Array.isArray(schema) ? schema : [schema]) : [])
+      ]) }} />
+    </>
   );
 }
-
 export { SEO };

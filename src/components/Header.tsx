@@ -24,7 +24,7 @@ export default function Header({ lang, setLang, t }: HeaderProps) {
 
   const scrollToSection = (id: string) => {
     if (location.pathname !== '/') {
-      navigate('/#' + id);
+      window.location.assign('/' + lang + '/#' + id);
       // Wait for navigation then scroll
       setTimeout(() => {
         const element = document.getElementById(id);
@@ -97,7 +97,7 @@ export default function Header({ lang, setLang, t }: HeaderProps) {
       <div className="max-w-7xl mx-auto px-4 py-3 md:py-4 flex justify-between items-center relative gap-2">
         {/* Brand Logo & Name */}
         <div 
-          onClick={() => { if(location.pathname !== `/${lang}/`) { navigate(`/${lang}/`); } else { window.scrollTo({ top: 0, behavior: 'smooth' }); } }}
+          onClick={() => { if(location.pathname !== `/${lang}/`) { window.location.assign(`/${lang}/`); } else { window.scrollTo({ top: 0, behavior: 'smooth' }); } }}
           className="flex items-center gap-2.5 sm:gap-3 cursor-pointer select-none group min-w-0"
           id="brand-logo"
         >
@@ -114,9 +114,9 @@ export default function Header({ lang, setLang, t }: HeaderProps) {
           )}
           
           <div className="flex flex-col justify-center min-w-0">
-            <h1 className="text-sm sm:text-lg md:text-xl font-black text-slate-900 leading-tight tracking-tight group-hover:text-emerald-700 transition-colors truncate">
+            <p className="text-sm sm:text-lg md:text-xl font-black text-slate-900 leading-tight tracking-tight group-hover:text-emerald-700 transition-colors truncate">
               {isRtl ? (settings.siteTitleAr || "Shera Scrap Haraj") : (settings.siteTitleEn || "Shera Scrap Haraj")}
-            </h1>
+            </p>
             <p className="text-[10px] sm:text-xs md:text-sm font-black text-emerald-600 tracking-wide mt-0.5 truncate">
               {isRtl ? (settings.siteTaglineAr || "Best Metal Scrap Dealer") : (settings.siteTaglineEn || "Best Metal Scrap Dealer")}
             </p>
@@ -125,13 +125,13 @@ export default function Header({ lang, setLang, t }: HeaderProps) {
 
         {/* Desktop Menu links */}
         <nav className="hidden xl:flex items-center gap-6 text-sm font-bold text-slate-700">
-          <Link to={`/${lang}/`} className="hover:text-emerald-600 transition-colors py-1 border-b-2 border-transparent hover:border-emerald-600">{isRtl ? "الرئيسية" : "Home"}</Link>
-          <Link to={`/${lang}/services/`} className="hover:text-emerald-600 transition-colors py-1 border-b-2 border-transparent hover:border-emerald-600">{isRtl ? "خدماتنا" : "Services"}</Link>
-          <Link to={`/${lang}/locations/restaurant-equipment-dammam/`} className="hover:text-emerald-600 transition-colors py-1 border-b-2 border-transparent hover:border-emerald-600">{isRtl ? "معدات المطاعم" : "Restaurant Equipment"}</Link>
-          <Link to={`/${lang}/blog/`} className="hover:text-emerald-600 transition-colors py-1 border-b-2 border-transparent hover:border-emerald-600">{isRtl ? "المدونة" : "Blog"}</Link>
-          <Link to={`/${lang}/estimator/`} className="hover:text-emerald-600 transition-colors py-1 border-b-2 border-transparent hover:border-emerald-600">{isRtl ? "حاسبة الأسعار" : "AI Estimator"}</Link>
-          <Link to={`/${lang}/about/`} className="hover:text-emerald-600 transition-colors py-1 border-b-2 border-transparent hover:border-emerald-600">{isRtl ? "من نحن" : "About Us"}</Link>
-          <Link to={`/${lang}/contact/`} className="hover:text-emerald-600 transition-colors py-1 border-b-2 border-transparent hover:border-emerald-600">{isRtl ? "اتصل بنا" : "Contact"}</Link>
+          <Link reloadDocument to={`/${lang}/`} className="hover:text-emerald-600 transition-colors py-1 border-b-2 border-transparent hover:border-emerald-600">{isRtl ? "الرئيسية" : "Home"}</Link>
+          <Link reloadDocument to={`/${lang}/services/`} className="hover:text-emerald-600 transition-colors py-1 border-b-2 border-transparent hover:border-emerald-600">{isRtl ? "خدماتنا" : "Services"}</Link>
+          <Link reloadDocument to={`/${lang}/locations/restaurant-equipment-dammam/`} className="hover:text-emerald-600 transition-colors py-1 border-b-2 border-transparent hover:border-emerald-600">{isRtl ? "معدات المطاعم" : "Restaurant Equipment"}</Link>
+          <Link reloadDocument to={`/${lang}/blog/`} className="hover:text-emerald-600 transition-colors py-1 border-b-2 border-transparent hover:border-emerald-600">{isRtl ? "المدونة" : "Blog"}</Link>
+          <Link reloadDocument to={`/${lang}/estimator/`} className="hover:text-emerald-600 transition-colors py-1 border-b-2 border-transparent hover:border-emerald-600">{isRtl ? "حاسبة الأسعار" : "AI Estimator"}</Link>
+          <Link reloadDocument to={`/${lang}/about/`} className="hover:text-emerald-600 transition-colors py-1 border-b-2 border-transparent hover:border-emerald-600">{isRtl ? "من نحن" : "About Us"}</Link>
+          <Link reloadDocument to={`/${lang}/contact/`} className="hover:text-emerald-600 transition-colors py-1 border-b-2 border-transparent hover:border-emerald-600">{isRtl ? "اتصل بنا" : "Contact"}</Link>
         </nav>
 
         {/* Quick actions */}

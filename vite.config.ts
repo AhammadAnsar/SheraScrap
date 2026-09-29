@@ -13,6 +13,7 @@ export default defineConfig(() => {
       },
     },
     build: {
+      outDir: 'dist/client',
       target: 'es2020',
       cssCodeSplit: true,
       chunkSizeWarningLimit: 1000,
