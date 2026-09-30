@@ -7,7 +7,9 @@ process.env.VERCEL = '1';
 process.env.VERCEL_ENV = 'preview';
 process.env.NODE_ENV = 'production';
 process.env.FIREBASE_SERVICE_ACCOUNT_JSON = '{}'; // Intentionally invalid; no live service used.
-const { default: handler } = await import('../api/index');
+const { default: handler } = await import('../api/index.js');
+const bundledEntry = fs.readFileSync('api/index.js', 'utf8');
+assert(!/from\s+["'][./]|require\(["'][./]/.test(bundledEntry), 'Vercel function must not keep local runtime imports');
 const server = createServer((req, res) => { void handler(req as any, res as any); });
 server.listen(0, '127.0.0.1');
 await once(server, 'listening');

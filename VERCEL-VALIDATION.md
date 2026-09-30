@@ -3,7 +3,7 @@
 ## Passed locally
 
 - TypeScript: `npm run lint`.
-- `npm run build:vercel`: 54 public routes rendered successfully; `dist/static` contains assets only, SSR template is private.
+- `npm run build:vercel`: 54 public routes rendered successfully; `dist/static` contains assets only, SSR template is private, and `api/index.js` contains the bundled server function.
 - `npm test`: 425 assertions across routes, canonical redirects, metadata, sitemap, sanitization, private-file blocking, authentication rejection and inquiry persistence using an isolated local store.
 - `npm run test:cloud`: concurrent request isolation, non-conflicting additions, competing-edit rejection, response held until transaction commit, new-request reload and 503 on simulated commit failure. Uses a transaction adapter, not a live Firestore instance.
 - `npm run test:vercel`: actual function entrypoint initializes without listening on a server port; invalid Firebase configuration returns 503 rather than disk fallback; preview noindex; www redirect preserves path/query; static output excludes template/backend.

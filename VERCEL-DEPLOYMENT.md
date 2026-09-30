@@ -17,7 +17,7 @@ The committed `vercel.json` sets:
 | Output Directory | `dist/static` |
 | Node.js | 22.x |
 
-Disable conflicting Dashboard overrides. Do **not** select `dist` or `dist/client` as the public output. The public directory contains only assets; `api/index.ts` handles HTML, sitemap, robots and APIs. The SSR template is included privately in the function. Vercel builds from GitHub; `npm start` is only for local Node operation.
+Disable conflicting Dashboard overrides. Do **not** select `dist` or `dist/client` as the public output. The public directory contains only assets; the generated `api/index.js` function handles HTML, sitemap, robots and APIs. Its source is `scripts/vercel-handler.ts`, and the build bundles all local server modules into the function. The SSR template is included privately in the function. Vercel builds from GitHub; `npm start` is only for local Node operation.
 
 ## 2. Firebase server environment
 
