@@ -34,9 +34,9 @@ Configuration defaults match `firebase-applet-config.json`:
 
 | Variable | Default / requirement |
 | --- | --- |
-| `FIREBASE_PROJECT_ID` | `gen-lang-client-0485663850` |
-| `FIREBASE_DATABASE_ID` | `ai-studio-sherascrapharaj-2930bca9-7357-41c0-92e1-77f6fc0a45c2` (a **named** Firestore database) |
-| `FIREBASE_STORAGE_BUCKET` | `gen-lang-client-0485663850.firebasestorage.app` |
+| `FIREBASE_PROJECT_ID` | `shera-scrap` |
+| `FIREBASE_DATABASE_ID` | `(default)` (create the default Firestore database) |
+| `FIREBASE_STORAGE_BUCKET` | `shera-scrap.firebasestorage.app` |
 | `FIREBASE_CMS_COLLECTION` | `shera_cms_v2` |
 | `CMS_STORAGE` | `firestore` (automatic on Vercel; set for local cloud testing) |
 | `PREVIEW_SECRET` | Optional override; otherwise a stable preview signing key is derived from the Firebase private key. With Application Default Credentials, set this to share preview links across instances. |
