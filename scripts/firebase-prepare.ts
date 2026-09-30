@@ -6,7 +6,9 @@ if (!process.env.VERCEL) {
   console.log('Local build: Firebase deployment preflight skipped (no Vercel credentials assumed).');
   process.exit(0);
 }
-if (!process.env.PREVIEW_SECRET || process.env.PREVIEW_SECRET.length < 32) throw new Error('Set PREVIEW_SECRET to a stable random secret of at least 32 characters in Vercel.');
+if (!process.env.FIREBASE_SERVICE_ACCOUNT_JSON && !(process.env.FIREBASE_CLIENT_EMAIL && process.env.FIREBASE_PRIVATE_KEY) && !process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+  throw new Error('Firebase server credentials are missing. Configure FIREBASE_SERVICE_ACCOUNT_JSON (or FIREBASE_CLIENT_EMAIL and FIREBASE_PRIVATE_KEY) in Vercel for this environment. A Firebase web API key is not a server credential.');
+}
 const collection = storeCollection();
 // Verify both services before attempting any initialization.
 await mediaBucket().getFiles({ maxResults: 1 });

@@ -39,7 +39,7 @@ Configuration defaults match `firebase-applet-config.json`:
 | `FIREBASE_STORAGE_BUCKET` | `gen-lang-client-0485663850.firebasestorage.app` |
 | `FIREBASE_CMS_COLLECTION` | `shera_cms_v2` |
 | `CMS_STORAGE` | `firestore` (automatic on Vercel; set for local cloud testing) |
-| `PREVIEW_SECRET` | Set a stable random secret, at least 32 characters, for signed previews |
+| `PREVIEW_SECRET` | Optional override; otherwise a stable preview signing key is derived from the Firebase private key. With Application Default Credentials, set this to share preview links across instances. |
 | `CMS_BOOTSTRAP_ADMIN_EMAIL` | For first deployment only: the actual enabled, verified Firebase admin email |
 | `GEMINI_API_KEY` | Optional; estimates use simulation without it |
 
