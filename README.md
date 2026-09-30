@@ -1,3 +1,5 @@
+> Updated for Vercel + Firebase: follow [VERCEL-DEPLOYMENT.md](VERCEL-DEPLOYMENT.md). The persistent Node/Docker instructions below describe the earlier release and are not the Vercel deployment procedure.
+
 # Shera Scrap Haraj
 
 Arabic/English multi-page website with React SSR, full-document public navigation, and a persistent Express CMS/API.

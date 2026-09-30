@@ -65,6 +65,11 @@ export default function ScrapEstimator({ lang, t }: ScrapEstimatorProps) {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
+      if (file.size > 3 * 1024 * 1024 || !['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+        setError(isRtl ? 'اختر صورة JPG أو PNG أو WebP بحجم 3 ميجابايت أو أقل' : 'Choose a JPG, PNG or WebP image of 3 MB or less.');
+        return;
+      }
+      setError(null);
       setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -92,6 +97,11 @@ export default function ScrapEstimator({ lang, t }: ScrapEstimatorProps) {
     
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
       const file = e.dataTransfer.files[0];
+      if (file.size > 3 * 1024 * 1024 || !['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+        setError(isRtl ? 'اختر صورة JPG أو PNG أو WebP بحجم 3 ميجابايت أو أقل' : 'Choose a JPG, PNG or WebP image of 3 MB or less.');
+        return;
+      }
+      setError(null);
       setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
@@ -452,7 +462,7 @@ Please coordinate the free truck pickup and dismantling at my location.`;
                       {isRtl ? "اسحب وأفلت صورة السكراب هنا أو انقر لتصفح الملفات" : "Drag & drop scrap image here, or click to browse"}
                     </div>
                     <div className="text-xs text-slate-400">
-                      Supports JPEG, PNG, WEBP (Max 10MB)
+                      Supports JPEG, PNG, WEBP (Max 3MB)
                     </div>
                   </div>
                 )}

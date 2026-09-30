@@ -1,12 +1,12 @@
 {
-  "projectId": "gen-lang-client-0485663850",
-  "appId": "1:520981098763:web:7052f52a5f71e541b4320e",
-  "apiKey": "AIzaSyD-ikb_ShYeGkQ26wI9W0CN9z7dY3ymcfI",
-  "authDomain": "gen-lang-client-0485663850.firebaseapp.com",
-  "firestoreDatabaseId": "ai-studio-sherascrapharaj-2930bca9-7357-41c0-92e1-77f6fc0a45c2",
-  "storageBucket": "gen-lang-client-0485663850.firebasestorage.app",
-  "messagingSenderId": "520981098763",
+  "projectId": "shera-scrap",
+  "appId": "1:803020924874:web:120a85f6f6c9c3efea9133",
+  "apiKey": "AIzaSyAnPhTd_k-wZCLW7N-0-yMSDHQz0MbrgHU",
+  "authDomain": "shera-scrap.firebaseapp.com",
+  "firestoreDatabaseId": "(default)",
+  "storageBucket": "shera-scrap.firebasestorage.app",
+  "messagingSenderId": "803020924874",
   "measurementId": "",
-  "oAuthClientId": "520981098763-1peb530b9bdhmp61v7ubc82vl5fd5ghe.apps.googleusercontent.com",
+  "oAuthClientId": "",
   "recaptchaSiteKey": ""
 }

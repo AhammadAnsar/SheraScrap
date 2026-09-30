@@ -1,6 +1,17 @@
 import crypto from 'crypto';
 
-const PREVIEW_SECRET = process.env.PREVIEW_SECRET || crypto.randomBytes(32).toString('hex');
+const localPreviewSecret = crypto.randomBytes(32).toString('hex');
+export function previewSecret(): string {
+  if (process.env.PREVIEW_SECRET) return process.env.PREVIEW_SECRET;
+  // A domain-separated key avoids another mandatory deployment secret when
+  // Firebase's server key is already configured. Never expose the original key.
+  let privateKey = process.env.FIREBASE_PRIVATE_KEY;
+  if (!privateKey && process.env.FIREBASE_SERVICE_ACCOUNT_JSON) {
+    try { privateKey = JSON.parse(process.env.FIREBASE_SERVICE_ACCOUNT_JSON).private_key; } catch {}
+  }
+  if (privateKey) return crypto.createHmac('sha256', privateKey.replace(/\\n/g, '\n')).update('shera-scrap:content-preview:v1').digest('hex');
+  return localPreviewSecret;
+}
 
 export interface PreviewTokenPayload {
   entityType: 'post' | 'page';
@@ -25,7 +36,7 @@ export function generatePreviewToken(
   };
 
   const payloadB64 = Buffer.from(JSON.stringify(payload)).toString('base64url');
-  const hmac = crypto.createHmac('sha256', PREVIEW_SECRET);
+  const hmac = crypto.createHmac('sha256', previewSecret());
   hmac.update(payloadB64);
   const sig = hmac.digest('base64url');
 
@@ -48,7 +59,7 @@ export function verifyPreviewToken(
   const [payloadB64, sig] = parts;
 
   // Recompute signature
-  const hmac = crypto.createHmac('sha256', PREVIEW_SECRET);
+  const hmac = crypto.createHmac('sha256', previewSecret());
   hmac.update(payloadB64);
   const expectedSig = hmac.digest('base64url');
 

@@ -1,3 +1,5 @@
+> Updated for Vercel + Firebase: follow [VERCEL-DEPLOYMENT.md](VERCEL-DEPLOYMENT.md). The persistent Node/Docker instructions below describe the earlier release and are not the Vercel deployment procedure.
+
 # Deployment release — 2026-09-29
 
 ## Audit fixes

@@ -1,3 +1,5 @@
+> Updated for Vercel + Firebase: follow [VERCEL-DEPLOYMENT.md](VERCEL-DEPLOYMENT.md). The persistent Node/Docker instructions below describe the earlier release and are not the Vercel deployment procedure.
+
 # Shera Scrap deployment
 
 This release runs as one persistent Node.js/Express service. Every public link loads its own server-rendered HTML document; React hydrates that same markup. Production HTML and sitemap are generated from the latest CMS store on each request.
