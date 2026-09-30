@@ -35,6 +35,23 @@ export default function AdminLoginModal({ lang }: AdminLoginModalProps) {
   const [failedAttempts, setFailedAttempts] = useState(0);
   const [lockoutTimer, setLockoutTimer] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [needsVerification, setNeedsVerification] = useState(false);
+  const [verificationSent, setVerificationSent] = useState(false);
+
+  const sendVerification = async () => {
+    setIsSubmitting(true);
+    try {
+      const [{ signInWithEmailAndPassword, sendEmailVerification, signOut }, { auth }] = await Promise.all([import('firebase/auth'), import('../../lib/firebase')]);
+      const credential = await signInWithEmailAndPassword(auth, username.trim(), password);
+      try {
+        if (!credential.user.emailVerified) await sendEmailVerification(credential.user);
+        setVerificationSent(true);
+        setErrorMsg(isRtl ? 'تحقق من بريدك الإلكتروني ثم سجّل الدخول مرة أخرى.' : 'Check your email, follow the verification link, then sign in again.');
+      } finally { await signOut(auth); }
+    } catch {
+      setErrorMsg(isRtl ? 'تعذر إرسال رسالة التحقق. تحقق من البيانات وحاول لاحقاً.' : 'Could not send verification email. Check your credentials and try again later.');
+    } finally { setIsSubmitting(false); }
+  };
 
   // Generate dynamic 4-digit security code
   const generateCaptcha = () => {
@@ -106,7 +123,12 @@ export default function AdminLoginModal({ lang }: AdminLoginModalProps) {
         }
       }
       
-    } catch(e) { setErrorMsg("Error during login"); } finally {  }
+    } catch(e) {
+      if (e instanceof Error && e.message === 'EMAIL_NOT_VERIFIED') {
+        setNeedsVerification(true);
+        setErrorMsg(isRtl ? 'يرجى تأكيد بريدك الإلكتروني قبل الدخول.' : 'Verify your email before signing in.');
+      } else setErrorMsg(isRtl ? 'تعذر تسجيل الدخول. حاول مرة أخرى.' : 'Unable to sign in. Please try again.');
+    } finally { setIsSubmitting(false); }
   };
 
   return (
@@ -172,6 +194,11 @@ export default function AdminLoginModal({ lang }: AdminLoginModalProps) {
           /* Form Body */
           <form onSubmit={handleSubmit} className="p-6 space-y-4">
             
+            {needsVerification && !verificationSent && (
+              <button type="button" onClick={sendVerification} disabled={isSubmitting} className="w-full rounded-lg bg-emerald-700 px-4 py-2 text-sm text-white disabled:opacity-50">
+                {isRtl ? 'إرسال رسالة تأكيد البريد الإلكتروني' : 'Send verification email'}
+              </button>
+            )}
             {errorMsg && (
               <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-xs p-3 rounded-2xl font-bold flex items-start gap-2 animate-in fade-in zoom-in-95">
                 <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />

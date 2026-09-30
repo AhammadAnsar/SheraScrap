@@ -386,13 +386,17 @@ export function CMSProvider({ children, initialData }: { children: ReactNode; in
   // Auth Methods: Authoritative server-verified authentication without client role trust
   const login = async (usernameInput: string, passInput: string): Promise<boolean> => {
     const cleanUsername = usernameInput.trim().toLowerCase();
-    const cleanPass = passInput.trim();
+    const cleanPass = passInput;
 
     if (!cleanUsername || !cleanPass) return false;
 
     try {
       const [{ signInWithEmailAndPassword, signOut }, { auth }] = await Promise.all([import('firebase/auth'), import('../lib/firebase')]);
       const userCredential = await signInWithEmailAndPassword(auth, cleanUsername, cleanPass);
+      if (!userCredential.user.emailVerified) {
+        await signOut(auth);
+        throw new Error('EMAIL_NOT_VERIFIED');
+      }
       if (userCredential.user) {
         const idToken = await userCredential.user.getIdToken();
 
@@ -439,6 +443,7 @@ export function CMSProvider({ children, initialData }: { children: ReactNode; in
         return true;
       }
     } catch (e) {
+      if (e instanceof Error && e.message === 'EMAIL_NOT_VERIFIED') throw e;
       console.error("Auth failed:", e);
     }
     return false;

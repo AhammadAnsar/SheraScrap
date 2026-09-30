@@ -40,7 +40,7 @@ Configuration defaults match `firebase-applet-config.json`:
 | `FIREBASE_CMS_COLLECTION` | `shera_cms_v2` |
 | `CMS_STORAGE` | `firestore` (automatic on Vercel; set for local cloud testing) |
 | `PREVIEW_SECRET` | Optional override; otherwise a stable preview signing key is derived from the Firebase private key. With Application Default Credentials, set this to share preview links across instances. |
-| `CMS_BOOTSTRAP_ADMIN_EMAIL` | For first deployment only: the actual enabled, verified Firebase admin email |
+| `CMS_BOOTSTRAP_ADMIN_EMAIL` | For first deployment only: the actual enabled Firebase admin email |
 | `GEMINI_API_KEY` | Optional; estimates use simulation without it |
 
 The service account needs Firestore read/write access and Storage object access in the configured project. Firebase web API keys alone are **not** server credentials. Make sure Storage is enabled and the project's billing requirements are satisfied.
@@ -51,20 +51,20 @@ Use a separate collection, e.g. `shera_cms_preview`, and preferably a separate F
 
 Existing legacy Firebase collections are not modified or automatically imported. The seed uses the reviewed `data/store.json` shipped with this project. If the live Firebase CMS has newer content, export/reconcile it before initialization; do not replace newer client content with an older seed.
 
-Create/choose the intended administrator in Firebase Authentication, enable email/password login and verify their email. Add `sherascrap.com` and `www.sherascrap.com` to Authentication → Settings → Authorized domains.
+Create/choose the intended administrator in Firebase Authentication, enable email/password login. Email verification is required before CMS access: after deployment, sign in and use the Send verification email button, then follow the link and sign in again. Add `sherascrap.com` and `www.sherascrap.com` to Authentication → Settings → Authorized domains.
 
-**Vercel-only setup:** Set `CMS_BOOTSTRAP_ADMIN_EMAIL` in Vercel to that verified account. On the first build, the preflight checks Firestore and Storage and initializes the new collection only when completely empty. Later builds read and validate it without replacing data. Remove the bootstrap variable after the first successful deployment. Credentials never need to leave Vercel. An incomplete or unavailable database fails the build rather than publishing a broken application.
+**Vercel-only setup:** Set `CMS_BOOTSTRAP_ADMIN_EMAIL` in Vercel to that enabled account. On the first build, the preflight checks Firestore and Storage and initializes the new collection only when completely empty. Later builds read and validate it without replacing data. Remove the bootstrap variable after the first successful deployment. Credentials never need to leave Vercel. An incomplete or unavailable database fails the build rather than publishing a broken application.
 
 **Local alternative:** On a trusted computer, use Node 22, run `npm ci`, and create an ignored `.env` with the server variables above. Then:
 
 ```sh
-npm run firebase:seed -- verified-admin@example.com
+npm run firebase:seed -- admin@example.com
 ```
 
-Replace the example with the actual verified Firebase account. This creates the new collection, authorizes that account as super admin, and uploads packaged images. It does not import demo users, inquiries or audit logs. The script refuses to overwrite an existing CMS. If the image upload phase fails after initialization, fix Storage access and run:
+Replace the example with the actual enabled Firebase account. This creates the new collection, authorizes that account as super admin, and uploads packaged images. It does not import demo users, inquiries or audit logs. The script refuses to overwrite an existing CMS. If the image upload phase fails after initialization, fix Storage access and run:
 
 ```sh
-npm run firebase:seed -- verified-admin@example.com --media-only
+npm run firebase:seed -- admin@example.com --media-only
 ```
 
 Keep the new collection inaccessible to client SDKs; access goes through the authenticated backend. The existing `firestore.rules` default-deny rule covers `shera_cms_v2`; verify the deployed rules do not contain a separate permissive wildcard. Admin SDK uses IAM and does not depend on client rules.

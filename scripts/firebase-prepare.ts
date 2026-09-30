@@ -15,7 +15,7 @@ await mediaBucket().getFiles({ maxResults: 1 });
 let snapshot = await collection.get();
 if (snapshot.empty) {
   const email = process.env.CMS_BOOTSTRAP_ADMIN_EMAIL;
-  if (!email) throw new Error('CMS is empty. Set CMS_BOOTSTRAP_ADMIN_EMAIL to an enabled, verified Firebase user, then redeploy (or run firebase:seed locally).');
+  if (!email) throw new Error('CMS is empty. Set CMS_BOOTSTRAP_ADMIN_EMAIL to an enabled Firebase user, then redeploy (or run firebase:seed locally).');
   const result = spawnSync(process.execPath, ['--import', 'tsx', 'scripts/firebase-seed.ts', email], { stdio: 'inherit', env: process.env });
   if (result.status !== 0) process.exit(result.status || 1);
   snapshot = await collection.get();
