@@ -136,7 +136,7 @@ export default function Hero({ lang, t }: HeroProps) {
               onClick={scrollToEstimator}
               className="bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-slate-700 font-bold px-6 py-3.5 rounded-xl transition-all flex items-center justify-center gap-2 text-xs sm:text-sm cursor-pointer"
             >
-              <span>{isRtl ? "احسب بالذكاء الاصطناعي 🤖" : "Use AI Estimator 🤖"}</span>
+              <span>{isRtl ? 'اطلب تسعيرة عبر واتساب' : 'Request a WhatsApp Quote'}</span>
             </button>
           </div>
         </div>

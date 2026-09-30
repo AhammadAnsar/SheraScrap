@@ -1,3 +1,4 @@
+import { uploadImage } from '../../utils/mediaUpload';
 import React, { useState } from 'react';
 import { Upload, Image as ImageIcon, CheckCircle, Loader2, Link as LinkIcon, FileImage, Sparkles } from 'lucide-react';
 import MediaLibraryModal from './MediaLibraryModal';
@@ -43,43 +44,11 @@ export default function ImageUploader({
       console.warn("WebP conversion fallback to original file:", webpErr);
     }
 
-    const formData = new FormData();
-    formData.append('file', fileToUpload);
-
     try {
-      const res = await fetch('/api/upload.php', {
-        method: 'POST',
-        body: formData
-      });
-
-      let data;
-      try {
-        data = await res.json();
-      } catch (e) {
-        throw new Error("Upload response error");
-      }
-
-      if (data && (data.success || data.status === 'success') && data.url) {
-        onChange(data.url);
-      } else {
-        // Fallback to reading data URL
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          if (event.target?.result) {
-            onChange(event.target.result as string);
-          }
-        };
-        reader.readAsDataURL(file);
-      }
-    } catch (serverErr) {
-      console.warn("Server upload failed, converting to data URL fallback:", serverErr);
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        if (event.target?.result) {
-          onChange(event.target.result as string);
-        }
-      };
-      reader.readAsDataURL(file);
+      const data = await uploadImage(fileToUpload);
+      onChange(data.url);
+    } catch (err: any) {
+      setError(err.message || 'Upload failed. Please retry.');
     } finally {
       setUploading(false);
     }

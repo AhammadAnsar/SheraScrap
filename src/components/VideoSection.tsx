@@ -30,7 +30,7 @@ export default function VideoSection({ lang }: VideoSectionProps) {
     contentEn: v.descriptionEn,
     category: v.category || 'فيديو خدمة',
     tags: ['فيديو', 'إثبات كاش'],
-    featuredImage: v.thumbnail || 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=800&q=80',
+    featuredImage: v.thumbnail || '/resources/977b74fd04bf7eb7.webp',
     author: 'فريق التوثيق الميداني',
     date: v.date,
     status: 'published',

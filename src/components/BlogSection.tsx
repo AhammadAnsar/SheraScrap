@@ -60,7 +60,7 @@ export default function BlogSection({ lang }: BlogSectionProps) {
                 <div className="h-48 overflow-hidden relative bg-slate-200">
                   <OptimizedImage 
                     src={post.featuredImage} 
-                    alt={post.titleAr} 
+                    alt={lang === 'ar' ? post.titleAr : post.titleEn} 
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" 
                   />
                   <span className="absolute top-3 right-3 bg-slate-900/80 text-purple-300 text-[11px] font-black px-2.5 py-1 rounded-lg backdrop-blur-sm">

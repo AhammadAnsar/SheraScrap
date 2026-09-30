@@ -85,7 +85,7 @@ export default function Services({ lang, t }: ServicesProps) {
                   {/* Large Prominent Feature Image Header */}
                   <Link reloadDocument to={`/${lang}/services/${cat.slug || cat.id}/`} className="h-52 sm:h-56 w-full overflow-hidden relative bg-slate-900 border-b border-slate-100 block group-hover:opacity-95">
                     <OptimizedImage 
-                      src={cat.featuredImage || 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=800&q=80'} 
+                      src={cat.featuredImage || '/resources/977b74fd04bf7eb7.webp'} 
                       alt={categoryTitle} 
                       className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700 ease-out" 
                     />

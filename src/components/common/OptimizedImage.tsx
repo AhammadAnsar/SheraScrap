@@ -14,7 +14,7 @@ export const OptimizedImage: React.FC<OptimizedImageProps> = ({
   alt,
   className = '',
   priority = false,
-  fallbackSrc = 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=800&q=80&fm=webp',
+  fallbackSrc = '/resources/3b2cd26c0b41c844.webp',
   ...props
 }) => {
   const [loaded, setLoaded] = useState(false);

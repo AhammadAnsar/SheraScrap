@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { MessageSquare, Phone, ArrowUp } from 'lucide-react';
 import Header from './Header';
-import AdminBar from './admin/AdminBar';
-import AdminLoginModal from './admin/AdminLoginModal';
 import { useCMS } from '../cms/CMSContext';
 import { reservedPageSlugs } from '../routing/publicRoutes';
 import { LanguagePack } from '../types';
@@ -41,13 +39,6 @@ export default function AppLayout({ children, lang, setLang, t }: AppLayoutProps
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800 font-sans flex flex-col justify-between relative">
-      <div dir="ltr"><AdminBar lang="en" setLang={setLang} /></div>
-
-      {isAdminOpen && !currentUser && (
-        <React.Suspense fallback={null}>
-          <div dir="ltr"><AdminLoginModal lang="en" /></div>
-        </React.Suspense>
-      )}
 
       <Header lang={lang} setLang={setLang} t={t} />
 
@@ -124,7 +115,7 @@ export default function AppLayout({ children, lang, setLang, t }: AppLayoutProps
             <Link reloadDocument to={`/${lang}/locations/restaurant-equipment-dammam/`} className="hover:text-white transition-colors">{isRtl ? "معدات مطاعم الدمام" : "Restaurant Equipment"}</Link>
             <Link reloadDocument to={`/${lang}/locations/used-furniture-jubail/`} className="hover:text-white transition-colors">{isRtl ? "أثاث مستعمل الجبيل" : "Used Furniture Jubail"}</Link>
             <Link reloadDocument to={`/${lang}/blog/`} className="hover:text-white transition-colors">{isRtl ? "المقالات" : "Blog"}</Link>
-            <Link reloadDocument to={`/${lang}/estimator/`} className="hover:text-white transition-colors">{isRtl ? "حاسبة الأسعار" : "AI Estimator"}</Link>
+          <Link reloadDocument to={`/${lang}/estimator/`} className="hover:text-white transition-colors">{isRtl ? 'طلب تسعير' : 'Get a Quote'}</Link>
             <Link reloadDocument to={`/${lang}/about/`} className="hover:text-white transition-colors">{isRtl ? "من نحن" : "About Us"}</Link>
             <Link reloadDocument to={`/${lang}/contact/`} className="hover:text-white transition-colors">{isRtl ? "اتصل بنا" : "Contact"}</Link>
             {cmsData.pages.filter(p => p.isPublished && !reservedPageSlugs.includes(p.slug)).map(p => (

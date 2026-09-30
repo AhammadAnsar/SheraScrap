@@ -204,7 +204,7 @@ export default function HeroSlider({ lang, t }: HeroSliderProps) {
                     className="w-full sm:w-auto bg-slate-800 hover:bg-slate-700 text-emerald-400 border-2 border-slate-700 hover:border-emerald-500/50 font-black px-6 py-4 md:py-3 rounded-2xl transition-all flex items-center justify-center gap-2 text-sm sm:text-base cursor-pointer hover:-translate-y-1 active:scale-95"
                   >
                     <Sparkles className="w-4 h-4 text-emerald-400 shrink-0" />
-                    <span>{isRtl ? "حاسبة الذكاء الاصطناعي" : "AI Price Estimator"}</span>
+                    <span>{isRtl ? 'طلب تسعير عبر واتساب' : 'Request a Quote'}</span>
                   </button>
                 </div>
               </div>
@@ -217,37 +217,37 @@ export default function HeroSlider({ lang, t }: HeroSliderProps) {
                       arTitle: "حديد وسكراب معادن", enTitle: "Iron & Steel Scrap", 
                       arSub: "صلب وهياكل ثقيلة", enSub: "Heavy steel & iron", 
                       icon: Factory, 
-                      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=450&q=70&fm=webp"
+                      image: "/resources/93acc40003a8d209.webp"
                     },
                     { 
                       arTitle: "إلكترونيات وأجهزة", enTitle: "Electronic Scrap", 
                       arSub: "أجهزة ولوحات إلكترونية", enSub: "Circuit boards & tech", 
                       icon: Cpu, 
-                      image: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=450&q=70&fm=webp"
+                      image: "/resources/0a9b2792830a20ef.webp"
                     },
                     { 
                       arTitle: "سيارات ومحركات", enTitle: "Vehicle & Auto Scrap", 
                       arSub: "سيارات تالفة ومحركات", enSub: "Scrap cars & engines", 
                       icon: Car, 
-                      image: "https://images.unsplash.com/photo-1563720223185-11003d516935?auto=format&fit=crop&w=450&q=70&fm=webp"
+                      image: "/resources/c4285322ff509751.webp"
                     },
                     { 
                       arTitle: "سكراب مصانع", enTitle: "Industrial Scrap", 
                       arSub: "معدات ومخلفات مصانع", enSub: "Factory steel & machines", 
                       icon: Wrench, 
-                      image: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=450&q=70&fm=webp"
+                      image: "/resources/cabe12c97b0a935b.webp"
                     },
                     { 
                       arTitle: "مكيفات وأجهزة", enTitle: "ACs & Home Scrap", 
                       arSub: "مكيفات شباك وثلاجات", enSub: "Window/Split ACs & fridges", 
                       icon: Home, 
-                      image: "https://images.unsplash.com/photo-1585338107529-13afc5f02586?auto=format&fit=crop&w=450&q=70&fm=webp"
+                      image: "/resources/7217a5333a99151a.webp"
                     },
                     { 
                       arTitle: "نحاس وكيابل", enTitle: "Copper & Cables", 
                       arSub: "نحاس أحمر وكيابل", enSub: "Pure copper & power wire", 
                       icon: Zap, 
-                      image: "https://images.unsplash.com/photo-1605557202138-097824c3f8c4?auto=format&fit=crop&w=450&q=70&fm=webp"
+                      image: "/resources/fallback.svg"
                     },
                   ].map((item, idx) => {
                     const IconComponent = item.icon;
@@ -348,7 +348,7 @@ export default function HeroSlider({ lang, t }: HeroSliderProps) {
                       enTitle: "Accurate Digital Scale",
                       arDesc: "موازين رقمية معتمدة 100%",
                       enDesc: "100% Certified digital scale",
-                      image: "https://images.unsplash.com/photo-1584267385494-9fdd9a71ad75?auto=format&fit=crop&w=600&q=80"
+                      image: "/resources/6599d475c3226f18.webp"
                     },
                     {
                       icon: Hammer,
@@ -356,7 +356,7 @@ export default function HeroSlider({ lang, t }: HeroSliderProps) {
                       enTitle: "Free Dismantling",
                       arDesc: "عمالة لتفكيك الأجهزة والمباني",
                       enDesc: "Professional crew site dismantling",
-                      image: "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=600&q=80"
+                      image: "/resources/17a77c482018ce2d.webp"
                     },
                     {
                       icon: Truck,
@@ -364,7 +364,7 @@ export default function HeroSlider({ lang, t }: HeroSliderProps) {
                       enTitle: "Transport Truck Fleet",
                       arDesc: "شاحنات جاهزة للتحميل الفوري",
                       enDesc: "Equipped trucks for heavy volume",
-                      image: "https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=600&q=80"
+                      image: "/resources/b28604539c90c087.webp"
                     },
                     {
                       icon: Clock,
@@ -372,7 +372,7 @@ export default function HeroSlider({ lang, t }: HeroSliderProps) {
                       enTitle: "24/7 Continuous Service",
                       arDesc: "استجابة على مدار الساعة",
                       enDesc: "Round-the-clock emergency clearance",
-                      image: "https://images.unsplash.com/photo-1517048676732-d65bc937f952?auto=format&fit=crop&w=600&q=80"
+                      image: "/resources/cfb23d9571d4c190.webp"
                     },
                     {
                       icon: Wrench,
@@ -380,7 +380,7 @@ export default function HeroSlider({ lang, t }: HeroSliderProps) {
                       enTitle: "Advanced Cutters",
                       arDesc: "أدوات هيدروليكية لرفع وقص المعادن",
                       enDesc: "Hydraulic tools & heavy cranes",
-                      image: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=600&q=80"
+                      image: "/resources/fallback.svg"
                     },
                     {
                       icon: DollarSign,
@@ -388,7 +388,7 @@ export default function HeroSlider({ lang, t }: HeroSliderProps) {
                       enTitle: "Instant Cash Payment",
                       arDesc: "الدفع كاش بموقعك فور الوزن",
                       enDesc: "Instant SAR cash payout on site",
-                      image: "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=600&q=80"
+                      image: "/resources/7e040956a9c5ac83.webp"
                     },
                   ].map((item, idx) => {
                     const IconComp = item.icon;
@@ -476,7 +476,7 @@ export default function HeroSlider({ lang, t }: HeroSliderProps) {
                       arDesc: "تحديث يومي بأسعار الدمام",
                       enDesc: "Updated daily according to market",
                       icon: DollarSign,
-                      image: "https://images.unsplash.com/photo-1618042164219-62c820f10723?auto=format&fit=crop&w=600&q=80"
+                      image: "/resources/1c5c7b2fa61210bb.webp"
                     },
                     {
                       arTitle: "خدمة في نفس اليوم",
@@ -484,7 +484,7 @@ export default function HeroSlider({ lang, t }: HeroSliderProps) {
                       arDesc: "وصول الشاحنة خلال ساعتين",
                       enDesc: "Truck arrives within 2 hours",
                       icon: Zap,
-                      image: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=600&q=80"
+                      image: "/resources/4cee9a24a70ed88e.webp"
                     },
                     {
                       arTitle: "دفع كاش فوري",
@@ -492,7 +492,7 @@ export default function HeroSlider({ lang, t }: HeroSliderProps) {
                       arDesc: "تسليم المبلغ قبل التحميل",
                       enDesc: "Full cash payment prior to load",
                       icon: ShieldCheck,
-                      image: "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=600&q=80"
+                      image: "/resources/7e040956a9c5ac83.webp"
                     },
                     {
                       arTitle: "دقة كاملة بالميزان",
@@ -500,7 +500,7 @@ export default function HeroSlider({ lang, t }: HeroSliderProps) {
                       arDesc: "موازين إلكترونية معتمدة",
                       enDesc: "Digital mobile scale accuracy",
                       icon: Scale,
-                      image: "https://images.unsplash.com/photo-1584267385494-9fdd9a71ad75?auto=format&fit=crop&w=600&q=80"
+                      image: "/resources/6599d475c3226f18.webp"
                     },
                     {
                       arTitle: "تدوير صديق للبيئة",
@@ -508,7 +508,7 @@ export default function HeroSlider({ lang, t }: HeroSliderProps) {
                       arDesc: "معالجة بيئية آمنة ومعتمدة",
                       enDesc: "Safe recycling standard",
                       icon: Leaf,
-                      image: "https://images.unsplash.com/photo-1532996122724-e3c354a0b15b?auto=format&fit=crop&w=600&q=80"
+                      image: "/resources/b9c0f4a685e6f6a2.webp"
                     },
                     {
                       arTitle: "دعم الشاحنات والرافعات",
@@ -516,7 +516,7 @@ export default function HeroSlider({ lang, t }: HeroSliderProps) {
                       arDesc: "رافعات هيدروليكية للمصانع",
                       enDesc: "Hydraulic cranes for yards",
                       icon: Truck,
-                      image: "https://images.unsplash.com/photo-1581092335397-9583fe92d232?auto=format&fit=crop&w=600&q=80"
+                      image: "/resources/fallback.svg"
                     },
                   ].map((item, idx) => {
                     const IconComp = item.icon;
@@ -601,32 +601,32 @@ export default function HeroSlider({ lang, t }: HeroSliderProps) {
                     { 
                       nameAr: "الدمام", nameEn: "Dammam", 
                       tagAr: "نقل سريع 30 دقيقة", tagEn: "Express 30 Min",
-                      image: "https://images.unsplash.com/photo-1512453979798-5ea266f8880c?auto=format&fit=crop&w=600&q=80"
+                      image: "/resources/4d5e9883da7c3bb9.webp"
                     },
                     { 
                       nameAr: "الجبيل", nameEn: "Jubail", 
                       tagAr: "سكراب المصانع", tagEn: "Industrial Yard",
-                      image: "https://images.unsplash.com/photo-1513836279014-a89f7a76ae86?auto=format&fit=crop&w=600&q=80"
+                      image: "/resources/ec7180f10f581c4a.webp"
                     },
                     { 
                       nameAr: "الخبر", nameEn: "Al Khobar", 
                       tagAr: "سكني وتجاري", tagEn: "Residential & Commercial",
-                      image: "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=600&q=80"
+                      image: "/resources/7fbea992fb166920.webp"
                     },
                     { 
                       nameAr: "النعيرية", nameEn: "Nairyah", 
                       tagAr: "معدات ثقيلة", tagEn: "Heavy Machinery Yard",
-                      image: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=600&q=80"
+                      image: "/resources/45ae8be8dac14d2a.webp"
                     },
                     { 
                       nameAr: "الأحساء", nameEn: "Al Ahsa", 
                       tagAr: "تغطية شاملة", tagEn: "Full District Coverage",
-                      image: "https://images.unsplash.com/photo-1509099836639-18ba1795216d?auto=format&fit=crop&w=600&q=80"
+                      image: "/resources/47d19d0b77126e73.webp"
                     },
                     { 
                       nameAr: "سلوى", nameEn: "Salwa", 
                       tagAr: "نقل حدودي", tagEn: "Border Logistics",
-                      image: "https://images.unsplash.com/photo-1586528116311-ad8dd3c8310d?auto=format&fit=crop&w=600&q=80"
+                      image: "/resources/4cee9a24a70ed88e.webp"
                     },
                   ].map((city, idx) => (
                     <div key={idx} className="group relative h-36 sm:h-40 rounded-2xl overflow-hidden border border-slate-800 hover:border-emerald-500/60 transition-all duration-300 shadow-md flex flex-col justify-end p-3">

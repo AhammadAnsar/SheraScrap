@@ -66,7 +66,7 @@ export default function OurStrength({ lang, t }: OurStrengthProps) {
                   {/* Image Container with Capacity Badge */}
                   <div className="relative h-48 sm:h-52 w-full overflow-hidden bg-slate-950">
                     <img 
-                      src={item.image || 'https://images.unsplash.com/photo-1601584115197-04ecc0da31d7?auto=format&fit=crop&w=800&q=80'} 
+                      src={item.image || '/resources/908ba3d51ed0f881.webp'} 
                       alt={title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                     />

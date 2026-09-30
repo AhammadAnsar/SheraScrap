@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Phone, MapPin, Mail, Clock, Send, MessageSquare, ExternalLink, Share2 } from 'lucide-react';
 import { LanguagePack } from '../types';
 import { useCMS } from '../cms/CMSContext';
+import { whatsappUrl } from '../utils/whatsapp';
 
 interface ContactFormProps {
   lang: 'ar' | 'en';
@@ -26,9 +27,10 @@ export default function ContactForm({ lang, t }: ContactFormProps) {
     if (isSubmitting) return;
     setIsSubmitting(true); setSubmitError('');
     try {
-      await addInquiry({ name, phone, location: isRtl ? settings.locationAr : settings.locationEn,
-        materialType: isRtl ? 'طلب تسعيرة سكراب' : 'Scrap Quote Request', notes: details });
-      setIsSuccess(true);
+      const message = isRtl
+        ? `طلب تسعير سكراب\nالاسم: ${name}\nالهاتف: ${phone}\nالتفاصيل: ${details}\n${window.location.href}`
+        : `Scrap quote request\nName: ${name}\nPhone: ${phone}\nDetails: ${details}\n${window.location.href}`;
+      window.location.assign(whatsappUrl(settings.whatsapp, message));
     } catch {
       setSubmitError(isRtl ? 'تعذر إرسال الطلب. حاول مجدداً أو اتصل بنا.' : 'Unable to send your request. Please try again or call us.');
     } finally { setIsSubmitting(false); }
@@ -307,10 +309,11 @@ export default function ContactForm({ lang, t }: ContactFormProps) {
                   ) : (
                     <>
                       <Send className="w-4 h-4" />
-                      <span>{t.formSubmit}</span>
+                      <span>{isRtl ? 'متابعة إلى واتساب' : 'Continue to WhatsApp'}</span>
                     </>
                   )}
                 </button>
+                <p className="text-xs text-slate-600">{isRtl ? 'اضغط إرسال داخل واتساب لإرسال رسالتك.' : 'Press Send in WhatsApp to send your message.'}</p>
               </form>
             )}
           </div>

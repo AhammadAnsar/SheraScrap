@@ -80,15 +80,6 @@ export default function Header({ lang, setLang, t }: HeaderProps) {
           </div>
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 ms-auto">
             <LanguageSelector lang={lang} setLang={setLang} variant="dark" />
-            <button
-              onClick={() => setIsAdminOpen(true)}
-              className="p-1 px-1.5 sm:px-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-emerald-400 transition-colors cursor-pointer flex items-center gap-1 text-[11px] font-bold border border-slate-700 shrink-0"
-              title={isRtl ? "دخول الأدمن" : "Admin Login"}
-              aria-label="Admin Login"
-            >
-              <Lock className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
-              <span className="hidden sm:inline">{isRtl ? "الأدمن" : "Admin"}</span>
-            </button>
           </div>
         </div>
       </div>
@@ -129,7 +120,7 @@ export default function Header({ lang, setLang, t }: HeaderProps) {
           <Link reloadDocument to={`/${lang}/services/`} className="hover:text-emerald-600 transition-colors py-1 border-b-2 border-transparent hover:border-emerald-600">{isRtl ? "خدماتنا" : "Services"}</Link>
           <Link reloadDocument to={`/${lang}/locations/restaurant-equipment-dammam/`} className="hover:text-emerald-600 transition-colors py-1 border-b-2 border-transparent hover:border-emerald-600">{isRtl ? "معدات المطاعم" : "Restaurant Equipment"}</Link>
           <Link reloadDocument to={`/${lang}/blog/`} className="hover:text-emerald-600 transition-colors py-1 border-b-2 border-transparent hover:border-emerald-600">{isRtl ? "المدونة" : "Blog"}</Link>
-          <Link reloadDocument to={`/${lang}/estimator/`} className="hover:text-emerald-600 transition-colors py-1 border-b-2 border-transparent hover:border-emerald-600">{isRtl ? "حاسبة الأسعار" : "AI Estimator"}</Link>
+          <Link reloadDocument to={`/${lang}/estimator/`} className="hover:text-emerald-600 transition-colors py-1 border-b-2 border-transparent hover:border-emerald-600">{isRtl ? 'طلب تسعير' : 'Get a Quote'}</Link>
           <Link reloadDocument to={`/${lang}/about/`} className="hover:text-emerald-600 transition-colors py-1 border-b-2 border-transparent hover:border-emerald-600">{isRtl ? "من نحن" : "About Us"}</Link>
           <Link reloadDocument to={`/${lang}/contact/`} className="hover:text-emerald-600 transition-colors py-1 border-b-2 border-transparent hover:border-emerald-600">{isRtl ? "اتصل بنا" : "Contact"}</Link>
         </nav>

@@ -36,7 +36,7 @@ export default function HomePage({ lang, t }: HomePageProps) {
       <OurStrength lang={lang} t={t} />
 
       {/* Reciprocity info section highlighting free services */}
-      <section className="bg-white py-12 border-b border-slate-100" id="why-us">
+      <section className="bg-white py-12 border-b border-slate-100" id="our-process">
         <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 md:grid-cols-12 gap-8 items-center">
           <div className="md:col-span-8 flex flex-col items-start text-right md:text-start">
             <h3 className="text-xl md:text-2xl font-black text-slate-900 mb-4 w-full">

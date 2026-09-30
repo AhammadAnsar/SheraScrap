@@ -54,7 +54,7 @@ export default function CategorySinglePage({ lang }: CategorySinglePageProps) {
         <div className="bg-white rounded-3xl overflow-hidden shadow-xl border border-slate-100">
           <div className="h-64 sm:h-96 w-full relative">
             <OptimizedImage 
-              src={category.featuredImage || 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1200&q=80'} 
+              src={category.featuredImage || '/resources/cb264e210c7f742d.webp'} 
               alt={title} 
               className="w-full h-full object-cover" 
             />

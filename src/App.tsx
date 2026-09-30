@@ -17,7 +17,6 @@ import EstimatorPage from './pages/EstimatorPage';
 import FAQPage from './pages/FAQPage';
 import DynamicPage from './pages/DynamicPage';
 import NotFoundPage from './pages/NotFoundPage';
-import AdminPage from './pages/AdminPage';
 import BlogPostPage from './components/BlogPostPage';
 import { arabicTranslations, englishTranslations } from './data';
 
@@ -28,8 +27,6 @@ export default function App({ initialData, serverLocation }: { initialData?: CMS
       <RouterComponent location={serverLocation}>
         {initialData?.notFound ? <NotFoundWrapper /> : <Routes>
           {/* Admin CMS System (Isolated from public bundle) */}
-          <Route path="/admin" element={<AdminPage />} />
-          <Route path="/admin/*" element={<AdminPage />} />
 
           {/* Root Redirect to primary canonical language /ar/ */}
           <Route path="/" element={<Navigate to="/ar/" replace />} />

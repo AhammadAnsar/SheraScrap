@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 /**
  * Authoritative Repository & Data Access Layer
  * Shera Scrap Haraj CMS & Public Portal
@@ -23,6 +24,8 @@
  */
 
 import fs from 'fs';
+import { storeContext } from '../server/cloudStore';
+import { cloudStorageEnabled } from '../server/firebaseAdmin';
 import path from 'path';
 import { SITE_CONFIG } from '../config/site';
 import { generateSlug } from '../utils/slugService';
@@ -75,6 +78,9 @@ let inMemoryStore: NormalizedStore | null = null;
  * Load authoritative store from disk or generate normalized seed
  */
 export function loadStore(): NormalizedStore {
+  const context = storeContext.getStore();
+  if (context) return context.store;
+  if (cloudStorageEnabled() && process.env.CMS_BUILD !== '1') throw new Error('Cloud repository requires a request context');
   if (inMemoryStore) return inMemoryStore;
 
   try {
@@ -114,6 +120,9 @@ export function loadStore(): NormalizedStore {
  * Persist store to disk and update in-memory cache
  */
 function persistStore(store: NormalizedStore) {
+  const context = storeContext.getStore();
+  if (context) { context.store = store; context.dirty = true; return; }
+  if (cloudStorageEnabled() && process.env.CMS_BUILD !== '1') throw new Error('Cloud writes require a request context');
   inMemoryStore = store;
   try {
     if (typeof process !== 'undefined' && fs.writeFileSync) {
@@ -964,7 +973,7 @@ export function getAllInquiries(): DomainInquiry[] {
 export function createInquiry(inquiry: Omit<DomainInquiry, 'id' | 'createdAt'>): DomainInquiry {
   const store = loadStore();
   const newInq: DomainInquiry = {
-    id: `inq-${Date.now()}`,
+    id: `inq-${randomUUID()}`,
     name: inquiry.name.substring(0, 200),
     phone: inquiry.phone.substring(0, 50),
     location: inquiry.location?.substring(0, 200) || 'الدمام',
@@ -1043,7 +1052,7 @@ export function saveUser(user: Partial<DomainUser> & { email: string; username: 
     name: user.name || user.username,
     email: user.email.toLowerCase(),
     role: user.role || 'editor',
-    avatar: user.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?auto=format&fit=crop&w=200&q=80',
+    avatar: user.avatar || '/resources/b286bf6c9839417a.webp',
     createdAt: user.createdAt || new Date().toISOString().split('T')[0],
     lastLogin: user.lastLogin || new Date().toISOString().split('T')[0],
   };

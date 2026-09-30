@@ -2,6 +2,7 @@ import React from 'react';
 import { serializeJson } from '../utils/serialize';
 import { useCMS } from '../cms/CMSContext';
 import { SITE_CONFIG, getCanonicalUrl } from '../config/site';
+import pageSeo from '../../content/seo.json';
 
 interface SEOProps {
   title?: string;
@@ -32,6 +33,10 @@ export default function SEO({
   const settings = cmsData.settings;
   const currentLang = lang || (typeof document !== 'undefined' && document.documentElement.lang === 'en' ? 'en' : 'ar');
   const isRtl = currentLang === 'ar';
+  const override = (pageSeo as Record<string, { title?: string; description?: string; image?: string }>)[canonicalPath || ''];
+  title = override?.title || title;
+  description = override?.description || description;
+  image = override?.image || image;
 
   const defaultTitle = isRtl ? (settings.seoTitleAr || settings.siteTitleAr) : (settings.seoTitleEn || settings.siteTitleEn);
   const defaultDesc = isRtl ? settings.seoDescriptionAr : settings.seoDescriptionEn;
@@ -41,7 +46,7 @@ export default function SEO({
   const finalTitle = title ? (title.includes(SITE_CONFIG.business.shortNameAr) || title.includes(SITE_CONFIG.business.shortNameEn) ? title : `${title} | ${isRtl ? SITE_CONFIG.business.shortNameAr : SITE_CONFIG.business.shortNameEn}`) : defaultTitle;
   const finalDesc = description || defaultDesc;
   const finalKeywords = keywords || defaultKeywords;
-  const finalImage = image || settings.siteLogo || 'https://images.unsplash.com/photo-1558618666-fcd25c85cd64?auto=format&fit=crop&w=1200&h=630&q=80';
+  const finalImage = new URL(image || settings.siteLogo || '/resources/fallback.svg', SITE_CONFIG.canonicalDomain).href;
   
   // Canonical URL always adheres to canonical domain https://sherascrap.com
   const path = canonicalPath || (typeof window !== 'undefined' ? window.location.pathname : `/${currentLang}/`);
