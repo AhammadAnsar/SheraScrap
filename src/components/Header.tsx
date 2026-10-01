@@ -3,7 +3,7 @@ import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { Phone, MessageSquare, MapPin, Clock, ShieldCheck, Megaphone, Lock, Search, X, ArrowRight } from 'lucide-react';
 import { LanguagePack } from '../types';
 import LanguageSelector from './LanguageSelector';
-import { useCMS } from '../cms/CMSContext';
+import { useCMS } from '../static/CMSContext';
 
 interface HeaderProps {
   lang: 'ar' | 'en';
@@ -12,7 +12,7 @@ interface HeaderProps {
 }
 
 export default function Header({ lang, setLang, t }: HeaderProps) {
-  const { cmsData, setIsAdminOpen, logSearchQuery } = useCMS();
+  const { cmsData, logSearchQuery } = useCMS();
   const isRtl = lang === 'ar';
   const settings = cmsData.settings;
 

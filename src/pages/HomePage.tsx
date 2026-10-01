@@ -7,7 +7,7 @@ import Services from '../components/Services';
 import WhyChooseUs from '../components/WhyChooseUs';
 import BlogSection from '../components/BlogSection';
 import VideoSection from '../components/VideoSection';
-import ScrapEstimator from '../components/ScrapEstimator';
+import ScrapEstimator from '../static/QuoteRequest';
 import Testimonials from '../components/Testimonials';
 import ContactForm from '../components/ContactForm';
 import FAQ from '../components/FAQ';

@@ -1,6 +1,6 @@
 import React from 'react';
 import { ShieldCheck, Banknote, Truck, Scale, Clock, CheckCircle2 } from 'lucide-react';
-import { useCMS } from '../cms/CMSContext';
+import { useCMS } from '../static/CMSContext';
 import { LanguagePack } from '../types';
 
 interface WhyChooseUsProps {

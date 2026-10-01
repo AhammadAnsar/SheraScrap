@@ -1,6 +1,6 @@
 import React from 'react';
 import { serializeJson } from '../utils/serialize';
-import { useCMS } from '../cms/CMSContext';
+import { useCMS } from '../static/CMSContext';
 import { SITE_CONFIG, getCanonicalUrl } from '../config/site';
 import pageSeo from '../../content/seo.json';
 

@@ -1,6 +1,6 @@
 import React from 'react';
 import SEO from '../components/SEO';
-import ScrapEstimator from '../components/ScrapEstimator';
+import ScrapEstimator from '../static/QuoteRequest';
 import { LanguagePack } from '../types';
 
 interface EstimatorPageProps {

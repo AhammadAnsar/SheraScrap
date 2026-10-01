@@ -23,7 +23,7 @@ import {
   Leaf
 } from 'lucide-react';
 import { LanguagePack } from '../types';
-import { useCMS } from '../cms/CMSContext';
+import { useCMS } from '../static/CMSContext';
 
 interface HeroSliderProps {
   lang: 'ar' | 'en';

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, Link } from 'react-router-dom';
 import { MessageSquare, Phone, ArrowUp } from 'lucide-react';
 import Header from './Header';
-import { useCMS } from '../cms/CMSContext';
+import { useCMS } from '../static/CMSContext';
 import { reservedPageSlugs } from '../routing/publicRoutes';
 import { LanguagePack } from '../types';
 
@@ -14,7 +14,7 @@ interface AppLayoutProps {
 }
 
 export default function AppLayout({ children, lang, setLang, t }: AppLayoutProps) {
-  const { cmsData, isAdminOpen, currentUser } = useCMS();
+  const { cmsData } = useCMS();
   const [showScrollTop, setShowScrollTop] = useState<boolean>(false);
   const location = useLocation();
 

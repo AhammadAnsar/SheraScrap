@@ -1,7 +1,7 @@
 import React from 'react';
 import { Star, Quote } from 'lucide-react';
 import { testimonials as defaultTestimonials } from '../data';
-import { useCMS } from '../cms/CMSContext';
+import { useCMS } from '../static/CMSContext';
 import { LanguagePack } from '../types';
 
 interface TestimonialsProps {

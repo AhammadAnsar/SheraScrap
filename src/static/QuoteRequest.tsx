@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useCMS } from '../cms/CMSContext';
+import { useCMS } from '../static/CMSContext';
 import { whatsappUrl } from '../utils/whatsapp';
 
 export default function QuoteRequest({ lang }: { lang: 'ar' | 'en'; t?: unknown }) {

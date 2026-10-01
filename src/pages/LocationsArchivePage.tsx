@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import { MapPin, Phone, ArrowRight, ArrowLeft } from 'lucide-react';
 import SEO from '../components/SEO';
-import { useCMS } from '../cms/CMSContext';
+import { useCMS } from '../static/CMSContext';
 import { defaultLocations } from '../data/defaults';
 import { SITE_CONFIG } from '../config/site';
 

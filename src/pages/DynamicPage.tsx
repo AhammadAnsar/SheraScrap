@@ -2,7 +2,7 @@ import { isContentPublished } from '../utils/publication';
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import SEO from '../components/SEO';
-import { useCMS } from '../cms/CMSContext';
+import { useCMS } from '../static/CMSContext';
 import { sanitizeHtml } from '../utils/sanitizeHtml';
 import NotFoundPage from './NotFoundPage';
 

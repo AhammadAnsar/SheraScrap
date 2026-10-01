@@ -45,7 +45,10 @@ fs.writeFileSync(path.join(output, '404.html'), render('/en/404/', true));
 fs.writeFileSync(path.join(output, 'sitemap.xml'), generateSitemapXml(data));
 fs.writeFileSync(path.join(output, 'robots.txt'), 'User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /api/\nSitemap: https://sherascrap.com/sitemap.xml\n');
 fs.writeFileSync(path.join(output, 'llms.txt'), '# Shera Scrap\n\nPublic pages for scrap purchasing services in Dammam and the Eastern Province.\n\n' + routes.map(route => `- https://sherascrap.com${route}`).join('\n') + '\n');
-const redirects = ['https://www.sherascrap.com/* https://sherascrap.com/:splat 301', '/ /ar/ 301'];
+// Workers Static Assets and Pages share path redirects. Hostname redirects must
+// be configured as Cloudflare zone Redirect Rules, not placed in this file.
+const redirects = ['/ /ar/ 301'];
+for (const route of routes) redirects.push(`${route.slice(0, -1)} ${route} 301`);
 for (const lang of ['ar', 'en']) for (const slug of reservedPageSlugs) {
   const target = `/${lang}/${slug === 'home' ? '' : slug + '/'}`;
   redirects.push(`/${lang}/pages/${slug} ${target} 301`, `/${lang}/pages/${slug}/ ${target} 301`);
@@ -56,5 +59,5 @@ for (const route of routes.filter(r => r.startsWith('/ar/'))) {
 }
 redirects.push('/category/:slug /ar/services/:slug/ 301', '/article/:slug /ar/blog/:slug/ 301', '/articles/:slug /ar/blog/:slug/ 301');
 fs.writeFileSync(path.join(output, '_redirects'), [...new Set(redirects)].join('\n') + '\n');
-fs.writeFileSync(path.join(output, '_headers'), '/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n  X-Frame-Options: SAMEORIGIN\n/assets/*\n  Cache-Control: public, max-age=31536000, immutable\nhttps://:project.pages.dev/*\n  X-Robots-Tag: noindex, nofollow\nhttps://:branch.:project.pages.dev/*\n  X-Robots-Tag: noindex, nofollow\n');
+fs.writeFileSync(path.join(output, '_headers'), '/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n  X-Frame-Options: SAMEORIGIN\n/assets/*\n  Cache-Control: public, max-age=31536000, immutable\nhttps://:project.pages.dev/*\n  X-Robots-Tag: noindex, nofollow\nhttps://:branch.:project.pages.dev/*\n  X-Robots-Tag: noindex, nofollow\nhttps://:worker.:account.workers.dev/*\n  X-Robots-Tag: noindex, nofollow\n');
 console.log(`Generated ${routes.length} independent HTML pages, sitemap, redirects and real 404 page.`);

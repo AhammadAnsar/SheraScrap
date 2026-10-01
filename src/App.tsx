@@ -3,7 +3,7 @@ import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate, useParams, useLocation, StaticRouter } from 'react-router-dom';
 
 import Header from './components/Header';
-import { CMSProvider, useCMS } from './cms/CMSContext';
+import { CMSProvider, useCMS } from './static/CMSContext';
 import AppLayout from './components/AppLayout';
 import HomePage from './pages/HomePage';
 import AboutPage from './pages/AboutPage';
@@ -103,10 +103,7 @@ function LegacyPageRedirect() {
 }
 
 function MainWrapper({ children }: { children: React.ReactNode }) {
-  const { isAdminOpen, cmsData } = useCMS();
-  if (isAdminOpen) {
-    return <Navigate to="/admin" replace />;
-  }
+  const { cmsData } = useCMS();
   return <>{cmsData.preview && <aside className="bg-amber-300 text-black p-3 text-center">Preview — unpublished content</aside>}{children}</>;
 }
 

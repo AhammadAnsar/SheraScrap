@@ -2,7 +2,7 @@ import { sanitizeHtml } from '../utils/sanitizeHtml';
 import { isContentPublished } from '../utils/publication';
 import React from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { useCMS } from '../cms/CMSContext';
+import { useCMS } from '../static/CMSContext';
 import { ArrowRight, ArrowLeft, Calendar, User, Tag } from 'lucide-react';
 import SEO from './SEO';
 import { LanguagePack } from '../types';

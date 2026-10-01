@@ -54,6 +54,14 @@ const wa = new URL(whatsappUrl('+966 573 690 164', message));
 assert.equal(wa.pathname, '/966573690164'); assert.equal(wa.searchParams.get('text'), message);
 function walk(dir: string): string[] { return fs.readdirSync(dir, { withFileTypes: true }).flatMap(e => e.isDirectory() ? walk(path.join(dir, e.name)) : [path.join(dir, e.name)]); }
 const files = walk(root);
+const sourceData = JSON.parse(fs.readFileSync('content/site.json', 'utf8'));
+function verifyResources(value: unknown) {
+  if (typeof value === 'string' && /^\/(?:resources|uploads)\//.test(value)) {
+    assert(fs.existsSync(path.join(root, value.split(/[?#]/)[0])), 'Missing content image/background: ' + value);
+  } else if (Array.isArray(value)) value.forEach(verifyResources);
+  else if (value && typeof value === 'object') Object.values(value).forEach(verifyResources);
+}
+verifyResources(sourceData);
 assert(files.length < 20000);
 for (const file of files) assert(fs.statSync(file).size < 25 * 1024 * 1024);
 console.log(`PASS: ${routes.length} standalone pages, unique titles, H1/canonical/hreflang, schema, internal links, ${imageChecks} local image references, private data exclusion, WhatsApp encoding and Pages file limits.`);

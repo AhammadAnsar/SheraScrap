@@ -1,16 +1,17 @@
 import React, { createContext, useContext } from 'react';
 import type { CMSData } from '../cms/types';
-import type { useCMS as legacyUseCMS } from '../cms/CMSContext';
-
-type Context = ReturnType<typeof legacyUseCMS>;
+type Context = {
+  cmsData: CMSData;
+  logSearchQuery: (...args: unknown[]) => void;
+  incrementCategoryView: (...args: unknown[]) => void;
+};
 const Content = createContext<Context | null>(null);
 export function CMSProvider({ children, initialData }: { children: React.ReactNode; initialData?: CMSData }) {
   if (!initialData) throw new Error('Static page content is missing. Rebuild the website.');
   const value = {
-    cmsData: initialData, currentUser: null, authToken: null, isAdminOpen: false,
+    cmsData: initialData,
     logSearchQuery: () => {}, incrementCategoryView: () => {},
-    setIsAdminOpen: () => {}, saveStatus: 'idle',
-  } as unknown as Context;
+  } satisfies Context;
   return <Content.Provider value={value}>{children}</Content.Provider>;
 }
 export function useCMS() {

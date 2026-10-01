@@ -14,3 +14,5 @@ jobs:
       - run: npm run lint
       - run: npm run build
       - run: npm test
+      - run: npm run test:cloudflare
+      - run: npm run deploy:check

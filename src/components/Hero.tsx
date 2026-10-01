@@ -1,7 +1,7 @@
 import React from 'react';
 import { Phone, CheckCircle2, Shield, Truck, Scale, Hammer, RefreshCw } from 'lucide-react';
 import { LanguagePack } from '../types';
-import { useCMS } from '../cms/CMSContext';
+import { useCMS } from '../static/CMSContext';
 
 interface HeroProps {
   lang: 'ar' | 'en';

@@ -8,21 +8,17 @@
     "build": "node scripts/build-pages.mjs",
     "preview": "node scripts/preview-pages.mjs",
     "start": "npm run preview",
+    "deploy": "npm run build && wrangler deploy",
+    "deploy:check": "wrangler deploy --dry-run",
+    "test:cloudflare": "node tests/cloudflare.test.mjs",
     "test:pages": "tsx tests/pages.test.ts",
     "clean": "node scripts/clean.mjs",
     "lint": "tsc --noEmit",
     "test": "npm run test:pages"
   },
   "dependencies": {
-    "@google/genai": "^2.4.0",
     "@tailwindcss/vite": "^4.1.14",
-    "@types/dompurify": "^3.2.0",
     "@vitejs/plugin-react": "^5.0.4",
-    "dompurify": "^3.4.15",
-    "dotenv": "^17.2.3",
-    "express": "^4.21.2",
-    "firebase": "^12.16.0",
-    "firebase-admin": "^14.5.0",
     "lucide-react": "^0.546.0",
     "motion": "^12.23.24",
     "react": "^19.0.1",
@@ -33,7 +29,6 @@
     "vite": "^6.2.3"
   },
   "devDependencies": {
-    "@types/express": "^4.17.21",
     "@types/node": "^22.14.0",
     "@types/sanitize-html": "^2.16.2",
     "autoprefixer": "^10.4.21",
@@ -43,10 +38,10 @@
     "tailwindcss": "^4.1.14",
     "tsx": "^4.21.0",
     "typescript": "~5.8.2",
-    "vite": "^6.2.3"
+    "wrangler": "4.145.0"
   },
   "engines": {
-    "node": "22.x"
+    "node": ">=22 <25"
   },
   "overrides": {
     "uuid": "^11.1.1"

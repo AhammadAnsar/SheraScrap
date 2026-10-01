@@ -1,6 +1,6 @@
 import React from 'react';
 import { Truck, Scale, ShieldCheck, CheckCircle2, Phone, MessageSquare, Wrench, HardHat, Sparkles } from 'lucide-react';
-import { useCMS } from '../cms/CMSContext';
+import { useCMS } from '../static/CMSContext';
 import { LanguagePack } from '../types';
 
 interface OurStrengthProps {

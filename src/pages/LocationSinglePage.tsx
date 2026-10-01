@@ -4,7 +4,7 @@ import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { Phone, MessageSquare, MapPin, CheckCircle2, ArrowRight, ArrowLeft, Truck, ShieldCheck, Scale } from 'lucide-react';
 import SEO from '../components/SEO';
-import { useCMS } from '../cms/CMSContext';
+import { useCMS } from '../static/CMSContext';
 import { defaultLocations } from '../data/defaults';
 import { SITE_CONFIG } from '../config/site';
 

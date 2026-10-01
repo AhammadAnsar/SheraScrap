@@ -1,7 +1,7 @@
 import { isContentPublished } from '../utils/publication';
 import React, { useState } from 'react';
 import { Video, Play, Calendar, Eye, MessageSquare, X, ShieldCheck, Sparkles, Youtube } from 'lucide-react';
-import { useCMS } from '../cms/CMSContext';
+import { useCMS } from '../static/CMSContext';
 import { BlogPost } from '../cms/types';
 import OptimizedImage from './common/OptimizedImage';
 

@@ -2,7 +2,7 @@ import { isContentPublished } from '../utils/publication';
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { FileText, Calendar, Eye, ArrowRight, User, X, Sparkles } from 'lucide-react';
-import { useCMS } from '../cms/CMSContext';
+import { useCMS } from '../static/CMSContext';
 import { BlogPost } from '../cms/types';
 import OptimizedImage from './common/OptimizedImage';
 
@@ -11,7 +11,7 @@ interface BlogSectionProps {
 }
 
 export default function BlogSection({ lang }: BlogSectionProps) {
-  const { cmsData, updatePost } = useCMS();
+  const { cmsData } = useCMS();
   const isRtl = lang === 'ar';
 
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
@@ -22,8 +22,6 @@ export default function BlogSection({ lang }: BlogSectionProps) {
 
   const handleOpenPost = (post: BlogPost) => {
     setSelectedPost(post);
-    // Increment view count
-    updatePost(post.id, { views: (post.views || 0) + 1 });
   };
 
   return (

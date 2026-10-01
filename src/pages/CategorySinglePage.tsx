@@ -2,7 +2,7 @@ import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { MessageSquare, ArrowRight, ArrowLeft } from 'lucide-react';
 import SEO from '../components/SEO';
-import { useCMS } from '../cms/CMSContext';
+import { useCMS } from '../static/CMSContext';
 import OptimizedImage from '../components/common/OptimizedImage';
 import NotFoundPage from './NotFoundPage';
 

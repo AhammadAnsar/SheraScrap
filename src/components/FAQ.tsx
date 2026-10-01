@@ -2,7 +2,7 @@ import { serializeJson } from '../utils/serialize';
 import React from 'react';
 import { faqs as defaultFaqs } from '../data';
 import { LanguagePack } from '../types';
-import { useCMS } from '../cms/CMSContext';
+import { useCMS } from '../static/CMSContext';
 
 interface FAQProps {
   lang: 'ar' | 'en';

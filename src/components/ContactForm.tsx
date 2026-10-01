@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Phone, MapPin, Mail, Clock, Send, MessageSquare, ExternalLink, Share2 } from 'lucide-react';
 import { LanguagePack } from '../types';
-import { useCMS } from '../cms/CMSContext';
+import { useCMS } from '../static/CMSContext';
 import { whatsappUrl } from '../utils/whatsapp';
 
 interface ContactFormProps {
@@ -10,7 +10,7 @@ interface ContactFormProps {
 }
 
 export default function ContactForm({ lang, t }: ContactFormProps) {
-  const { addInquiry, cmsData } = useCMS();
+  const { cmsData } = useCMS();
   const isRtl = lang === 'ar';
   const settings = cmsData.settings;
   
@@ -19,7 +19,6 @@ export default function ContactForm({ lang, t }: ContactFormProps) {
   const [phone, setPhone] = useState<string>('');
   const [details, setDetails] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const [isSuccess, setIsSuccess] = useState<boolean>(false);
 
   const [submitError, setSubmitError] = useState('');
   const handleSubmit = async (e: React.FormEvent) => {
@@ -216,24 +215,6 @@ export default function ContactForm({ lang, t }: ContactFormProps) {
 
           {/* CARD 2: Schedule Free Truck Pickup & Quote */}
           <div className="bg-white border border-slate-100 rounded-[2rem] p-6 md:p-8 shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all flex flex-col justify-between h-full">
-            {isSuccess ? (
-              <div className="text-center py-12 px-4 space-y-4 my-auto">
-                <div className="w-16 h-16 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto text-3xl">
-                  ✓
-                </div>
-                <h3 className="text-xl font-extrabold text-slate-900">
-                  {isRtl ? "تم إرسال طلب التقييم بنجاح!" : "Quotation Request Sent!"}
-                </h3>
-                <p className="text-slate-600 font-medium text-xs md:text-sm max-w-md mx-auto">
-                  {t.formSuccess}
-                </p>
-                <div className="bg-emerald-50 border border-emerald-100 rounded-xl p-4 text-emerald-800 text-xs font-semibold max-w-sm mx-auto">
-                  {isRtl 
-                    ? "تم حفظ طلبك. سيتواصل معك فريقنا قريباً." 
-                    : "Your request has been saved. Our team will contact you."}
-                </div>
-              </div>
-            ) : (
               <form onSubmit={handleSubmit} className="space-y-4 flex flex-col justify-between h-full">
                 {submitError && <p role="alert" className="text-red-700">{submitError}</p>}
                 <div>
@@ -315,7 +296,6 @@ export default function ContactForm({ lang, t }: ContactFormProps) {
                 </button>
                 <p className="text-xs text-slate-600">{isRtl ? 'اضغط إرسال داخل واتساب لإرسال رسالتك.' : 'Press Send in WhatsApp to send your message.'}</p>
               </form>
-            )}
           </div>
 
         </div>

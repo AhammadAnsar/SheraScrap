@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import * as Icons from 'lucide-react';
 import { LanguagePack } from '../types';
-import { useCMS } from '../cms/CMSContext';
+import { useCMS } from '../static/CMSContext';
 import OptimizedImage from './common/OptimizedImage';
 
 interface ServicesProps {

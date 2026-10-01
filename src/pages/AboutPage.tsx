@@ -1,4 +1,4 @@
-import { useCMS } from '../cms/CMSContext';
+import { useCMS } from '../static/CMSContext';
 import { sanitizeHtml } from '../utils/sanitizeHtml';
 import React from 'react';
 import SEO from '../components/SEO';
