@@ -1,6 +1,0 @@
-{
-  "name": "Shera Scrap Haraj",
-  "description": "Premium scrap purchasing website based in Dammam, Saudi Arabia, offering hassle-free recycling of ACs, copper, iron, electronics, and heavy scrap with instant WhatsApp quotes and free dismantling.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}
