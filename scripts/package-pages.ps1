@@ -3,7 +3,7 @@ $projectRoot = Split-Path $PSScriptRoot -Parent
 $releaseRoot = Join-Path $projectRoot 'release'
 $stage = Join-Path $releaseRoot ('cloudflare-source-' + (Get-Date -Format 'yyyyMMdd-HHmmss'))
 New-Item -ItemType Directory -Path $stage -Force | Out-Null
-$files = @('package.json','package-lock.json','tsconfig.json','vite.static.config.ts','index.html','.gitignore','firebase-applet-config.json','CLOUDFLARE-PAGES.md','STATIC-VALIDATION.md')
+$files = @('package.json','package-lock.json','tsconfig.json','vite.static.config.ts','index.html','.gitignore','firebase-applet-config.json','CLOUDFLARE-PAGES.md','STATIC-VALIDATION.md','wrangler.jsonc')
 foreach ($file in $files) { Copy-Item -LiteralPath (Join-Path $projectRoot $file) -Destination $stage }
 foreach ($folder in @('src','content')) { Copy-Item -LiteralPath (Join-Path $projectRoot $folder) -Destination $stage -Recurse }
 New-Item -ItemType Directory -Path (Join-Path $stage '.github/workflows') -Force | Out-Null
