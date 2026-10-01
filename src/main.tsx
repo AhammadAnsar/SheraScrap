@@ -1,0 +1,11 @@
+import React from 'react';
+import { createRoot, hydrateRoot } from 'react-dom/client';
+import App from './App';
+import { ErrorBoundary } from './components/ErrorBoundary';
+import './index.css';
+const payload = document.getElementById('__CMS_DATA__');
+const initialData = payload ? JSON.parse(payload.textContent || '{}') : undefined;
+const root = document.getElementById('root')!;
+const app = <ErrorBoundary><App initialData={initialData} /></ErrorBoundary>;
+if (payload && root.hasChildNodes()) hydrateRoot(root, app);
+else createRoot(root).render(app);
