@@ -19,3 +19,4 @@ public/uploads/*
 !public/uploads/*.svg
 data/*.tmp
 *.log
+/.generated/

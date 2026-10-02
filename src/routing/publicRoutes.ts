@@ -1,11 +1,14 @@
 import type { CMSData } from '../cms/types';
 import { isContentPublished } from '../utils/publication';
+import { serviceAreas, areaHubPath, areaPath } from '../content/serviceAreas';
 
-export const coreSections = ['', 'about', 'contact', 'services', 'locations', 'blog', 'estimator', 'faq'];
+export const coreSections = ['', 'about', 'contact', 'services', 'locations', 'blog', 'estimator', 'faq', 'privacy'];
 export const reservedPageSlugs = ['home', ...coreSections.filter(Boolean)];
 export function publicRoutes(data: CMSData): string[] {
   const paths = new Set<string>();
-  for (const lang of ['ar', 'en']) {
+  for (const lang of ['ar', 'en'] as const) {
+    paths.add(areaHubPath(lang));
+    for (const area of serviceAreas) paths.add(areaPath(area, lang));
     for (const section of coreSections) paths.add(`/${lang}/${section ? section + '/' : ''}`);
     for (const item of [...data.categories, ...data.services.filter(s => s.active !== false)]) {
       if (item.slug) paths.add(`/${lang}/services/${item.slug}/`);

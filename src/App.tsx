@@ -15,6 +15,8 @@ import LocationsArchivePage from './pages/LocationsArchivePage';
 import BlogArchivePage from './pages/BlogArchivePage';
 import EstimatorPage from './pages/EstimatorPage';
 import FAQPage from './pages/FAQPage';
+import ServiceAreaPage from './pages/ServiceAreaPage';
+import PrivacyPage from './pages/PrivacyPage';
 import DynamicPage from './pages/DynamicPage';
 import NotFoundPage from './pages/NotFoundPage';
 import BlogPostPage from './components/BlogPostPage';
@@ -32,6 +34,11 @@ export default function App({ initialData, serverLocation }: { initialData?: CMS
           <Route path="/" element={<Navigate to="/ar/" replace />} />
 
           {/* Multilingual Routes */}
+          <Route path="/:lang/service-areas/" element={<MainWrapper><LanguagePageResolver page="area-hub" /></MainWrapper>} />
+          <Route path="/:lang/service-areas/:areaSlug/" element={<MainWrapper><LanguagePageResolver page="area-single" /></MainWrapper>} />
+          <Route path="/:lang/مناطق-الخدمة/" element={<MainWrapper><LanguagePageResolver page="area-hub" /></MainWrapper>} />
+          <Route path="/:lang/مناطق-الخدمة/:areaSlug/" element={<MainWrapper><LanguagePageResolver page="area-single" /></MainWrapper>} />
+          <Route path="/:lang/privacy/" element={<MainWrapper><LanguagePageResolver page="privacy" /></MainWrapper>} />
           <Route path="/:lang" element={<MainWrapper><LanguagePageResolver page="home" /></MainWrapper>} />
           <Route path="/:lang/" element={<MainWrapper><LanguagePageResolver page="home" /></MainWrapper>} />
           <Route path="/:lang/about" element={<MainWrapper><LanguagePageResolver page="about" /></MainWrapper>} />
@@ -108,7 +115,7 @@ function MainWrapper({ children }: { children: React.ReactNode }) {
 }
 
 interface LanguagePageResolverProps {
-  page: 'home' | 'about' | 'contact' | 'services' | 'service-single' | 'locations' | 'location-single' | 'blog' | 'blog-single' | 'estimator' | 'faq' | 'dynamic-page';
+  page: 'home' | 'about' | 'contact' | 'services' | 'service-single' | 'locations' | 'location-single' | 'blog' | 'blog-single' | 'estimator' | 'faq' | 'dynamic-page' | 'area-hub' | 'area-single' | 'privacy';
 }
 
 function LanguagePageResolver({ page }: LanguagePageResolverProps) {
@@ -135,6 +142,9 @@ function LanguagePageResolver({ page }: LanguagePageResolverProps) {
   let PageComponent = null;
 
   switch (page) {
+    case 'area-hub': PageComponent = <ServiceAreaPage lang={lang} hub />; break;
+    case 'area-single': PageComponent = <ServiceAreaPage lang={lang} />; break;
+    case 'privacy': PageComponent = <PrivacyPage lang={lang} />; break;
     case 'home':
       PageComponent = <HomePage lang={lang} t={t} />;
       break;

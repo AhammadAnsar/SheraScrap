@@ -44,7 +44,7 @@ export default function DynamicPage({ lang }: DynamicPageProps) {
 
         <h1 className="text-3xl md:text-5xl font-black text-slate-900 mb-8">{title}</h1>
         <div 
-          className="prose prose-slate prose-lg max-w-none prose-headings:font-bold prose-a:text-emerald-600"
+          className="content-prose"
           dangerouslySetInnerHTML={{ __html: sanitizedContent }}
         />
       </div>

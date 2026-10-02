@@ -1,89 +1,17 @@
+import React from 'react';
+import { useParams } from 'react-router-dom';
+import SEO from './SEO';
+import { useCMS } from '../static/CMSContext';
 import { sanitizeHtml } from '../utils/sanitizeHtml';
 import { isContentPublished } from '../utils/publication';
-import React from 'react';
-import { useParams, Link } from 'react-router-dom';
-import { useCMS } from '../static/CMSContext';
-import { ArrowRight, ArrowLeft, Calendar, User, Tag } from 'lucide-react';
-import SEO from './SEO';
-import { LanguagePack } from '../types';
+import type { Lang } from '../content/serviceAreas';
+import type { LanguagePack } from '../types';
 import NotFoundPage from '../pages/NotFoundPage';
-
-export default function BlogPostPage({ lang, setLang, t }: { lang: 'ar' | 'en', setLang: (l: 'ar'|'en') => void, t: LanguagePack }) {
-  const { slug } = useParams();
-  const { cmsData } = useCMS();
-  const isRtl = lang === 'ar';
-  
-  const post = cmsData.posts.find(p => p.slug === slug || p.id === slug);
-
-  if (!post || !isContentPublished(post)) {
-    return <NotFoundPage lang={lang} />;
-  }
-
-  const title = isRtl ? post.titleAr : post.titleEn;
-  const content = isRtl ? post.contentAr : post.contentEn;
-  const excerpt = isRtl ? post.excerptAr : post.excerptEn;
-
-  return (
-    <>
-      <SEO 
-        title={title}
-        description={excerpt}
-        image={post.featuredImage}
-        canonicalPath={`/${lang}/blog/${post.slug}/`}
-        lang={lang}
-        type="article"
-      />
-      <div className="max-w-4xl mx-auto w-full px-4 py-12">
-        <Link reloadDocument to={`/${lang}/blog/`} className="inline-flex items-center gap-2 text-emerald-600 font-bold mb-8 hover:text-emerald-700 transition-colors">
-          {isRtl ? <ArrowRight className="w-4 h-4" /> : <ArrowLeft className="w-4 h-4" />}
-          <span>{isRtl ? "العودة للمقالات" : "Back to Blog"}</span>
-        </Link>
-        
-        <article className="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-          {post.featuredImage && (
-            <div className="w-full h-[300px] sm:h-[400px] overflow-hidden bg-slate-100">
-              <img 
-                src={post.featuredImage} 
-                alt={title} 
-                className="w-full h-full object-cover"
-              />
-            </div>
-          )}
-          
-          <div className="p-6 sm:p-10">
-            <div className="flex flex-wrap items-center gap-4 text-xs font-bold text-slate-500 mb-6">
-              <span className="bg-emerald-50 text-emerald-700 px-3 py-1 rounded-full">{post.category}</span>
-              <div className="flex items-center gap-1">
-                <Calendar className="w-3.5 h-3.5" />
-                <span>{post.date}</span>
-              </div>
-              <div className="flex items-center gap-1">
-                <User className="w-3.5 h-3.5" />
-                <span>{post.author}</span>
-              </div>
-            </div>
-            
-            <h1 className="text-2xl sm:text-4xl font-black text-slate-900 mb-6 leading-tight">
-              {title}
-            </h1>
-            
-            <div className="prose prose-slate max-w-none text-slate-700 leading-relaxed text-base sm:text-lg whitespace-pre-line space-y-4">
-              <div dangerouslySetInnerHTML={{ __html: sanitizeHtml(content) }} />
-            </div>
-
-            {post.tags && post.tags.length > 0 && (
-              <div className="mt-10 pt-6 border-t border-slate-100 flex flex-wrap items-center gap-2">
-                <Tag className="w-4 h-4 text-slate-400" />
-                {post.tags.map((tag, idx) => (
-                  <span key={idx} className="bg-slate-100 text-slate-600 px-2.5 py-1 rounded-md text-xs font-medium">
-                    #{tag}
-                  </span>
-                ))}
-              </div>
-            )}
-          </div>
-        </article>
-      </div>
-    </>
-  );
+export default function BlogPostPage({lang}:{lang:Lang;setLang:(lang:Lang)=>void;t:LanguagePack}){
+ const {slug}=useParams(),{cmsData}=useCMS(),ar=lang==='ar',p=cmsData.posts.find(p=>p.slug===slug||p.id===slug);
+ if(!p||!isContentPublished(p))return <NotFoundPage lang={lang}/>;
+ const title=ar?p.titleAr:p.titleEn,description=ar?p.excerptAr:p.excerptEn,url='https://sherascrap.com'+`/${lang}/blog/${p.slug}/`;
+ const date=p.date?new Date(p.date):null,modified=(p as any).updatedAt;
+ const related=cmsData.posts.filter(x=>x.slug!==p.slug).slice(0,3);
+ return <><SEO lang={lang} title={title} description={description} canonicalPath={`/${lang}/blog/${p.slug}/`} image={p.featuredImage} type="article" schema={[{'@context':'https://schema.org','@type':'Article',headline:title,description,url,mainEntityOfPage:url,inLanguage:ar?'ar-SA':'en-SA',author:{'@type':'Organization','@id':'https://sherascrap.com/#organization',name:ar?'شيرا سكراب':'SheraScrap',url:'https://sherascrap.com'+`/${lang}/about/`},publisher:{'@id':'https://sherascrap.com/#organization'},...(date&&!isNaN(date.getTime())?{datePublished:date.toISOString()}:{}),...(modified?{dateModified:new Date(modified).toISOString()}:{}),...(p.featuredImage?{image:'https://sherascrap.com'+p.featuredImage}:{})},{'@context':'https://schema.org','@type':'BreadcrumbList',itemListElement:[{'@type':'ListItem',position:1,name:ar?'الرئيسية':'Home',item:`https://sherascrap.com/${lang}/`},{'@type':'ListItem',position:2,name:ar?'أدلة البيع':'Selling guides',item:`https://sherascrap.com/${lang}/blog/`},{'@type':'ListItem',position:3,name:title,item:url}]}]}/><article className="site-container content-prose page-heading"><nav className="breadcrumbs"><a href={`/${lang}/`}>{ar?'الرئيسية':'Home'}</a><span>/</span><a href={`/${lang}/blog/`}>{ar?'أدلة البيع':'Selling guides'}</a></nav><p className="eyebrow">{ar?'دليل شيرا سكراب':'SHERASCRAP GUIDE'}</p><h1>{title}</h1><p className="page-intro">{description}</p><p className="form-help">{ar?'إعداد: شيرا سكراب':'By SheraScrap'} · {date&&!isNaN(date.getTime())&&<time dateTime={p.date}>{new Intl.DateTimeFormat(ar?'ar-SA':'en-SA',{dateStyle:'long',timeZone:'UTC'}).format(date)}</time>}</p>{p.featuredImage&&<img src={p.featuredImage} width="850" height="400" alt={ar?'صورة توضيحية لموضوع الدليل':'Illustration of the guide topic'} style={{width:'100%',height:300,objectFit:'cover',marginBlock:25}}/>}<div dangerouslySetInnerHTML={{__html:sanitizeHtml(ar?p.contentAr:p.contentEn)}}/><h2>{ar?'أدلة ذات صلة':'Related guides'}</h2><ul>{related.map(r=><li key={r.id}><a href={`/${lang}/blog/${r.slug}/`}>{ar?r.titleAr:r.titleEn}</a></li>)}</ul><a className="button button-dark" href={`/${lang}/contact/`}>{ar?'ناقش الكمية مع الفريق':'Discuss your lot with the team'}</a></article></>;
 }

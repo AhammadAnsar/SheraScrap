@@ -23,7 +23,7 @@ data.videoPosts = data.videoPosts.filter(v => v.youtubeId !== 'dQw4w9WgXcQ' && !
 data.settings.whatsapp = data.settings.whatsapp.replace(/\D/g, '');
 const routes = publicRoutes(data);
 for (const route of routes) {
-  if (!/^\/(ar|en)\/(?:[a-z0-9-]+\/)*$/.test(route)) throw new Error('Unsafe or unsupported slug: ' + route);
+  if (!/^\/(ar|en)\/(?:[\p{L}\p{N}-]+\/)*$/u.test(route)) throw new Error('Unsafe or unsupported slug: ' + route);
 }
 function render(route: string, notFound = false) {
   const payload = { ...data, notFound };
@@ -31,9 +31,10 @@ function render(route: string, notFound = false) {
   const head: string[] = [];
   body = body.replace(/<title[^>]*>[\s\S]*?<\/title>|<meta\b[^>]*>|<link\b[^>]*>/gi, tag => { head.push(tag); return ''; });
   const en = route.startsWith('/en/');
+  if(!en)for(const font of fs.readdirSync(path.join(output,'assets')).filter(f=>/^tajawal-.+\.woff2$/.test(f)))head.push(`<link rel="preload" href="/assets/${font}" as="font" type="font/woff2" crossorigin="anonymous" />`);
   return template.replace(/<html[^>]*>/i, `<html lang="${en ? 'en' : 'ar'}" dir="${en ? 'ltr' : 'rtl'}">`)
     .replace('<!-- SSR_HEAD_INJECTION -->', head.join('\n'))
-    .replace('<div id="root"></div>', `<div id="root">${body}</div><script id="__CMS_DATA__" type="application/json">${serializeJson(payload)}</script>`);
+    .replace('<div id="root"></div>', `<div id="root">${body}</div>`);
 }
 for (const route of routes) {
   const file = path.join(output, route, 'index.html');
@@ -43,11 +44,11 @@ for (const route of routes) {
 fs.writeFileSync(path.join(output, 'index.html'), render('/ar/'));
 fs.writeFileSync(path.join(output, '404.html'), render('/en/404/', true));
 fs.writeFileSync(path.join(output, 'sitemap.xml'), generateSitemapXml(data));
-fs.writeFileSync(path.join(output, 'robots.txt'), 'User-agent: *\nAllow: /\nDisallow: /admin\nDisallow: /api/\nSitemap: https://sherascrap.com/sitemap.xml\n');
-fs.writeFileSync(path.join(output, 'llms.txt'), '# Shera Scrap\n\nPublic pages for scrap purchasing services in Dammam and the Eastern Province.\n\n' + routes.map(route => `- https://sherascrap.com${route}`).join('\n') + '\n');
+fs.writeFileSync(path.join(output, 'robots.txt'), ['*','Googlebot','Bingbot','GPTBot','OAI-SearchBot','OAuthBot','Google-Extended','PerplexityBot','ClaudeBot'].map(agent=>`User-agent: ${agent}\nAllow: /\nDisallow: /admin\nDisallow: /api/\n`).join('\n')+'\nSitemap: https://sherascrap.com/sitemap.xml\n');
+fs.writeFileSync(path.join(output, 'llms.txt'), '# SheraScrap\n\nScrap metal and selected used equipment buyer. Primary market: Dammam, Eastern Province, Saudi Arabia. Contact: +966573690164; info@sherascrap.com.\n\nServices include copper, iron/steel, aluminum, cables, AC units, industrial scrap, machinery and restaurant equipment. Assessment, collection and payment terms are agreed for each lot. Location pages describe coverage, not separate branches.\n\n## Key public pages\n' + ['ar','en'].flatMap(lang=>['', 'about/','contact/','services/','blog/','pages/pricing/','privacy/', lang==='ar'?'مناطق-الخدمة/':'service-areas/'].map(p=>`- [${lang === 'ar' ? 'Arabic' : 'English'} ${p || 'home'}](https://sherascrap.com/${lang}/${p})`)).join('\n')+'\n\nContent is prerendered HTML. See the sitemap for the complete URL list: https://sherascrap.com/sitemap.xml\n');
 // Workers Static Assets and Pages share path redirects. Hostname redirects must
 // be configured as Cloudflare zone Redirect Rules, not placed in this file.
-const redirects = ['/ /ar/ 301'];
+const redirects: string[] = [];
 for (const route of routes) redirects.push(`${route.slice(0, -1)} ${route} 301`);
 for (const lang of ['ar', 'en']) for (const slug of reservedPageSlugs) {
   const target = `/${lang}/${slug === 'home' ? '' : slug + '/'}`;
@@ -58,6 +59,12 @@ for (const route of routes.filter(r => r.startsWith('/ar/'))) {
   if (old !== '/') redirects.push(`${old} ${route} 301`, `${old.slice(0, -1)} ${route} 301`);
 }
 redirects.push('/category/:slug /ar/services/:slug/ 301', '/article/:slug /ar/blog/:slug/ 301', '/articles/:slug /ar/blog/:slug/ 301');
-fs.writeFileSync(path.join(output, '_redirects'), [...new Set(redirects)].join('\n') + '\n');
-fs.writeFileSync(path.join(output, '_headers'), '/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n  X-Frame-Options: SAMEORIGIN\n/assets/*\n  Cache-Control: public, max-age=31536000, immutable\nhttps://:project.pages.dev/*\n  X-Robots-Tag: noindex, nofollow\nhttps://:branch.:project.pages.dev/*\n  X-Robots-Tag: noindex, nofollow\nhttps://:worker.:account.workers.dev/*\n  X-Robots-Tag: noindex, nofollow\n');
+fs.writeFileSync(path.join(output, '_redirects'), [...new Set(redirects)].map(r=>r.split(' ').map((token,i)=>i<2?encodeURI(token):token).join(' ')).join('\n') + '\n');
+// Pages invokes its tiny language selector only at the bare domain. Every
+// language/content URL remains a static HTML asset served without a function.
+fs.copyFileSync('cloudflare/entry.mjs',path.join(output,'_worker.js'));
+fs.writeFileSync(path.join(output,'_routes.json'),JSON.stringify({version:1,include:['/'],exclude:[]}));
+fs.writeFileSync(path.join(output,'.assetsignore'),'_worker.js\n_routes.json\n');
+fs.writeFileSync(path.join(output, '_headers'), '/*\n  X-Content-Type-Options: nosniff\n  Referrer-Policy: strict-origin-when-cross-origin\n  X-Frame-Options: SAMEORIGIN\n/resources/*\n  Cache-Control: public, max-age=2592000\n/assets/*\n  Cache-Control: public, max-age=31536000, immutable\nhttps://:project.pages.dev/*\n  X-Robots-Tag: noindex, nofollow\nhttps://:branch.:project.pages.dev/*\n  X-Robots-Tag: noindex, nofollow\nhttps://:worker.:account.workers.dev/*\n  X-Robots-Tag: noindex, nofollow\n');
 console.log(`Generated ${routes.length} independent HTML pages, sitemap, redirects and real 404 page.`);
+

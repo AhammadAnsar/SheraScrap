@@ -20,6 +20,9 @@ const files = new Set([
   'CLOUDFLARE-PAGES.md', 'STATIC-VALIDATION.md', 'src/index.css',
   'scripts/build-pages.mjs', 'scripts/render-pages.tsx', 'scripts/preview-pages.mjs', 'scripts/clean.mjs',
   'scripts/package-pages.ps1', 'scripts/stage-release.mjs', 'tests/pages.test.ts', 'tests/cloudflare.test.mjs',
+  'cloudflare/entry.mjs', 'scripts/indexnow.mjs', 'IMPLEMENTATION-REPORT.md',
+  'tests/browser.test.mjs',
+  'tests/fixtures/previous-public-routes.json',
 ]);
 // Include type-only imports as well as browser source. Never ship obsolete
 // backend/admin modules or require files from the previous repository.
@@ -35,7 +38,7 @@ function collect(folder) {
     else if (entry.name !== '.gitkeep') files.add(file.split(path.sep).join('/'));
   }
 }
-collect('content'); collect('public/resources'); collect('public/uploads');
+collect('content'); collect('public/resources'); collect('public/uploads'); collect('reports');
 fs.mkdirSync(stage, { recursive: true });
 for (const relative of files) {
   const target = path.join(stage, relative);

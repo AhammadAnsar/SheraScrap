@@ -3,14 +3,20 @@ import fs from 'node:fs';
 import path from 'node:path';
 import net from 'node:net';
 import { spawn } from 'node:child_process';
+import { chooseLanguage } from '../cloudflare/entry.mjs';
 
 // Test the deployed directory using Cloudflare's actual local asset runtime,
 // rather than a custom server that cannot validate Cloudflare redirect syntax.
 const config = JSON.parse(fs.readFileSync('wrangler.jsonc', 'utf8'));
 assert.equal(config.assets.directory, './dist/pages');
 assert.equal(config.assets.not_found_handling, '404-page');
-assert(!config.main, 'Static-only deployment must not execute Worker application code');
+assert.deepEqual(config.assets.run_worker_first,['/'],'Run the language selector only at the root');
+assert.equal(config.main,'cloudflare/entry.mjs');
+for(const [country,expected] of [['SA','ar'],['AE','ar'],['BH','ar'],['KW','ar'],['QA','ar'],['OM','ar'],['BD','en'],['US','en'],[undefined,'ar']])assert.equal(chooseLanguage({cf:{country},headers:new Headers()}),expected);
+assert.equal(chooseLanguage({cf:{country:'US'},headers:new Headers({'user-agent':'Googlebot'})}),'ar');
+assert.equal(chooseLanguage({cf:{country:'SA'},headers:new Headers({cookie:'shera_lang=en'})}),'en');
 const root = path.resolve(config.assets.directory);
+const pagesMode=process.argv.includes('--pages');
 const redirects = fs.readFileSync(path.join(root, '_redirects'), 'utf8').trim().split('\n');
 assert(redirects.every(line => line.startsWith('/')), 'Redirect sources must be relative paths');
 const rules = redirects.map(line => line.trim().split(/\s+/));
@@ -24,7 +30,8 @@ const port = listener.address().port;
 await new Promise(resolve => listener.close(resolve));
 const base = `http://127.0.0.1:${port}`;
 let logs = '';
-const child = spawn(process.execPath, ['node_modules/wrangler/bin/wrangler.js', 'dev', '--local', '--ip', '127.0.0.1', '--port', String(port)], {
+const args=pagesMode?['pages','dev',root,'--compatibility-date',config.compatibility_date]:['dev','--local'];
+const child = spawn(process.execPath, ['node_modules/wrangler/bin/wrangler.js', ...args, '--ip', '127.0.0.1', '--port', String(port)], {
   stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, CI: 'true', WRANGLER_SEND_METRICS: 'false' },
 });
 child.stdout.on('data', data => { logs += data.toString(); });
@@ -42,6 +49,7 @@ try {
     }
   }
   const sitemap = fs.readFileSync(path.join(root, 'sitemap.xml'), 'utf8');
+  for(const lang of ['ar','en']){const res=await request('/',{Cookie:`shera_lang=${lang}`});assert.equal(res.status,302);assert.equal(res.headers.get('location'),`/${lang}/`);assert(res.headers.get('cache-control').includes('no-store'));}
   const routes = [...sitemap.matchAll(/<loc>https:\/\/sherascrap.com([^<]+)<\/loc>/g)].map(m => m[1]);
   for (const route of routes) {
     const res = await request(route);
@@ -79,7 +87,7 @@ try {
   }
   for (const file of ['sitemap.xml', 'robots.txt', 'llms.txt']) assert.equal((await request('/' + file)).status, 200);
   assert(!/Invalid _redirects|Invalid _headers|\[ERROR\]/.test(logs), logs);
-  console.log(`PASS: Cloudflare asset runtime serves ${routes.length} pages; ${staticRules.length} redirects, security/cache headers, images, sitemap and real 404 verified.`);
+  console.log(`PASS: Cloudflare ${pagesMode?'Pages':'Workers'} runtime serves ${routes.length} pages; ${staticRules.length} redirects, security/cache headers, images, sitemap and real 404 verified.`);
 } finally {
   child.kill();
   await Promise.race([new Promise(resolve => child.once('exit', resolve)), new Promise(resolve => setTimeout(resolve, 2000))]);

@@ -1,54 +1,59 @@
-# Shera Scrap — GitHub-ready static website
+# SheraScrap — GitHub ready
 
-ZIP extract করে **ভেতরের সব ফাইল ও folders** GitHub repository root-এ রাখুন। `package.json`, `package-lock.json`, `wrangler.jsonc`, `src`, `scripts`, `content`, `public`, `tests` এবং `.github` অবশ্যই আপলোড হবে। ZIP বা এর বাইরের folder-টি root-এ রাখবেন না। পুরোনো repository files রাখার প্রয়োজন নেই; repository ও Git history অক্ষত রেখে নতুন files প্রতিস্থাপন করুন।
+ZIP খুলে ভেতরের **সব ফাইল ও ফোল্ডার repository root-এ** রাখুন, তারপর push করুন। Root-এ `package.json`, `package-lock.json`, `wrangler.jsonc`, `src`, `content`, `scripts`, `public`, `tests` ও `.github` থাকবে। বাইরের ZIP folder-টি repository root-এর বদলে ব্যবহার করবেন না। পুরোনো Git history বা repository মুছে নতুন repository বানানোর প্রয়োজন নেই।
 
-## আপনার বর্তমান Cloudflare project
+আপনার বর্তমান Cloudflare Git connection থাকলে push-এ deployment শুরু হবে। এই package-এর জন্য Firebase credentials, database বা নতুন paid service প্রয়োজন নেই।
 
-আপনার deployment log অনুযায়ী এটি **Workers Static Assets**, যেখানে build-এর পরে `npx wrangler deploy` চলে। এই package সেই বর্তমান project-এ deploy করার জন্য সম্পূর্ণ configuration বহন করে। সাইটটি একই pre-rendered static multi-page website; কোনো application Worker code, Firebase, database বা backend নেই।
+## Cloudflare deployment
 
-বর্তমান build command `bun run build` এবং deploy command `npx wrangler deploy` রাখা যায়। Standard build command হলো `npm run build`। `wrangler.jsonc` সরাসরি `dist/pages` নির্দেশ করে; CLI version package-lock-এ pinned। `.node-version`/`.nvmrc` Node 22 নির্দেশ করে; Node 24-ও supported। Automatic Git integration আগে থেকেই connected থাকলে push করলেই build/deploy trigger হবে।
+আপনার আগের logs-এ Workers Static Assets-এর `npx wrangler deploy` ছিল। তার configuration এই package-এ আছে। বর্তমান `bun run build` অথবা standard `npm run build` command এবং `npx wrangler deploy` ব্যবহার করা যায়। Node 22/24 supported; Wrangler ও dependency lockfile অন্তর্ভুক্ত।
 
-আগের ব্যর্থতার কারণ: Pages-এর hostname redirect Workers-এ গ্রহণযোগ্য নয়। এখন সব `_redirects` source relative path এবং একই output Pages ও Workers Static Assets-এ চলে। Domain-level redirect সঠিকভাবে Cloudflare zone Redirect Rules-এ বসাতে হয়।
+Cloudflare **Pages** project-এ ব্যবহার করলে Git integration, Framework None, build `npm run build`, output `dist/pages`, repository root ব্যবহার করুন। Pages নিজে output publish করে; `wrangler deploy` তার deploy command নয়। `wrangler.jsonc`-তে Workers configuration আছে; `pages_build_output_dir` দেওয়া হয়নি, ফলে Pages production settings dashboard-এ থাকে। Generated `_worker.js` ও `_routes.json` দিয়ে Pages-এর ভাষা নির্বাচন চলে। দুই platform-এর নিজস্ব runtime-এ এই output পরীক্ষা করা হয়েছে।
 
-## Cloudflare Pages ব্যবহার করলে
+যে platform ইতিমধ্যে আপনার domain ও repository-র সঙ্গে connected, সেটিতেই update করা যায়। Hosting account-এর Git connection, domain বা DNS কোনো ZIP নিজে থেকে তৈরি করতে পারে না।
 
-এই source-ই ব্যবহারযোগ্য। Git integration, Framework None, build `npm run build`, output `dist/pages`, root খালি/repository root। Pages dashboard নিজে deploy করে; Workers-এর deploy command সেখানে প্রয়োজন নেই। এই ZIP ব্যবহারের জন্য নতুন Pages project তৈরি করা বাধ্যতামূলক নয়।
+## Domain ও search accounts
 
-## Domain — একবারের account setup
+Canonical domain `https://sherascrap.com`। Existing domain connection রেখে দিন। নতুন Pages project হলে Custom domains wizard, Workers হলে Domains & Routes → Custom Domain ব্যবহার করুন। `www` থেকে মূল domain-এ 301 redirect Cloudflare zone-এর Redirect Rules-এ দিন; path ও query সংরক্ষণ করুন। Email-এর MX/TXT records রাখুন।
 
-Canonical domain ইতিমধ্যে `https://sherascrap.com`। Workers হলে Settings → Domains & Routes → Custom Domain থেকে মূল domain যোগ করুন। Pages হলে Custom domains wizard ব্যবহার করুন। Domain zone একই Cloudflare account-এ active থাকতে হবে; প্রয়োজন হলে registrar-এ Cloudflare-এর দেওয়া nameservers বসান এবং email-এর existing MX/TXT records রাখুন।
+Google domain verification-এর আগের DNS TXT record রাখতে হবে। Google ও Bing verification meta দেওয়া আছে। Sitemap: `https://sherascrap.com/sitemap.xml`। Preview `pages.dev`/`workers.dev` host-এ noindex header আছে। Cloudflare account-এর bot policy যেন আপনার অনুমোদিত search/AI crawlers-কে block না করে।
 
-`www.sherascrap.com`-এর জন্য Cloudflare zone → Rules → Redirect Rules-এ hostname `www.sherascrap.com` match করে 301 redirect দিন: `concat("https://sherascrap.com", http.request.uri.path)`, Preserve query string enabled। Account/DNS setup কোনো GitHub ZIP নিজে থেকে পরিবর্তন করতে পারে না। Domain একবার connect হলে ভবিষ্যতের content updates শুধু GitHub push-এ deploy হবে।
+## ভাষা ও free plan
 
-Preview `*.pages.dev` ও `*.workers.dev`-তে noindex header আছে; মূল domain indexable। Google Search Console-এ domain verify করে `https://sherascrap.com/sitemap.xml` submit করুন। AI crawler access চাইলে Cloudflare bot policies-ও যাচাই করুন।
+শুধু bare `/` URL-এ country অনুযায়ী temporary redirect হয়: SA/AE/BH/KW/QA/OM → Arabic, অন্য পরিচিত country → English। Country না পাওয়া গেলে ও search bots-এর জন্য Arabic default। Visitor-এর ভাষা পছন্দ মনে রাখা হয়। কোনো direct Arabic/English page country অনুযায়ী বদলায় না।
 
-## Content ও ছবি
+সব content page pre-rendered static HTML। Country selection-এর ছোট function-টি free Workers/Pages Functions quota ব্যবহার করে; Free plan-এ account-এর মোট function requests-এর দৈনিক limit 100,000। Static asset traffic আলাদা। Paid plan বেছে নেওয়া হয়নি; domain renewal এবং account-এর অন্য usage এই package-এর নিয়ন্ত্রণে নেই। Country detection ছাড়া সম্পূর্ণ function-free version চাইলে root Arabic রাখা যায়, কিন্তু সেটি এই version-এর country selection feature হবে না।
 
-`content/site.json`-এ business settings, published pages, services, locations ও blog posts। নতুন entry-তে existing schema অনুসরণ করুন; unique lowercase slug দিন। Published entries build-এ আলাদা HTML ও sitemap entry পায়। Backend admin নেই; পরিবর্তন GitHub commit/push দিয়ে publish হবে।
+[Workers static billing](https://developers.cloudflare.com/workers/static-assets/billing-and-limitations/) · [Pages Functions pricing](https://developers.cloudflare.com/pages/functions/pricing/) · [Pages configuration](https://developers.cloudflare.com/pages/functions/wrangler-configuration/)
 
-ছবি `public/resources/my-photo.webp`-এ রাখুন; content-এ `/resources/my-photo.webp` লিখুন। Filename case একই রাখুন এবং ছবি commit করুন। বর্তমান ছবিগুলো ZIP-এ অন্তর্ভুক্ত। তিনটি পুরোনো broken image URL branded placeholder হয়েছে। Google Fonts ও map embeds external।
+## Content ও resources
 
-Per-URL metadata override `content/seo.json`-এ:
+Business details, services, articles ও existing local guides: `content/site.json`। নতুন published article-এ unique lowercase slug, Arabic/English title, excerpt ও HTML content দিন। Build তার দুই language URL, HTML ও sitemap entry তৈরি করে।
+
+২৪টি এলাকার exact নাম, unique local introduction, preparation ও FAQ: `src/content/serviceAreas.ts`। তাদের URLs ও language counterpart সেখানেই নির্ধারিত। Homepage sections ও layout: `src/pages/HomePage.tsx`, `src/components`, `src/index.css`।
+
+ছবি/আইকন `public/resources/`-এ রাখুন; page content-এ `/resources/filename.webp` ব্যবহার করুন। Path-এর letter case মিলতে হবে। একই ছবি পাল্টালে নতুন filename ব্যবহার করুন, যাতে cache-এর পুরোনো ছবি না আসে। Provided logo, favicon, illustrations, photos ও licensed local Arabic fonts অন্তর্ভুক্ত।
+
+Specific page metadata পরিবর্তন করতে `content/seo.json`:
+
 ```json
 {
   "/en/contact/": {
-    "title": "Contact Shera Scrap in Dammam",
-    "description": "Contact our team for scrap collection in Dammam.",
-    "image": "/resources/my-photo.webp"
+    "title": "Contact SheraScrap in Dammam",
+    "description": "Discuss scrap assessment and collection with our Dammam team.",
+    "image": "/resources/brand/icon-512.png"
   }
 }
 ```
 
-Contact/quote form WhatsApp-এ প্রস্তুত message খোলে; visitor Send চাপবেন। Photo WhatsApp-এ attach করা যায়। Server-এ lead storage বা paid AI নেই।
+WhatsApp form-এ customer details দিয়ে Continue চাপলে prepared message খোলে; WhatsApp-এ Send চাপলে পাঠায়। ছবি customer-এর device-এ থাকে; chat-এ attach করতে হবে। Supported device-এ native photo sharing-ও আছে। Website database-এ lead বা photo জমা হয় না।
+
+## Analytics ও IndexNow
+
+Google Analytics `G-2DQ7V2XJ3E` শুধু production domain ও visitor consent-এর পরে চলে। Form contents analytics-এ যায় না। Privacy page থেকে preference বদলানো যায়।
+
+IndexNow public key file build-এ তৈরি হয়। GitHub validation workflow main/master push-এর পরে production-এ **এই build-এর matching digest** ও key file পাওয়া গেলে URLs submit করে। Local build/test কোনো submission করে না। Deploy তখনও live না হলে workflow pending জানায়; deployment-এর পরে Actions → Validate website → Run workflow দিয়ে retry করা যায়। Search engine submission গ্রহণ করলেও indexing নিশ্চিত নয়।
 
 ## Verification
 
-`npm ci` → `npm run lint` → `npm run build` → `npm test` → `npm run test:cloudflare` → `npm run deploy:check`।
-
-Cloudflare runtime test HTTP-তে সব public pages, redirects, real 404, images, sitemap ও headers যাচাই করে। GitHub workflow এই checks চালায়; credentials লাগে না। SHA-256 file list: `RELEASE-MANIFEST.json`। Local preview: `npm run preview`।
-
-সাইটের HTML crawler-readable; ranking/indexing Google/AI search engine-এর সিদ্ধান্ত। Business claims/reviews/certification মালিক যাচাই করবেন। Production account deployment/DNS এখনও live test না করা থাকলে local validation-কে live deployment বলা হবে না।
-
-Static asset requests free/unlimited under Cloudflare's applicable plan; build/file limits এবং domain renewal আলাদা। পুরোনো Firebase billing এই migration নিজে থেকে বন্ধ হয় না।
-
-Official references: https://developers.cloudflare.com/workers/static-assets/redirects/ • https://developers.cloudflare.com/workers/static-assets/headers/ • https://developers.cloudflare.com/workers/static-assets/billing-and-limitations/ • https://developers.cloudflare.com/pages/configuration/custom-domains/
+`npm ci` → `npm run lint` → `npm run build` → `npm test` → `npm run test:cloudflare` → `npm run deploy:check`। GitHub workflow এগুলো চালায়। `npm run preview` local preview খোলে। `RELEASE-MANIFEST.json`-এ source files-এর SHA-256 আছে। বিস্তারিত ফল: `STATIC-VALIDATION.md` ও `IMPLEMENTATION-REPORT.md`।

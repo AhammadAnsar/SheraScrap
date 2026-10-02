@@ -10,11 +10,12 @@
     "start": "npm run preview",
     "deploy": "npm run build && wrangler deploy",
     "deploy:check": "wrangler deploy --dry-run",
-    "test:cloudflare": "node tests/cloudflare.test.mjs",
+    "test:cloudflare": "node tests/cloudflare.test.mjs && node tests/cloudflare.test.mjs --pages",
     "test:pages": "tsx tests/pages.test.ts",
     "clean": "node scripts/clean.mjs",
     "lint": "tsc --noEmit",
-    "test": "npm run test:pages"
+    "test:browser": "node tests/browser.test.mjs",
+    "test": "npm run test:pages && npm run test:browser"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.1.14",
@@ -34,6 +35,7 @@
     "autoprefixer": "^10.4.21",
     "domutils": "^4.0.2",
     "esbuild": "^0.25.0",
+    "happy-dom": "^20.14.5",
     "htmlparser2": "^12.0.0",
     "tailwindcss": "^4.1.14",
     "tsx": "^4.21.0",

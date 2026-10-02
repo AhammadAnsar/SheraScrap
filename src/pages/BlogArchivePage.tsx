@@ -1,29 +1,6 @@
 import React from 'react';
 import SEO from '../components/SEO';
-import BlogSection from '../components/BlogSection';
-import VideoSection from '../components/VideoSection';
-import { LanguagePack } from '../types';
-
-interface BlogArchivePageProps {
-  lang: 'ar' | 'en';
-  t: LanguagePack;
-}
-
-export default function BlogArchivePage({ lang, t }: BlogArchivePageProps) {
-  const isRtl = lang === 'ar';
-  return (
-    <>
-      <SEO 
-        title={isRtl ? "المقالات والأخبار | مدونة السكراب" : "Blog & News | Scrap Market Insights"} 
-        description={isRtl ? "أحدث المقالات والنصائح في مجال تدوير السكراب وتقييم أسعار المعادن والمكيفات بالدمام." : "Latest articles, market insights and selling tips for metal scrap and used AC units."} 
-        canonicalPath={`/${lang}/blog/`}
-        lang={lang}
-      />
-      <div className="pt-8 bg-slate-50">
-        <h1 className="text-3xl font-black text-center pt-8">{isRtl ? "المدونة" : "Blog & News"}</h1>
-        <BlogSection lang={lang} />
-        <VideoSection lang={lang} />
-      </div>
-    </>
-  );
-}
+import { useCMS } from '../static/CMSContext';
+import type { Lang } from '../content/serviceAreas';
+import type { LanguagePack } from '../types';
+export default function BlogArchivePage({lang}:{lang:Lang;t:LanguagePack}) {const ar=lang==='ar',{cmsData}=useCMS();return <><SEO lang={lang} canonicalPath={`/${lang}/blog/`} title={ar?'أدلة بيع وتقييم السكراب':'Scrap Selling & Assessment Guides'} description={ar?'أدلة شيرا سكراب لتجهيز النحاس والحديد والمكيفات والمعدات قبل التقييم والبيع في الدمام والشرقية.':'SheraScrap guides to prepare copper, iron, AC units and equipment for assessment and sale in Dammam and the Eastern Province.'}/><div className="site-container page-heading"><p className="eyebrow">{ar?'معلومات عملية':'PRACTICAL INFORMATION'}</p><h1>{ar?'أدلة تساعدك على البيع':'Guides to help you sell'}</h1><p className="page-intro">{ar?'معلومات عامة من شيرا سكراب عن تجهيز المواد وفهم التقييم. الأسعار النهائية تعتمد على مراجعة الكمية.':'General guidance from SheraScrap on material preparation and assessment. Final prices depend on a review of your lot.'}</p></div><section className="site-container editorial-section" style={{paddingTop:0}}><div className="guide-grid">{cmsData.posts.map(p=><a className="guide-card" key={p.id} href={`/${lang}/blog/${p.slug}/`}><span className="eyebrow">{ar?'دليل شيرا سكراب':'SHERASCRAP GUIDE'}</span><h2 style={{fontSize:'1.5rem',marginBlock:20}}>{ar?p.titleAr:p.titleEn}</h2><p>{ar?p.excerptAr:p.excerptEn}</p><span className="text-link">{ar?'اقرأ الدليل ←':'Read the guide ↗'}</span></a>)}</div></section></>}

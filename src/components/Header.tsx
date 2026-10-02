@@ -1,143 +1,31 @@
-import React, { useState } from 'react';
-import { useNavigate, useLocation, Link } from 'react-router-dom';
-import { Phone, MessageSquare, MapPin, Clock, ShieldCheck, Megaphone, Lock, Search, X, ArrowRight } from 'lucide-react';
-import { LanguagePack } from '../types';
+import React from 'react';
+import type { LanguagePack } from '../types';
 import LanguageSelector from './LanguageSelector';
+import { areaHubPath, areaPath, featuredAreaSlugs, serviceAreas, type Lang } from '../content/serviceAreas';
 import { useCMS } from '../static/CMSContext';
-
-interface HeaderProps {
-  lang: 'ar' | 'en';
-  setLang: (lang: 'ar' | 'en') => void;
-  t: LanguagePack;
+export default function Header({lang,setLang}: {lang:Lang;setLang:(lang:Lang)=>void;t:LanguagePack}) {
+  const ar=lang==='ar', {cmsData}=useCMS(), s=cmsData.settings;
+  const links=[
+    {href:`/${lang}/`,en:'Home',ar:'الرئيسية'},
+    {href:`/${lang}/#what-we-buy`,en:'What We Buy',ar:'ما نشتريه'},
+    {href:`/${lang}/services/`,en:'Services',ar:'الخدمات'},
+    {href:`/${lang}/pages/pricing/`,en:'Scrap Prices',ar:'الأسعار'},
+    {href:`/${lang}/services/industrial-scrap/`,en:'Industrial',ar:'الصناعي'},
+    {href:areaHubPath(lang),en:'Service Areas',ar:'مناطق الخدمة'},
+    {href:`/${lang}/blog/`,en:'Blog',ar:'المقالات'},
+    {href:`/${lang}/about/`,en:'About',ar:'من نحن'},
+    {href:`/${lang}/contact/`,en:'Contact',ar:'تواصل'},
+  ];
+  return <header className="site-header" id="main-header">
+    <div className="header-top"><div className="site-container"><span>{ar?'شراء المعادن والمعدات · الدمام والمنطقة الشرقية':'Metal & equipment buying · Dammam & Eastern Province'}</span><LanguageSelector lang={lang} setLang={setLang} variant="dark"/></div></div>
+    <div className="site-container header-main">
+      <a className="brand" href={`/${lang}/`}><img src="/resources/brand/sherascrap-logo.webp" width="54" height="54" alt={ar?'شعار شيرا سكراب':'SheraScrap logo'}/><span><strong>{ar?'شيرا سكراب':'SheraScrap'}</strong><small>{ar?'شراء المعادن والمعدات':'METALS & EQUIPMENT'}</small></span></a>
+      <nav className="desktop-nav" aria-label={ar?'القائمة الرئيسية':'Main navigation'}>{links.map(l=>l.href===areaHubPath(lang)?<details key={l.href} className="nav-dropdown"><summary>{l[lang]}</summary><div>{featuredAreaSlugs.map(slug=>{const a=serviceAreas.find(a=>a.slug===slug)!;return <a key={slug} href={areaPath(a,lang)}>{a.name[lang]}</a>})}<a className="all-areas-link" href={l.href}>{ar?'جميع مناطق الخدمة':'All service areas'}</a></div></details>:<a key={l.href} href={l.href}>{l[lang]}</a>)}</nav>
+      <a className="header-call" href={`tel:${s.phone}`}><span>{ar?'اتصل بنا':'Call us'}</span><bdi dir="ltr">057 369 0164</bdi></a>
+      <details className="mobile-menu"><summary aria-label={ar?'القائمة':'Menu'}><span className="menu-label">{ar?'القائمة':'Menu'}</span><span aria-hidden="true">☰</span></summary><nav aria-label={ar?'قائمة الجوال':'Mobile navigation'}><a href={`/${lang}/`}>{ar?'الرئيسية':'Home'}</a>{links.map(l=><a key={l.href} href={l.href}>{l[lang]}</a>)}</nav></details>
+    </div>
+  </header>;
 }
 
-export default function Header({ lang, setLang, t }: HeaderProps) {
-  const { cmsData, logSearchQuery } = useCMS();
-  const isRtl = lang === 'ar';
-  const settings = cmsData.settings;
 
-  const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
 
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  const scrollToSection = (id: string) => {
-    if (location.pathname !== '/') {
-      window.location.assign('/' + lang + '/#' + id);
-      // Wait for navigation then scroll
-      setTimeout(() => {
-        const element = document.getElementById(id);
-        if (element) {
-          element.scrollIntoView({ behavior: 'smooth' });
-        }
-      }, 300);
-      return;
-    }
-    const element = document.getElementById(id);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!searchQuery.trim()) return;
-
-    // Log query in CMS analytics
-    logSearchQuery(searchQuery, 'عام', 'header_search');
-
-    // Scroll to services or estimator
-    scrollToSection('services');
-    setIsSearchOpen(false);
-  };
-
-  return (
-    <header className="w-full bg-white border-b border-slate-100 sticky top-0 z-40 shadow-sm" id="main-header">
-      
-      {/* Top Announcement Bar if enabled in CMS */}
-      {settings.showAnnouncementBar && (
-        <div className="bg-emerald-600 text-slate-950 py-1.5 px-4 text-xs font-black text-center flex items-center justify-center gap-2">
-          <Megaphone className="w-3.5 h-3.5 shrink-0" />
-          <span className="truncate">
-            {isRtl ? settings.announcementBarAr : settings.announcementBarEn}
-          </span>
-        </div>
-      )}
-
-      {/* Upper bar with metadata */}
-      <div className="w-full bg-slate-900 text-slate-300 py-1.5 px-3 sm:px-4 text-xs">
-        <div className="max-w-7xl mx-auto flex flex-nowrap justify-between items-center gap-2">
-          <div className="flex items-center gap-2 min-w-0">
-            <span className="flex items-center gap-1 text-[11px] sm:text-xs truncate">
-              <MapPin className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-              <span className="truncate">{isRtl ? settings.locationAr : settings.locationEn}</span>
-            </span>
-            <span className="hidden md:flex items-center gap-1 text-[11px] sm:text-xs">
-              <Clock className="w-3.5 h-3.5 text-emerald-500 shrink-0" />
-              <span>{isRtl ? settings.workingHoursAr : settings.workingHoursEn}</span>
-            </span>
-          </div>
-          <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 ms-auto">
-            <LanguageSelector lang={lang} setLang={setLang} variant="dark" />
-          </div>
-        </div>
-      </div>
-
-      {/* Main navigation header */}
-      <div className="max-w-7xl mx-auto px-4 py-3 md:py-4 flex justify-between items-center relative gap-2">
-        {/* Brand Logo & Name */}
-        <div 
-          onClick={() => { if(location.pathname !== `/${lang}/`) { window.location.assign(`/${lang}/`); } else { window.scrollTo({ top: 0, behavior: 'smooth' }); } }}
-          className="flex items-center gap-2.5 sm:gap-3 cursor-pointer select-none group min-w-0"
-          id="brand-logo"
-        >
-          {settings.siteLogo ? (
-            <img 
-              src={settings.siteLogo} 
-              alt={isRtl ? settings.siteTitleAr : settings.siteTitleEn} 
-              className="w-10 h-10 md:w-11 md:h-11 object-contain rounded-xl shrink-0 group-hover:scale-105 transition-transform duration-300"
-            />
-          ) : (
-            <div className="w-10 h-10 md:w-11 md:h-11 bg-gradient-to-br from-emerald-600 to-teal-800 text-white rounded-xl font-black flex items-center justify-center shadow-md shadow-emerald-900/20 group-hover:scale-105 transition-all duration-300 shrink-0">
-              <span className="text-xl md:text-2xl font-black tracking-wider drop-shadow">S</span>
-            </div>
-          )}
-          
-          <div className="flex flex-col justify-center min-w-0">
-            <p className="text-sm sm:text-lg md:text-xl font-black text-slate-900 leading-tight tracking-tight group-hover:text-emerald-700 transition-colors truncate">
-              {isRtl ? (settings.siteTitleAr || "Shera Scrap Haraj") : (settings.siteTitleEn || "Shera Scrap Haraj")}
-            </p>
-            <p className="text-[10px] sm:text-xs md:text-sm font-black text-emerald-600 tracking-wide mt-0.5 truncate">
-              {isRtl ? (settings.siteTaglineAr || "Best Metal Scrap Dealer") : (settings.siteTaglineEn || "Best Metal Scrap Dealer")}
-            </p>
-          </div>
-        </div>
-
-        {/* Desktop Menu links */}
-        <nav className="hidden xl:flex items-center gap-6 text-sm font-bold text-slate-700">
-          <Link reloadDocument to={`/${lang}/`} className="hover:text-emerald-600 transition-colors py-1 border-b-2 border-transparent hover:border-emerald-600">{isRtl ? "الرئيسية" : "Home"}</Link>
-          <Link reloadDocument to={`/${lang}/services/`} className="hover:text-emerald-600 transition-colors py-1 border-b-2 border-transparent hover:border-emerald-600">{isRtl ? "خدماتنا" : "Services"}</Link>
-          <Link reloadDocument to={`/${lang}/locations/restaurant-equipment-dammam/`} className="hover:text-emerald-600 transition-colors py-1 border-b-2 border-transparent hover:border-emerald-600">{isRtl ? "معدات المطاعم" : "Restaurant Equipment"}</Link>
-          <Link reloadDocument to={`/${lang}/blog/`} className="hover:text-emerald-600 transition-colors py-1 border-b-2 border-transparent hover:border-emerald-600">{isRtl ? "المدونة" : "Blog"}</Link>
-          <Link reloadDocument to={`/${lang}/estimator/`} className="hover:text-emerald-600 transition-colors py-1 border-b-2 border-transparent hover:border-emerald-600">{isRtl ? 'طلب تسعير' : 'Get a Quote'}</Link>
-          <Link reloadDocument to={`/${lang}/about/`} className="hover:text-emerald-600 transition-colors py-1 border-b-2 border-transparent hover:border-emerald-600">{isRtl ? "من نحن" : "About Us"}</Link>
-          <Link reloadDocument to={`/${lang}/contact/`} className="hover:text-emerald-600 transition-colors py-1 border-b-2 border-transparent hover:border-emerald-600">{isRtl ? "اتصل بنا" : "Contact"}</Link>
-        </nav>
-
-        {/* Quick actions */}
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-          <a
-            href={`tel:${settings.phone}`}
-            className="flex items-center gap-2 bg-slate-900 hover:bg-emerald-600 text-white px-3.5 py-2 rounded-xl transition-all font-black text-xs md:text-sm shadow-md cursor-pointer border border-slate-800 shrink-0"
-            id="header-phone-btn"
-          >
-            <Phone className="w-3.5 h-3.5 text-emerald-400 animate-pulse" />
-            <span className="hidden sm:inline">{settings.phone}</span>
-            <span className="inline sm:hidden">{isRtl ? "اتصل" : "Call"}</span>
-          </a>
-        </div>
-      </div>
-    </header>
-  );
-}

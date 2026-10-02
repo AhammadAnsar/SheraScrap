@@ -1,36 +1,8 @@
-import { useCMS } from '../static/CMSContext';
-import { sanitizeHtml } from '../utils/sanitizeHtml';
 import React from 'react';
 import SEO from '../components/SEO';
-import WhyChooseUs from '../components/WhyChooseUs';
-import OurStrength from '../components/OurStrength';
-import TrustStats from '../components/TrustStats';
-import { LanguagePack } from '../types';
-
-interface AboutPageProps {
-  lang: 'ar' | 'en';
-  t: LanguagePack;
-}
-
-export default function AboutPage({ lang, t }: AboutPageProps) {
-  const isRtl = lang === 'ar';
-  const { cmsData } = useCMS();
-  const page = cmsData.pages.find(p => p.slug === 'about');
-  return (
-    <>
-      <SEO 
-        title={isRtl ? "من نحن | مؤسسة شيرا لشراء السكراب" : "About Us | Shera Scrap Purchasing"} 
-        description={isRtl ? "تعرف على مؤسسة شيرا وتخصصنا في شراء السكراب والمعادن ومعدات المطاعم بالدمام والشرقية." : "Learn about Shera Scrap and our metal recycling and equipment buying expertise in Dammam."} 
-        canonicalPath={`/${lang}/about/`}
-        lang={lang}
-      />
-      <div className="pt-8">
-        <h1 className="text-3xl font-black text-center px-4 pt-8">{isRtl ? 'من نحن' : 'About Us'}</h1>
-        {page && <div className="max-w-4xl mx-auto px-4 py-8 prose" dangerouslySetInnerHTML={{ __html: sanitizeHtml(isRtl ? page.contentAr : page.contentEn) }} />}
-        <OurStrength lang={lang} t={t} />
-        <TrustStats lang={lang} t={t} />
-        <WhyChooseUs lang={lang} t={t} />
-      </div>
-    </>
-  );
+import { Process } from '../components/EditorialParts';
+import { areaHubPath,type Lang } from '../content/serviceAreas';
+import type { LanguagePack } from '../types';
+export default function AboutPage({lang}:{lang:Lang;t:LanguagePack}) {
+ const ar=lang==='ar';return <><SEO lang={lang} canonicalPath={`/${lang}/about/`} title={ar?'من نحن | شيرا سكراب':'About Us | SheraScrap'} description={ar?'شيرا سكراب لشراء المعادن والمعدات المستعملة المختارة في الدمام ومناطق خدمتنا في الشرقية. تعرف على طريقة تقييم المواد وتنسيق الاستلام.':'SheraScrap buys metals and selected used equipment in Dammam and our Eastern Province service areas. Learn how we assess materials and coordinate collection.'}/><div className="site-container page-heading"><p className="eyebrow">{ar?'تعرف على شيرا سكراب':'GET TO KNOW SHERASCRAP'}</p><h1>{ar?'قيمة جديدة للمعادن والمعدات':'A new chapter for metals & equipment'}</h1><p className="page-intro">{ar?'نساعد أصحاب المنازل والورش والمنشآت التجارية والصناعية على تقييم السكراب والمعدات غير المستخدمة، ومناقشة بيعها واستلامها. يبدأ التواصل من الدمام ويشمل مناطق خدمتنا المذكورة في الشرقية.':'We help households, workshops and commercial or industrial sites assess scrap and unused equipment, then discuss sale and collection. Our operating contact is in Dammam, with coverage across our listed Eastern Province service areas.'}</p></div><section className="soft-section"><div className="site-container editorial-section"><h2>{ar?'طريقة عملنا':'How we work'}</h2><div style={{marginTop:35}}><Process lang={lang}/></div></div></section><section className="site-container content-prose editorial-section"><h2>{ar?'تقييم يناسب المادة':'Assessment that fits the material'}</h2><p>{ar?'نفرق بين المعدات التي يمكن إعادة استخدامها والمعادن التي تباع لإعادة التدوير. تختلف القيمة حسب الدرجة والحالة والوزن ومتطلبات المناولة. راجع شروط القياس والإزالة والدفع مع الفريق قبل التحميل.':'We distinguish equipment that may be reused from metal sold for recycling. Value depends on grade, condition, weight and handling needs. Review measurement, removal and payment terms with the team before loading.'}</p><h2>{ar?'معلومات الخدمة والأدلة':'Service information & guides'}</h2><p>{ar?'تكتب شيرا سكراب أدلة الموقع لشرح تجهيز المواد وتقييمها. الأدلة معلومات عامة؛ لا تعد عروض سعر ملزمة أو إثباتاً على تنفيذ مشروع معين.':'SheraScrap publishes the site’s guides to explain material preparation and assessment. Guides provide general information; they are not binding price offers or claims of a specific completed project.'}</p><a href={areaHubPath(lang)}>{ar?'مناطق خدمتنا':'Our service areas'}</a> · <a href={`/${lang}/contact/`}>{ar?'تواصل مع الفريق':'Contact the team'}</a></section></>;
 }

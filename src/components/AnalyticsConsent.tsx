@@ -1,0 +1,3 @@
+import React from 'react';
+import type { Lang } from '../content/serviceAreas';
+export default function AnalyticsConsent({lang}:{lang:Lang}) {const ar=lang==='ar';return <aside hidden id="analytics-consent" className="consent-banner" aria-label={ar?'اختيار التحليلات':'Analytics choice'}><p>{ar?'تحليلات اختيارية تساعدنا على تحسين الموقع. لا نرسل بيانات نموذج الطلب إلى التحليلات.':'Optional analytics help us improve this site. Enquiry details are never sent to analytics.'} <a href={`/${lang}/privacy/`}>{ar?'الخصوصية':'Privacy'}</a></p><div className="consent-actions"><button data-analytics="yes">{ar?'السماح':'Allow analytics'}</button><button data-analytics="no">{ar?'رفض':'Decline'}</button></div></aside>}

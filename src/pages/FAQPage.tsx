@@ -1,27 +1,6 @@
 import React from 'react';
 import SEO from '../components/SEO';
-import FAQ from '../components/FAQ';
-import { LanguagePack } from '../types';
-
-interface FAQPageProps {
-  lang: 'ar' | 'en';
-  t: LanguagePack;
-}
-
-export default function FAQPage({ lang, t }: FAQPageProps) {
-  const isRtl = lang === 'ar';
-  return (
-    <>
-      <SEO 
-        title={isRtl ? "الأسئلة الشائعة | أسئلة بيع السكراب والمعادن" : "FAQ | Frequently Asked Scrap Selling Questions"} 
-        description={isRtl ? "إجابات شاملة عن كيفية بيع السكراب، موازين التثمين، النقل والتحميل المجاني، والدفع الكاش الفوري بالدمام." : "Clear answers about selling scrap, calibrated digital scales, free trucking, and instant cash payouts."} 
-        canonicalPath={`/${lang}/faq/`}
-        lang={lang}
-      />
-      <div className="pt-8">
-        <h1 className="text-3xl font-black text-center px-4 pt-8">{isRtl ? 'الأسئلة الشائعة' : 'Frequently Asked Questions'}</h1>
-        <FAQ lang={lang} t={t} />
-      </div>
-    </>
-  );
-}
+import { FAQs } from '../components/EditorialParts';
+import type { Lang } from '../content/serviceAreas';
+import type { LanguagePack } from '../types';
+export default function FAQPage({lang}:{lang:Lang;t:LanguagePack}) {const ar=lang==='ar';return <><SEO lang={lang} canonicalPath={`/${lang}/faq/`} title={ar?'الأسئلة الشائعة عن بيع السكراب':'Frequently Asked Scrap Selling Questions'} description={ar?'إجابات عن تقييم السكراب وتجهيز الكمية وتنسيق الاستلام والتواصل عبر واتساب مع شيرا سكراب في الدمام.':'Answers about scrap assessment, preparation, collection arrangements and WhatsApp enquiries with SheraScrap in Dammam.'}/><div className="site-container page-heading"><h1>{ar?'أسئلة قبل بيع السكراب':'Questions before selling scrap'}</h1></div><section className="site-container content-prose"><FAQs lang={lang}/></section></>}

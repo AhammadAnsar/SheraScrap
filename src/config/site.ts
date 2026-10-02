@@ -33,11 +33,11 @@ export const SITE_CONFIG = {
   },
 
   social: {
-    facebook: "https://facebook.com/sherascrap",
-    twitter: "https://twitter.com/sherascrap",
-    instagram: "https://instagram.com/sherascrap",
-    tiktok: "https://tiktok.com/@sherascrap",
-    youtube: "https://youtube.com/@sherascrap",
+    facebook: "https://www.facebook.com/SheraScrap/",
+    instagram: "https://www.instagram.com/sherascrap",
+    tiktok: "https://www.tiktok.com/@scrapharaj",
+    youtube: "https://www.youtube.com/@sherascrap",
+    snapchat: "https://www.snapchat.com/@sherascrapharaj",
   },
 };
 

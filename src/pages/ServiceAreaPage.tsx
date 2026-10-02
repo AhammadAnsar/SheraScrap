@@ -1,0 +1,30 @@
+import React from 'react';
+import { useParams } from 'react-router-dom';
+import SEO from '../components/SEO';
+import ServiceAreaGrid from '../components/ServiceAreaGrid';
+import { Process, FAQs, SectionHeading } from '../components/EditorialParts';
+import { serviceAreas, areaHubPath, areaPath, words, type Lang } from '../content/serviceAreas';
+import { buyingCategories } from '../content/catalog';
+import { SITE_CONFIG } from '../config/site';
+import QuoteRequest from '../static/QuoteRequest';
+import NotFoundPage from './NotFoundPage';
+
+export default function ServiceAreaPage({lang,hub=false}: {lang:Lang;hub?:boolean}) {
+  const ar=lang==='ar', {areaSlug}=useParams();
+  const area=serviceAreas.find(a=>(ar?a.arabicSlug:a.slug)===decodeURIComponent(areaSlug||''));
+  if(!hub&&!area)return <NotFoundPage lang={lang}/>;
+  const title=hub?(ar?'مناطق خدمة شراء السكراب':'Scrap Buying Service Areas'):(ar?`شراء سكراب ${area!.name.ar}`:`Scrap Buyer in ${area!.name.en}`);
+  const path=hub?areaHubPath(lang):areaPath(area!,lang);
+  const intro=hub?(ar?'من مقر التواصل في الدمام، نستقبل طلبات شراء المعادن والمعدات من مناطق الخدمة التالية. حدد نوع المادة والكمية وموقع الاستلام لمناقشة التقييم والنقل.':'From our Dammam operating contact, we receive scrap metal and equipment enquiries from the following service areas. Share the material, quantity and pickup location to discuss assessment and collection.'):area!.intro[lang];
+  const base=SITE_CONFIG.canonicalDomain;
+  const crumbs=[{'@type':'ListItem',position:1,name:ar?'الرئيسية':'Home',item:base+`/${lang}/`},{'@type':'ListItem',position:2,name:ar?'مناطق الخدمة':'Service Areas',item:base+areaHubPath(lang)},...(!hub?[{'@type':'ListItem',position:3,name:area!.name[lang],item:base+path}]:[])];
+  return <><SEO title={hub?title:`${title} | ${ar?'التقييم والاستلام':'Assessment & Collection'}`} description={intro} lang={lang} canonicalPath={path} schema={[{'@context':'https://schema.org','@type':'BreadcrumbList',itemListElement:crumbs},...(!hub?[{'@context':'https://schema.org','@type':'Service',name:title,provider:{'@id':base+'/#organization'},areaServed:{'@type':'Place',name:area!.name[lang]},serviceType:ar?'شراء السكراب والمعادن':'Scrap metal buying',url:base+path}]:[])]}/>
+  <div className="site-container page-heading"><nav className="breadcrumbs" aria-label={ar?'مسار الصفحة':'Breadcrumb'}><a href={`/${lang}/`}>{ar?'الرئيسية':'Home'}</a><span>/</span>{hub?<span>{title}</span>:<><a href={areaHubPath(lang)}>{ar?'مناطق الخدمة':'Service Areas'}</a><span>/</span><span>{area!.name[lang]}</span></>}</nav><p className="eyebrow">{ar?'شيرا سكراب · المنطقة الشرقية':'SHERASCRAP · EASTERN PROVINCE'}</p><h1>{title}</h1><p className="page-intro">{intro}</p></div>
+  {hub?<section className="site-container area-hub-section"><ServiceAreaGrid lang={lang}/><p className="body-note"><a href={`/${lang}/locations/`}>{ar?'أدلة تجهيز الخدمات المحلية':'Local service preparation guides'}</a></p><p className="form-help">{ar?'التقسيم للتصفح وتنسيق الطلبات، وليس وصفاً للحدود الإدارية.':'These groups help navigation and enquiry planning; they do not define administrative boundaries.'}</p></section>:<section className="soft-section"><div className="site-container editorial-section split-section"><div><p className="eyebrow">{ar?'جهز طلبك':'PREPARE YOUR ENQUIRY'}</p><h2>{ar?`الاستعداد للاستلام في ${area!.name.ar}`:`Preparing collection in ${area!.name.en}`}</h2></div><p>{area!.preparation[lang]}</p></div></section>}
+  <section className="site-container editorial-section"><SectionHeading title={ar?(hub?'المواد والخدمات المتاحة':`السكراب الذي نقيّمه في ${area!.name.ar}`):(hub?'Materials & services':`Scrap we assess in ${area!.name.en}`)} text={ar?'اختر الخدمة المناسبة لتفاصيل المادة. نناقش قبول الكمية ومتطلبات الاستلام قبل تأكيد الترتيبات.':'Choose a service for material-specific information. Acceptance and collection requirements are discussed before arrangements are confirmed.'}/><div className="area-service-links">{buyingCategories.map(m=><a href={`/${lang}/services/${m.slug}/`} key={m.slug}>{m.title[lang]} <span aria-hidden="true">{ar?'←':'↗'}</span></a>)}</div></section>
+  <section className="soft-section"><div className="site-container editorial-section"><SectionHeading title={ar?'كيف يعمل تقييم واستلام السكراب؟':'How assessment & collection work'}/><Process lang={lang}/><p className="body-note">{ar?'للأحمال الصناعية: قدم قائمة المعدات والأوزان التقريبية ومتطلبات الدخول والرفع. تحدد المواعيد بعد مراجعة الطلب؛ وقد تختلف الإتاحة حسب المادة والكمية ومسافة الاستلام.':'For industrial loads, provide an inventory, approximate weights and site access or lifting requirements. Dates follow a review; availability can vary with material, quantity and collection distance.'} <a href={`/${lang}/services/industrial-scrap/`}>{ar?'خدمة السكراب الصناعي':'Industrial scrap service'}</a></p></div></section>
+  <section className="site-container editorial-section"><SectionHeading title={ar?'فهم السعر قبل البيع':'Understand the price before selling'} text={ar?'تؤثر درجة المعدن والوزن والحالة والمناولة في العرض. أرسل الصور لتقييم مبدئي، واتفق على السعر النهائي بعد المعاينة.':'Grade, weight, condition and handling affect the offer. Send photos for an initial review, then agree the final price after inspection.'}/><a className="text-link" href={`/${lang}/pages/pricing/`}>{ar?'دليل أسعار وتقييم السكراب':'Scrap pricing & assessment guide'} {ar?'←':'↗'}</a></section>
+  {!hub&&<section className="soft-section"><div className="site-container editorial-section"><SectionHeading title={ar?'سؤال عن الخدمة في منطقتك':'A question about your local enquiry'}/><FAQs lang={lang} items={[{q:area!.question,a:area!.answer}]}/><h2 className="related-heading">{ar?'مناطق خدمة مرتبطة':'Related service areas'}</h2><ul className="related-areas">{area!.related.map(slug=>{const a=serviceAreas.find(x=>x.slug===slug)!;return <li key={slug}><a href={areaPath(a,lang)}>{a.name[lang]}</a></li>})}</ul></div></section>}
+  <QuoteRequest lang={lang} areaSlug={area?.slug}/></>;
+}
+

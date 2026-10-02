@@ -3,6 +3,7 @@ import { serializeJson } from '../utils/serialize';
 import { useCMS } from '../static/CMSContext';
 import { SITE_CONFIG, getCanonicalUrl } from '../config/site';
 import pageSeo from '../../content/seo.json';
+import { languageCounterpart, serviceAreas } from '../content/serviceAreas';
 
 interface SEOProps {
   title?: string;
@@ -46,7 +47,7 @@ export default function SEO({
   const finalTitle = title ? (title.includes(SITE_CONFIG.business.shortNameAr) || title.includes(SITE_CONFIG.business.shortNameEn) ? title : `${title} | ${isRtl ? SITE_CONFIG.business.shortNameAr : SITE_CONFIG.business.shortNameEn}`) : defaultTitle;
   const finalDesc = description || defaultDesc;
   const finalKeywords = keywords || defaultKeywords;
-  const finalImage = new URL(image || settings.siteLogo || '/resources/fallback.svg', SITE_CONFIG.canonicalDomain).href;
+  const finalImage = new URL(image && !image.endsWith('.svg') ? image : '/resources/brand/icon-512.png', SITE_CONFIG.canonicalDomain).href;
   
   // Canonical URL always adheres to canonical domain https://sherascrap.com
   const path = canonicalPath || (typeof window !== 'undefined' ? window.location.pathname : `/${currentLang}/`);
@@ -54,7 +55,7 @@ export default function SEO({
 
   // Alternate language counterpart
   const altLang = isRtl ? 'en' : 'ar';
-  const altPath = path.startsWith(`/${currentLang}/`) ? path.replace(`/${currentLang}/`, `/${altLang}/`) : `/${altLang}/`;
+  const altPath = languageCounterpart(path, altLang);
   const altCanonicalUrl = getCanonicalUrl(altPath);
 
   const robots = (noindex || cmsData.preview) ? 'noindex, nofollow' : 'index, follow';
@@ -69,11 +70,12 @@ export default function SEO({
       
       {/* Canonical and Multilingual Alternates */}
       <link rel="canonical" href={finalCanonicalUrl} />
-      <link rel="alternate" hrefLang="ar" href={isRtl ? finalCanonicalUrl : altCanonicalUrl} />
-      <link rel="alternate" hrefLang="en" href={!isRtl ? finalCanonicalUrl : altCanonicalUrl} />
+      <link rel="alternate" hrefLang="ar-SA" href={isRtl ? finalCanonicalUrl : altCanonicalUrl} />
+      <link rel="alternate" hrefLang="en-SA" href={!isRtl ? finalCanonicalUrl : altCanonicalUrl} />
       <link rel="alternate" hrefLang="x-default" href={getCanonicalUrl(isRtl ? path : altPath)} />
 
       {settings.googleWebmasterCode && !settings.googleWebmasterCode.includes('shera_scrap_dammam_verification_code') && <meta name="google-site-verification" content={settings.googleWebmasterCode.replace(/^google-site-verification=/, '').trim()} />}
+      <meta name="msvalidate.01" content="712C0ADCC860879FC4E1C3983D1FEB58" />
       {/* Open Graph / Facebook */}
       <meta property="og:type" content={type} />
       <meta property="og:url" content={finalCanonicalUrl} />
@@ -81,7 +83,7 @@ export default function SEO({
       <meta property="og:description" content={finalDesc} />
       <meta property="og:image" content={finalImage} />
       <meta property="og:site_name" content={siteName} />
-      <meta property="og:locale" content={isRtl ? 'ar_SA' : 'en_US'} />
+      <meta property="og:locale" content={isRtl ? 'ar_SA' : 'en_SA'} />
 
       {/* Twitter Cards */}
       <meta name="twitter:card" content="summary_large_image" />
@@ -91,7 +93,7 @@ export default function SEO({
       <meta name="twitter:image" content={finalImage} />
 
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: serializeJson([
-        { '@context': 'https://schema.org', '@type': 'RecyclingCenter', '@id': SITE_CONFIG.canonicalDomain + '/#organization', name: siteName, url: SITE_CONFIG.canonicalDomain, telephone: settings.phone, email: settings.email, address: { '@type': 'PostalAddress', streetAddress: isRtl ? settings.locationAr : settings.locationEn, addressCountry: 'SA' } },
+        { '@context': 'https://schema.org', '@type': ['Organization','LocalBusiness'], '@id': SITE_CONFIG.canonicalDomain + '/#organization', name: siteName, url: SITE_CONFIG.canonicalDomain, logo: SITE_CONFIG.canonicalDomain+'/resources/brand/icon-512.png', telephone: settings.phone, email: settings.email, sameAs:Object.values(SITE_CONFIG.social), areaServed:serviceAreas.map(a=>({'@type':'Place',name:a.name[currentLang]})), address: { '@type': 'PostalAddress', streetAddress: isRtl ? settings.locationAr : settings.locationEn, addressLocality:isRtl?'الدمام':'Dammam',addressRegion:isRtl?'المنطقة الشرقية':'Eastern Province',addressCountry: 'SA' } },
         ...(schema ? (Array.isArray(schema) ? schema : [schema]) : [])
       ]) }} />
     </>

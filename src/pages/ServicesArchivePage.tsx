@@ -1,27 +1,10 @@
 import React from 'react';
 import SEO from '../components/SEO';
-import Services from '../components/Services';
-import { LanguagePack } from '../types';
+import { buyingCategories } from '../content/catalog';
+import type { Lang } from '../content/serviceAreas';
+import type { LanguagePack } from '../types';
+import { Process } from '../components/EditorialParts';
+import { useCMS } from '../static/CMSContext';
+import QuoteRequest from '../static/QuoteRequest';
+export default function ServicesArchivePage({lang}:{lang:Lang;t:LanguagePack}){const ar=lang==='ar',{cmsData}=useCMS(); const more=cmsData.services.filter(s=>!buyingCategories.some(c=>c.slug===s.slug));return <><SEO lang={lang} canonicalPath={`/${lang}/services/`} title={ar?'خدمات شراء المعادن والمعدات':'Scrap Metal & Equipment Buying Services'} description={ar?'شراء النحاس والحديد والألمنيوم والكابلات والمكيفات والسكراب الصناعي والمعدات المختارة. تعرف على التقييم وتجهيز الكمية قبل البيع.':'Copper, iron, aluminum, cables, AC units, industrial scrap and selected equipment buying. Explore assessment and preparation before selling.'}/><div className="site-container page-heading"><p className="eyebrow">{ar?'ما نشتريه':'WHAT WE BUY'}</p><h1>{ar?'خدمات شراء المعادن والمعدات':'Metal & equipment buying services'}</h1><p className="page-intro">{ar?'لكل مادة تقييم مختلف. اختر نوع السكراب لمعرفة المعلومات المطلوبة وتجهيز طلبك.':'Every material needs its own assessment. Choose your scrap type to see what information to prepare.'}</p></div><section className="site-container editorial-section" style={{paddingTop:0}}><div className="material-grid">{buyingCategories.map(c=><a className="material-card" href={`/${lang}/services/${c.slug}/`} key={c.slug}><img src={`/resources/materials/${c.slug}.svg`} width="160" height="100" alt={ar?`رسم توضيحي: ${c.title.ar}`:`Illustration: ${c.title.en}`}/><h2 style={{fontSize:'1.3rem',marginBlock:20}}>{c.title[lang]}</h2><p>{c.description[lang]}</p><span className="card-link">{ar?'تفاصيل الخدمة ←':'Service details ↗'}</span></a>)}</div><h2 className="related-heading">{ar?'أدلة تجهيز متخصصة':'Specialist preparation guides'}</h2><ul className="related-areas">{more.map(s=><li key={s.slug}><a href={`/${lang}/services/${s.slug}/`}>{ar?s.titleAr:s.titleEn}</a></li>)}<li><a href={`/${lang}/services/electronics/`}>{ar?'تقييم المكونات الإلكترونية':'Electronic component assessment'}</a></li></ul></section><section className="soft-section"><div className="site-container editorial-section"><h2>{ar?'من المعلومات إلى الاستلام':'From details to collection'}</h2><div style={{marginTop:35}}><Process lang={lang}/></div></div></section><QuoteRequest lang={lang}/></>}
 
-interface ServicesArchivePageProps {
-  lang: 'ar' | 'en';
-  t: LanguagePack;
-}
-
-export default function ServicesArchivePage({ lang, t }: ServicesArchivePageProps) {
-  const isRtl = lang === 'ar';
-  return (
-    <>
-      <SEO 
-        title={isRtl ? "خدماتنا | شراء السكراب والمعادن بالدمام" : "Our Services | Metal Scrap & Equipment Purchasing"} 
-        description={isRtl ? "تصفح جميع خدماتنا في مجال شراء السكراب، النحاس، الحديد، الألمنيوم، ومعدات المطاعم والمكيفات بالشرقية." : "Browse our full range of scrap purchasing services: copper, iron, AC units, restaurant equipment and cables."} 
-        canonicalPath={`/${lang}/services/`}
-        lang={lang}
-      />
-      <div className="pt-8">
-        <h1 className="text-3xl font-black text-center px-4 pt-8">{isRtl ? 'خدماتنا' : 'Our Services'}</h1>
-        <Services lang={lang} t={t} />
-      </div>
-    </>
-  );
-}
